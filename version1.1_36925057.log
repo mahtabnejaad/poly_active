@@ -1,0 +1,9 @@
+/users/reihaneh.farimani/week13/src
+clip-g3-8.cbe.vbc.ac.at
+Sat Mar 19 13:37:02 CET 2022
+thermostat.cuh(17): warning: variable "extra" was declared but never referenced
+
+ptxas warning : Stack size for entry function '_Z3MBSPdPiS_P17curandStateXORWOWi' cannot be statically determined
+/users/reihaneh.farimani/week13/src
+clip-g3-8.cbe.vbc.ac.at
+Sat Mar 19 13:37:06 CET 2022
