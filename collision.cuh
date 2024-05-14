@@ -21,16 +21,17 @@ __global__ void cellSort(double* x,double* y,double* z, double *L, int* index, i
 
 //Purpose: This kernel initializes cell-related arrays to prepare for calculations.
 //ux,uy,uz are cell velocities.//n is th number of particles in each cell//e is cell energy//Nc is number of cells.
-__global__ void MakeCellReady(double* ux , double* uy , double* uz,double* e, int* n,int Nc)
+__global__ void MakeCellReady(double* ux , double* uy , double* uz,double* e, int* n, double *m, int Nc)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<Nc)
     {
-        ux[tid] = 0;
-        uy[tid] = 0;
-        uz[tid] = 0;
+        ux[tid] = 0.0;
+        uy[tid] = 0.0;
+        uz[tid] = 0.0;
         n[tid] = 0;
-        e[tid]=0;
+        m[tid] = 0.0;
+        e[tid]=0.0;
     } 
 } //Output: The arrays ux, uy, uz, e, and n will be set to 0.
 
