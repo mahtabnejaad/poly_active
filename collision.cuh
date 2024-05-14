@@ -174,7 +174,7 @@ __global__ void relativeVelocity(double* ux , double* uy , double* uz, int* n, d
         (isnan(vx[tid])|| isnan(vy[tid]) || isnan(vz[tid])) ? printf("BBvx[%i]=%f, vy[%i]=%f, vz[%i]=%f \n", tid, vx[tid], tid, vy[tid], tid, vz[tid])
                                                             : printf("");
 
-        (isnan(ux[idxx])|| isnan(uy[idxx]) || isnan(uz[idxx])) ? printf("00ux[%i]=%f, uy[%i]=%f, uz[%i]=%f \n", tid, ux[idxx], tid, uy[idxx], tid, vz[idxx])
+        (isnan(ux[idxx])|| isnan(uy[idxx]) || isnan(uz[idxx])) ? printf("00ux[%i]=%f, uy[%i]=%f, uz[%i]=%f \n", idxx, ux[idxx], idxx, uy[idxx], idxx, uz[idxx])
                                                          : printf("");
     }
 
