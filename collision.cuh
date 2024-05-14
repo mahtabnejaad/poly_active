@@ -194,7 +194,7 @@ curandState *devStates, int grid_size)
 {
             //This launches the MakeCellReady kernel with the specified grid size and block size.
             //The kernel resets cell properties such as mean velocity (d_ux, d_uy, d_uz), energy (d_e), and count (d_n, d_m) to zero for all cells (Nc).
-            MakeCellReady<<<grid_size,blockSize>>>(d_ux , d_uy, d_uz ,d_e, d_n,d_m,Nc);
+            MakeCellReady<<<grid_size,blockSize>>>(d_ux , d_uy, d_uz ,d_e, d_n, d_m, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );            
 
@@ -461,7 +461,7 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States)
             int shared_mem_size = 3 * blockSize * sizeof(double);
             //This launches the MakeCellReady kernel with the specified grid size and block size.
             //The kernel resets cell properties such as mean velocity (d_ux, d_uy, d_uz), energy (d_e), and count (d_n, d_m) to zero for all cells (Nc).
-            MakeCellReady<<<grid_size,blockSize>>>(d_ux , d_uy, d_uz ,d_e, d_n,d_m,Nc);
+            MakeCellReady<<<grid_size,blockSize>>>(d_ux , d_uy, d_uz ,d_e, d_n, d_m, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() ); 
 
