@@ -77,6 +77,9 @@ __global__ void RotationStep1(double *ux , double *uy ,double *uz,double *rot, d
         uy[tid] = uy[tid]/m[tid];
         uz[tid] = uz[tid]/m[tid];
 
+        (isnan(ux[tid])|| isnan(uy[tid]) || isnan(uz[tid])) ? printf("RRux[%i]=%f, uy[%i]=%f, uz[%i]=%f \n", tid, ux[tid], tid, uy[tid], tid, uz[tid])
+                                                         : printf("");
+
         //The next three lines calculate three components (n1, n2, and n3) of a unit vector n based on theta and phi.
         //This unit vector n will be used to construct the rotation matrix in the subsequent lines.
         double n1 = std::sqrt(1 - theta[tid] * theta[tid]) * cos(phi[tid]);
