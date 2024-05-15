@@ -365,13 +365,26 @@ __global__ void MeanNumCell(int *index, int *n, double *m, int mass, int N)
 }
 
 
-__global__ void checkfunction(int *n, double *m, int Nc)
+__global__ void checkfunction1(int *n, double *m, int Nc)
 {
    int idxx = blockIdx.x * blockDim.x + threadIdx.x; 
    if (idxx<Nc){
-      printf("m[%i]=%f\n", m[idxx]);
+      printf("m[%i]=%f\n", idxx, m[idxx]);
+      printf("n[%i]=%i\n", idxx, n[idxx]);
 
     }
+}
+__global__ void checkfunction2(int *n, double *m, int *index, int N)
+{
+   int idxx = blockIdx.x * blockDim.x + threadIdx.x; 
+   
+   if (idxx<N){
+   
+      int indxx = index[idxx];
+      printf("m[%i]=%f\n", indxx, m[indxx]);
+      printf("n[%i]=%i\n", indxx, n[indxx]);
+
+   }
 }
 
 __global__ void noslip_MeanVelCell(double* ux, double* vx,double* uy, double* vy,double* uz, double* vz,int* index, int mass, int N)
@@ -487,7 +500,11 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States)
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            checkfunction<<<grid_size,blockSize>>>(d_n, d_m , Nc);
+            checkfunction1<<<grid_size,blockSize>>>(d_n, d_m , Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            checkfunction2<<<grid_size,blockSize>>>(d_n, d_m , d_index, N);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
