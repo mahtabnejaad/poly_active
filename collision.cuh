@@ -70,7 +70,7 @@ __global__ void RotationStep1(double *ux , double *uy ,double *uz,double *rot, d
     double co = cos(alpha), si = sin(alpha);
     if (tid<Nc)
     {
-        if(m[tid] == 0.0)  printf("m is zero and ux[%i]=%f, uy[%i]=%f, uz[%i]=%f", tid, ux[tid], tid, uy[tid], tid, uz[tid]);
+        if(m[tid] == 0.0)  printf("m is zero and ux[%i]=%f, uy[%i]=%f, uz[%i]=%f\n", tid, ux[tid], tid, uy[tid], tid, uz[tid]);
         theta[tid] = theta[tid]* 2 -1; //This line modifies the value of theta for the current particle or cell. 
                                        //It scales the value by 2 and subtracts 1, 
                                        //effectively mapping the value from the range [0, 1] to the range [-1, 1].
