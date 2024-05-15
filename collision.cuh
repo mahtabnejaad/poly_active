@@ -75,9 +75,11 @@ __global__ void RotationStep1(double *ux , double *uy ,double *uz,double *rot, d
                                        //It scales the value by 2 and subtracts 1, 
                                        //effectively mapping the value from the range [0, 1] to the range [-1, 1].
         phi[tid] = phi[tid]* M_PI*2;   // It scales the value by 2 * pi (where M_PI is the constant for pi) to map it from the range [0, 1] to the range [0, 2*pi].
-        ux[tid] = ux[tid]/m[tid];
-        uy[tid] = uy[tid]/m[tid];
-        uz[tid] = uz[tid]/m[tid];
+        if(m[tid] != 0.0){
+            ux[tid] = ux[tid]/m[tid];
+            uy[tid] = uy[tid]/m[tid];
+            uz[tid] = uz[tid]/m[tid];
+        }
 
         (isnan(ux[tid])|| isnan(uy[tid]) || isnan(uz[tid])) ? printf("RRux[%i]=%f, uy[%i]=%f, uz[%i]=%f \n", tid, ux[tid], tid, uy[tid], tid, uz[tid])
                                                          : printf("");
