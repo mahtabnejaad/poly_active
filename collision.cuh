@@ -365,6 +365,15 @@ __global__ void MeanNumCell(int *index, int *n, double *m, int mass, int N)
 }
 
 
+__global__ void checkfunction(int *n, double *m, int Nc)
+{
+   int idxx = blockIdx.x * blockDim.x + threadIdx.x; 
+   if (idxx<Nc){
+      printf("m[%i]=%f\n", m[idxx]);
+
+    }
+}
+
 __global__ void noslip_MeanVelCell(double* ux, double* vx,double* uy, double* vy,double* uz, double* vz,int* index, int mass, int N)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -475,6 +484,10 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States)
             gpuErrchk( cudaDeviceSynchronize() );
 
             MeanNumCell<<<grid_size,blockSize>>>(d_mdIndex, d_n ,d_m , density ,Nmd);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            checkfunction<<<grid_size,blockSize>>>(d_n, d_m , Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
