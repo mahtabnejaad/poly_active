@@ -135,7 +135,7 @@ __global__ void RotationStep2(double *rvx , double *rvy, double *rvz , double *r
     }
 } //Output: The rvx, rvy, and rvz arrays will be updated with the transformed velocities.
 
-__global__ void MakeCellReady(double* ux , double* uy , double* uz,double* e, int* n,double* m,int Nc)
+/*__global__ void MakeCellReady(double* ux , double* uy , double* uz,double* e, int* n,double* m,int Nc)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<Nc)
@@ -148,7 +148,7 @@ __global__ void MakeCellReady(double* ux , double* uy , double* uz,double* e, in
         m[tid] = 0;
     }
 
-}
+}*/
 
 __global__ void UpdateVelocity(double* vx, double *vy, double *vz , double* ux, double *uy , double *uz ,double *factor,int *index, int N)
 {
