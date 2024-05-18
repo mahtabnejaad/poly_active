@@ -1,3 +1,27 @@
+__global__ void checkfunction1(int *n, double *m, int Nc)
+{
+   int idxx = blockIdx.x * blockDim.x + threadIdx.x; 
+   if (idxx<Nc){
+      printf("check 1 m[%i]=%f\n", idxx, m[idxx]);
+      printf("check 1 n[%i]=%i\n", idxx, n[idxx]);
+
+    }
+}
+__global__ void checkfunction2(int *n, double *m, int *index, int N)
+{
+   int idxx = blockIdx.x * blockDim.x + threadIdx.x; 
+   
+   if (idxx<N){
+   
+      int indxx = index[idxx];
+      printf("check 2 m[%i]=%f\n", indxx, m[indxx]);
+      printf("check 2 n[%i]=%i\n", indxx, n[indxx]);
+
+   }
+}
+
+
+
 
 //cell sort, calculating the index of each particle there is a unique ID for each cell  based on their position
 //Purpose: This kernel calculates the unique ID for each particle's cell based on their position.
@@ -216,6 +240,16 @@ curandState *devStates, int grid_size)
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() ); 
 
+            checkfunction1<<<grid_size,blockSize>>>(d_n, d_m , Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            checkfunction2<<<grid_size,blockSize>>>(d_n, d_m , d_index, N);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+
+
             //This launches the RotationStep1 kernel with the specified grid size and block size.
             // The kernel calculates the rotation matrices (d_rot) for each cell based on the angle values (d_phi, d_theta) and the mass (d_m) of particles in each cell.
             // The number of cells is given by Nc.
@@ -365,27 +399,6 @@ __global__ void MeanNumCell(int *index, int *n, double *m, int mass, int N)
 }
 
 
-__global__ void checkfunction1(int *n, double *m, int Nc)
-{
-   int idxx = blockIdx.x * blockDim.x + threadIdx.x; 
-   if (idxx<Nc){
-      printf("check 1 m[%i]=%f\n", idxx, m[idxx]);
-      printf("check 1 n[%i]=%i\n", idxx, n[idxx]);
-
-    }
-}
-__global__ void checkfunction2(int *n, double *m, int *index, int N)
-{
-   int idxx = blockIdx.x * blockDim.x + threadIdx.x; 
-   
-   if (idxx<N){
-   
-      int indxx = index[idxx];
-      printf("check 2 m[%i]=%f\n", indxx, m[indxx]);
-      printf("check 2 n[%i]=%i\n", indxx, n[indxx]);
-
-   }
-}
 
 __global__ void noslip_MeanVelCell(double* ux, double* vx,double* uy, double* vy,double* uz, double* vz,int* index, int mass, int N)
 {
