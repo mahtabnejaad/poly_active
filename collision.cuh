@@ -15,7 +15,7 @@ __global__ void checkfunction2(int *n, double *m, int *index, int N)
    
       int indxx = index[idxx];
       //printf("check 2 m[%i]=%f\n, tid=%i", indxx, m[indxx], idxx);
-      printf("check 2 n[%i]=%i\n, tid =%i", indxx, n[indxx], idxx);
+      printf("check 2 n[%i]=%i, tid =%i\n", indxx, n[indxx], idxx);
 
    }
 }
