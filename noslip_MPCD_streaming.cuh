@@ -150,7 +150,7 @@ __global__ void particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocit
             y[tid] += (dt - (dt_min[tid])) * vy[tid];
             z[tid] += (dt - (dt_min[tid])) * vz[tid];
         }
-        printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
+        //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
     }
 
 }
