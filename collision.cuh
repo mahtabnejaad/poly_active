@@ -32,8 +32,8 @@ __global__ void cellSort(double* x,double* y,double* z, double *L, int* index, i
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N)
     {
-        index[tid] = int(x[tid] + L[0] / 2 + 2) + (L[0] + 4) * int(y[tid] + L[1] / 2 + 2) + (L[0] + 4) * (L[1] + 4) * int(z[tid] + L[2] / 2 + 2) ;
-        //index[tid] = int(x[tid] + L[0] / 2 + 1) + (L[0] + 2) * int(y[tid] + L[1] / 2 + 1) + (L[0] + 2) * (L[1] + 2) * int(z[tid] + L[2] / 2 + 1) ;
+        //index[tid] = int(x[tid] + L[0] / 2 + 2) + (L[0] + 4) * int(y[tid] + L[1] / 2 + 2) + (L[0] + 4) * (L[1] + 4) * int(z[tid] + L[2] / 2 + 2) ;
+        index[tid] = int(x[tid] + L[0] / 2 + 1) + (L[0] + 2) * int(y[tid] + L[1] / 2 + 1) + (L[0] + 2) * (L[1] + 2) * int(z[tid] + L[2] / 2 + 1) ;
         //if (index[tid]>307918 || index[tid]<0) printf("index[%i]=%i , x[%i]=%f, y[%i]=%f, z[%i]=%f\n", tid, index[tid], tid, x[tid], tid, y[tid], tid, z[tid]);
         //if(x[tid] == 0.00000)  printf("index[tid]=%i, y[tid]=%f, z[tid]=%f", index[tid], y[tid], z[tid]);
         //printf("index[%i]=%f\n", tid, index[tid]);
