@@ -2,7 +2,7 @@ __global__ void checkfunction1(int *n, double *m, int Nc)
 {
    int idxx = blockIdx.x * blockDim.x + threadIdx.x; 
    if (idxx<Nc){
-      printf("check 1 m[%i]=%f\n", idxx, m[idxx]);
+      //printf("check 1 m[%i]=%f\n", idxx, m[idxx]);
       printf("check 1 n[%i]=%i\n", idxx, n[idxx]);
 
     }
@@ -14,8 +14,8 @@ __global__ void checkfunction2(int *n, double *m, int *index, int N)
    if (idxx<N){
    
       int indxx = index[idxx];
-      printf("check 2 m[%i]=%f\n", indxx, m[indxx]);
-      printf("check 2 n[%i]=%i\n", indxx, n[indxx]);
+      //printf("check 2 m[%i]=%f\n, tid=%i", indxx, m[indxx], idxx);
+      printf("check 2 n[%i]=%i\n, tid =%i", indxx, n[indxx], idxx);
 
    }
 }
