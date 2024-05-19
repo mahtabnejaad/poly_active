@@ -84,7 +84,8 @@ curandGenerator_t gen, int grid_size, double *T)
     //int Nc = L[0]*L[1]*L[2];
     //int Nc = L[0] + L[0]*L[1] + L[0]*L[1]*L[2];
     //int Nc = (L[0] + 2) + (L[0] + 2)*(L[1] + 2) + (L[0] + 2)*(L[1] + 2)*(L[2] + 2) + 2;
-    int Nc =  (L[0] + 4)*(L[1] + 4)*(L[2] + 4);
+    int Nc =  (L[0] + 2)*(L[1] + 2)*(L[2] + 2);
+    //int Nc =  (L[0] + 4)*(L[1] + 4)*(L[2] + 4);
     //int N =density* Nc;
     int N = density * L[0]*L[1]*L[2];
     int Nmd = n_md * m_md;
