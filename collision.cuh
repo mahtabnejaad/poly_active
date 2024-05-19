@@ -56,6 +56,7 @@ __global__ void MakeCellReady(double* ux , double* uy , double* uz,double* e, in
         n[tid] = 0;
         m[tid] = 0.0;
         e[tid]=0.0;
+        printf("inital m[%i]=%f\n", tid, m[tid]);
     } 
 } //Output: The arrays ux, uy, uz, e, and n will be set to 0.
 
