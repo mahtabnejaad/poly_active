@@ -83,8 +83,10 @@ int main(int argc, const char* argv[])
     double Pe = 10.0; //peclet number
     double l_eq = 1.0; // equilibrium length
     u_scale = Pe * l_eq *DR ; 
-    int Nc = L[0]*L[1]*L[2]; //number of cells 
-    int N =density* Nc; //number of particles
+    //int Nc = L[0]*L[1]*L[2]; //number of cells 
+    int Nc = (L[0]+2)*(L[1]+2)*(L[2]+2); //number of cells
+    //int N =density* Nc; //number of particles
+    int N = density* L[0]*L[1]*L[2]; //Number of particles
     int Nmd = n_md * m_md;//total number of monomers
      int grid_size = ((N + blockSize) / blockSize);
     int shared_mem_size = 3 * blockSize * sizeof(double); // allocate shared memory for the intermediate reduction results.
