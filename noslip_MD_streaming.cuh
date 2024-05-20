@@ -34,6 +34,10 @@ __global__ void md_crossing_location(double *mdX, double *mdY, double *mdZ, doub
         mdY_o[ID] = mdY[ID] + mdvy[ID]*md_dt_min[ID] + 0.5 * mdAy[ID] * md_dt_min[ID] * md_dt_min[ID];
         mdZ_o[ID] = mdZ[ID] + mdvz[ID]*md_dt_min[ID] + 0.5 * mdAz[ID] * md_dt_min[ID] * md_dt_min[ID];
 
+        (isnan(mdvx[ID])|| isnan(mdvy[ID]) || isnan(mdvz[ID])) ? printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f \n", ID, mdvx[ID], ID, mdvy[ID], ID, mdvz[ID])
+                                                            : printf("");
+
+
     }
 
 }
