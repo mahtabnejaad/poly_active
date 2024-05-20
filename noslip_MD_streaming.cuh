@@ -9,7 +9,10 @@ __global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx
                                                             : printf("");
         (isnan(mdvx[ID])|| isnan(mdvy[ID]) || isnan(mdvz[ID])) ? printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f \n", ID, mdvx[ID], ID, mdvy[ID], ID, mdvz[ID])
                                                             : printf("");
-
+         (isnan(mdAx[ID])|| isnan(mdAy[ID]) || isnan(mdAz[ID])) ? printf("mdAx[%i]=%f, mdAy[%i]=%f, mdAz[%i]=%f \n", ID, mdAx[ID], ID, mdAy[ID], ID, mdAz[ID])
+                                                            : printf("");
+         (isnan(mdX_wall_dist[ID])|| isnan(mdY_wall_dist[ID]) || isnan(mdZ_wall_dist[ID])) ? printf("mdX_wall_dist[%i]=%f, mdY_wall_dist[%i]=%f, mdZ_wall_dist[%i]=%f \n", ID, mdX_wall_dist[ID], ID, mdY_wall_dist[ID], ID, mdZ_wall_dist[ID])
+                                                            : printf("");
         if(wall_sign_mdX[ID] == 0 ) md_dt_x[ID] == 10000;//a big number because next step is to consider the minimum of dt .
         else if(wall_sign_mdX[ID] == 1 || wall_sign_mdX[ID] == -1)  md_dt_x[ID] = ((-mdvx[ID]+sqrt((mdvx[ID]*mdvx[ID])+(2*mdX_wall_dist[ID]*mdAx[ID])))/mdAx[ID]);
 
