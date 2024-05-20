@@ -233,11 +233,11 @@ __global__ void sum_kernel(double *F1 ,double *F2 , double *F3,
 
 //calculating interaction matrix of the system in the given time
 __global__ void nb_b_interaction( 
-double *NmdX, double *NmdY , double *NmdZ ,
-double *Nfx , double *Nfy , double *Nfz, 
-double *NL,int Nsize , double Nux, int Nmass, double Nreal_time, int Nm , int Ntopology)
+double *mdX, double *mdY , double *mdZ ,
+double *fx , double *fy , double *fz, 
+double *L,int size , double ux, int mass, double real_time, int m , int topology)
 {
-    int size2 = Nsize*(Nsize); //size2 calculates the total number of particle pairs for the interaction.
+    int size2 = size*(size); //size2 calculates the total number of particle pairs for the interaction.
 
 
     //In the context of the nb_b_interaction kernel, each thread is responsible for calculating the interaction between a pair of particles. The goal is to calculate the interaction forces between all possible pairs of particles in the simulation. To achieve this, the thread ID is mapped to particle indices.
@@ -246,14 +246,14 @@ double *NL,int Nsize , double Nux, int Nmass, double Nreal_time, int Nm , int Nt
     {
         //ID1 and ID2 are calculated from tid to determine the indices of the interacting particles.
         //The combination of these calculations ensures that each thread ID is mapped to a unique pair of particle indices. This way, all possible pairs of particles are covered, and the interactions between particles can be calculated in parallel.
-        int ID1 = int(tid /Nsize);//tid / size calculates how many "rows" of particles the thread ID represents. In other words, it determines the index of the first particle in the pair (ID1).
-        int ID2 = tid%(Nsize);//tid % size calculates the remainder of the division of tid by size. This remainder corresponds to the index of the second particle in the pair (ID2)
+        int ID1 = int(tid /size);//tid / size calculates how many "rows" of particles the thread ID represents. In other words, it determines the index of the first particle in the pair (ID1).
+        int ID2 = tid%(size);//tid % size calculates the remainder of the division of tid by size. This remainder corresponds to the index of the second particle in the pair (ID2)
         if(ID1 != ID2) //This condition ensures that the particle does not interact with itself. Interactions between a particle and itself are not considered
         {
         double r[3];
         //This line calculates the nearest image of particle positions in the periodic boundary conditions using the LeeEdwNearestImage function
         //The resulting displacement is stored in the r array.
-        LeeEdwNearestImage(NmdX[ID1], NmdY[ID1], NmdZ[ID1] , NmdX[ID2] , NmdY[ID2] , NmdZ[ID2] , r,NL, Nux, Nreal_time);
+        LeeEdwNearestImage(mdX[ID1], mdY[ID1], mdZ[ID1] , mdX[ID2] , mdY[ID2] , mdZ[ID2] , r,L, ux, real_time);
         double r_sqr = r[0] * r[0] + r[1] * r[1] + r[2] * r[2];//r_sqr calculates the squared distance between the particles.
         double f =0;//initialize the force to zero.
 
@@ -272,17 +272,17 @@ double *NL,int Nsize , double Nux, int Nmass, double Nreal_time, int Nm , int Nt
         //FENE:
         //This part of the code is responsible for calculating the interaction forces between particles based on the FENE (Finitely Extensible Nonlinear Elastic) potential. The FENE potential is often used to model polymer chains where bonds between particles cannot be stretched beyond a certain limit
         
-        if (Ntopology == 1)
+        if (topology == 1)
         {
-            if (int(ID1/Nm) == int(ID2/Nm)) //checks if the interacting particles belong to the same chain (monomer). This is achieved by dividing the particle indices by m (monomer size) and checking if they are in the same division.
+            if (int(ID1/m) == int(ID2/m)) //checks if the interacting particles belong to the same chain (monomer). This is achieved by dividing the particle indices by m (monomer size) and checking if they are in the same division.
             {
                 //check if the interacting particles are next to each other in the same chain. If they are, it calculates the FENE interaction contribution,
-                if( ID2 - ID1 == 1 || ID2 - ID1 == Nm-1 ) 
+                if( ID2 - ID1 == 1 || ID2 - ID1 == m-1 ) 
                 {
                     f -= 30/(1 - r_sqr/2.25);
                 }
 
-                if( ID1 - ID2 == 1 || ID1 - ID2 == Nm-1 ) 
+                if( ID1 - ID2 == 1 || ID1 - ID2 == m-1 ) 
                 {
                     f -= 30/(1 - r_sqr/2.25);
                 }
@@ -290,44 +290,44 @@ double *NL,int Nsize , double Nux, int Nmass, double Nreal_time, int Nm , int Nt
         }
         
         //FENE:
-        if (Ntopology == 2 || Ntopology == 3)
+        if (topology == 2 || topology == 3)
         {
-            if (int(ID1/Nm) == int(ID2/Nm)) //similar conditions are checked for particles within the same chain
+            if (int(ID1/m) == int(ID2/m)) //similar conditions are checked for particles within the same chain
             {
-                if( ID2 - ID1 == 1 || ID2 - ID1 == Nm-1 ) 
+                if( ID2 - ID1 == 1 || ID2 - ID1 == m-1 ) 
                 {
                     f -= 30/(1 - r_sqr/2.25);
                 }
 
-                if( ID1 - ID2 == 1 || ID1 - ID2 == Nm-1 ) 
+                if( ID1 - ID2 == 1 || ID1 - ID2 == m-1 ) 
                 {
                     f -= 30/(1 - r_sqr/2.25);
                 }
             }
             
-            if (ID1==int(Nm/4) && ID2 ==Nm+int(3*Nm/4))
+            if (ID1==int(m/4) && ID2 ==m+int(3*m/4))
             {
                 
                 f -= 30/(1 - r_sqr/2.25);
             }
                 
-            if (ID2==int(Nm/4) && ID1 ==Nm+int(3*Nm/4))
+            if (ID2==int(m/4) && ID1 ==m+int(3*m/4))
             {
                 f -= 30/(1 - r_sqr/2.25);
             }
         }
-        f/=Nmass; //After the interaction forces are calculated (f), they are divided by the mass of the particles to obtain the correct acceleration.
+        f/=mass; //After the interaction forces are calculated (f), they are divided by the mass of the particles to obtain the correct acceleration.
 
-        Nfx[tid] = f * r[0] ;
-        Nfy[tid] = f * r[1] ;
-        Nfz[tid] = f * r[2] ;
+        fx[tid] = f * r[0] ;
+        fy[tid] = f * r[1] ;
+        fz[tid] = f * r[2] ;
         }
     
         /*else
         {
-            Nfx[tid] = 0;
-            Nfy[tid] = 0;
-            Nfz[tid] = 0;
+            fx[tid] = 0;
+            fy[tid] = 0;
+            fz[tid] = 0;
         }*/
       
 
