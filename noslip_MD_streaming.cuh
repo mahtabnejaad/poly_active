@@ -53,9 +53,7 @@ __global__ void md_distance_from_walls(double *x, double *y, double *z, double *
         (isnan(x_wall_dist[tid])|| isnan(y_wall_dist[tid]) || isnan(z_wall_dist[tid])) ? printf("x_wall_dist[%i]=%f, y_wall_dist[%i]=%f, z_wall_dist[%i]=%f \n", tid, x_wall_dist[tid], tid, y_wall_dist[tid], tid, z_wall_dist[tid])
                                                             : printf("");
 
-        printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f \n", ID, mdvx[ID], ID, mdvy[ID], ID, mdvz[ID]);
-        printf("mdAx[%i]=%f, mdAy[%i]=%f, mdAz[%i]=%f \n", ID, mdAx[ID], ID, mdAy[ID], ID, mdAz[ID]);
-
+        
 
     }    
 
@@ -72,6 +70,10 @@ __global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx
 
     int ID = blockIdx.x * blockDim.x + threadIdx.x;
     if (ID<Nmd){
+
+        printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f \n", ID, mdvx[ID], ID, mdvy[ID], ID, mdvz[ID]);
+        printf("mdAx[%i]=%f, mdAy[%i]=%f, mdAz[%i]=%f \n", ID, mdAx[ID], ID, mdAy[ID], ID, mdAz[ID]);
+
         (isnan(md_dt_x[ID])|| isnan(md_dt_y[ID]) || isnan(md_dt_z[ID])) ? printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f \n", ID, md_dt_x[ID], ID, md_dt_y[ID], ID, md_dt_z[ID])
                                                             : printf("");
         (isnan(mdvx[ID])|| isnan(mdvy[ID]) || isnan(mdvz[ID])) ? printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f \n", ID, mdvx[ID], ID, mdvy[ID], ID, mdvz[ID])
