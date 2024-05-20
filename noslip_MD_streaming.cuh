@@ -17,7 +17,7 @@ __global__ void md_wall_sign(double *vx, double *vy, double *vz, double *wall_si
         else if (vz[tid] < 0) wall_sign_z[tid] = -1;
         else if (vz[tid] == 0)  wall_sign_z[tid] = 0;
 
-        (isnan(vx[tid])|| isnan(vy[tid]) || isnan(vz[tid])) ? printf("00vx[%i]=%f, vy[%i]=%f, vz[%i]=%f \n", tid, vx[tid], tid, vy[tid], tid, vz[tid])
+        (isnan(vx[tid])|| isnan(vy[tid]) || isnan(vz[tid])) ? printf(" MD.. vx[%i]=%f, vy[%i]=%f, vz[%i]=%f \n", tid, vx[tid], tid, vy[tid], tid, vz[tid])
                                                             : printf("");
 
 
