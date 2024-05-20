@@ -13,6 +13,10 @@ __global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx
 
         if(wall_sign_mdZ[ID] == 0 ) md_dt_z[ID] == 10000;
         else if(wall_sign_mdZ[ID] == 1 || wall_sign_mdZ[ID] == -1)  md_dt_z[ID] = ((-mdvz[ID]+sqrt((mdvz[ID]*mdvz[ID])+(2*mdZ_wall_dist[ID]*mdAz[ID])))/mdAz[ID]);
+
+        (isnan(md_dt_x[ID])|| isnan(md_dt_y[ID]) || isnan(md_dt_z[ID])) ? printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f \n", ID, md_dt_x[ID], ID, md_dt_y[ID], ID, md_dt_z[ID])
+                                                            : printf("");
+
     }
 
 
