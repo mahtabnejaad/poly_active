@@ -323,12 +323,12 @@ double *NL,int Nsize , double Nux, int Nmass, double Nreal_time, int Nm , int Nt
         Nfz[tid] = f * r[2] ;
         }
     
-        else
+        /*else
         {
             Nfx[tid] = 0;
             Nfy[tid] = 0;
             Nfz[tid] = 0;
-        }
+        }*/
       
 
     }
