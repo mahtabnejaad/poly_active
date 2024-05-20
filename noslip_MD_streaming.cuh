@@ -5,6 +5,11 @@ __global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx
 
     int ID = blockIdx.x * blockDim.x + threadIdx.x;
     if (ID<Nmd){
+        (isnan(md_dt_x[ID])|| isnan(md_dt_y[ID]) || isnan(md_dt_z[ID])) ? printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f \n", ID, md_dt_x[ID], ID, md_dt_y[ID], ID, md_dt_z[ID])
+                                                            : printf("");
+        (isnan(mdvx[ID])|| isnan(mdvy[ID]) || isnan(mdvz[ID])) ? printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f \n", ID, mdvx[ID], ID, mdvy[ID], ID, mdvz[ID])
+                                                            : printf("");
+
         if(wall_sign_mdX[ID] == 0 ) md_dt_x[ID] == 10000;//a big number because next step is to consider the minimum of dt .
         else if(wall_sign_mdX[ID] == 1 || wall_sign_mdX[ID] == -1)  md_dt_x[ID] = ((-mdvx[ID]+sqrt((mdvx[ID]*mdvx[ID])+(2*mdX_wall_dist[ID]*mdAx[ID])))/mdAx[ID]);
 
@@ -14,8 +19,7 @@ __global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx
         if(wall_sign_mdZ[ID] == 0 ) md_dt_z[ID] == 10000;
         else if(wall_sign_mdZ[ID] == 1 || wall_sign_mdZ[ID] == -1)  md_dt_z[ID] = ((-mdvz[ID]+sqrt((mdvz[ID]*mdvz[ID])+(2*mdZ_wall_dist[ID]*mdAz[ID])))/mdAz[ID]);
 
-        (isnan(md_dt_x[ID])|| isnan(md_dt_y[ID]) || isnan(md_dt_z[ID])) ? printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f \n", ID, md_dt_x[ID], ID, md_dt_y[ID], ID, md_dt_z[ID])
-                                                            : printf("");
+        
 
     }
 
@@ -34,9 +38,7 @@ __global__ void md_crossing_location(double *mdX, double *mdY, double *mdZ, doub
         mdY_o[ID] = mdY[ID] + mdvy[ID]*md_dt_min[ID] + 0.5 * mdAy[ID] * md_dt_min[ID] * md_dt_min[ID];
         mdZ_o[ID] = mdZ[ID] + mdvz[ID]*md_dt_min[ID] + 0.5 * mdAz[ID] * md_dt_min[ID] * md_dt_min[ID];
 
-        (isnan(mdvx[ID])|| isnan(mdvy[ID]) || isnan(mdvz[ID])) ? printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f \n", ID, mdvx[ID], ID, mdvy[ID], ID, mdvz[ID])
-                                                            : printf("");
-
+        
 
     }
 
