@@ -231,7 +231,7 @@ __global__ void sum_kernel(double *F1 ,double *F2 , double *F3,
 
 }
 
-//calculating interaction matrix of the system in the given time
+//calculating interaction matrix of the system in the given time when BC is periodic
 __global__ void nb_b_interaction( 
 double *mdX, double *mdY , double *mdZ ,
 double *fx , double *fy , double *fz, 
@@ -334,6 +334,8 @@ double *L,int size , double ux, int mass, double real_time, int m , int topology
     }
 
 }
+
+
 
 __host__ void calc_accelaration( double *x ,double *y , double *z , 
 double *Fx , double *Fy , double *Fz,
