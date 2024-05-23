@@ -581,15 +581,15 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States)
             gpuErrchk( cudaDeviceSynchronize() );
 
             unsigned long long seed = 1234; // Choose a seed
-            //initializeCurandStates<<<grid_size, blockSize>>>(States, seed, Nc);
+            initializeCurandStates<<<grid_size, blockSize>>>(States, seed, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            //createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, N_avg, 1, d_n, variance, Nc, a_x, a_y, a_z, States);
+            createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, N_avg, 1, d_n, variance, Nc, a_x, a_y, a_z, States);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            //virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, 1, density, d_n, Nc);
+            virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, 1, density, d_n, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
