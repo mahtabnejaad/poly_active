@@ -433,7 +433,7 @@ __global__ void initializeCurandStates(curandState *states, unsigned long long s
 __device__ double boxMullerTransform(curandState *state) {
     double u1 = curand_uniform(state);
     double u2 = curand_uniform(state);
-    return sqrt(-2.0 * log(u1)) * cos(2.0 * M_PI * u2);
+    return sqrt(abs(-2.0 * log(u1))) * cos(2.0 * M_PI * u2);
 }
 
 __global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_uz, double *N_avg, int mass, int *d_n, double *variance, int Nc, double *a_x, double *a_y, double *a_z, curandState *state) {
