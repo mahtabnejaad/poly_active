@@ -213,27 +213,27 @@ __global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx
         if(wall_sign_mdX[ID] == 0 ) md_dt_x[ID] == 10000;//a big number because next step is to consider the minimum of dt .
         else if(wall_sign_mdX[ID] == 1 || wall_sign_mdX[ID] == -1){
             
-            if(mdAx == 0.0)   md_dt_x[ID] = abs(mdX_wall_dist[ID]/mdvx[ID]);
+            if(mdAx[ID]  == 0.0)   md_dt_x[ID] = abs(mdX_wall_dist[ID]/mdvx[ID]);
 
-            else if (mdAx != 0.0)  md_dt_x[ID] = ((-mdvx[ID]+sqrt(abs((mdvx[ID]*mdvx[ID])+(2*mdX_wall_dist[ID]*mdAx[ID]))))/mdAx[ID]);
+            else if (mdAx[ID]  != 0.0)  md_dt_x[ID] = ((-mdvx[ID]+sqrt(abs((mdvx[ID]*mdvx[ID])+(2*mdX_wall_dist[ID]*mdAx[ID]))))/mdAx[ID]);
 
         }  
 
         if(wall_sign_mdY[ID] == 0 ) md_dt_y[ID] == 10000;
         else if(wall_sign_mdY[ID] == 1 || wall_sign_mdY[ID] == -1){
 
-            if(mdAy == 0.0)   md_dt_y[ID] = abs(mdY_wall_dist[ID]/mdvy[ID]);
+            if(mdAy[ID] == 0.0)   md_dt_y[ID] = abs(mdY_wall_dist[ID]/mdvy[ID]);
 
-            else if(mdAy != 0.0)   md_dt_y[ID] = ((-mdvy[ID]+sqrt(abs((mdvy[ID]*mdvy[ID])+(2*mdY_wall_dist[ID]*mdAy[ID]))))/mdAy[ID]);
+            else if(mdAy[ID]  != 0.0)   md_dt_y[ID] = ((-mdvy[ID]+sqrt(abs((mdvy[ID]*mdvy[ID])+(2*mdY_wall_dist[ID]*mdAy[ID]))))/mdAy[ID]);
 
         }
 
         if(wall_sign_mdZ[ID] == 0 ) md_dt_z[ID] == 10000;
         else if(wall_sign_mdZ[ID] == 1 || wall_sign_mdZ[ID] == -1){
 
-            if(mdAz == 0.0)   md_dt_z[ID] = abs(mdZ_wall_dist[ID]/mdvz[ID]);
+            if(mdAz[ID]  == 0.0)   md_dt_z[ID] = abs(mdZ_wall_dist[ID]/mdvz[ID]);
 
-            else if(mdAz != 0.0)   md_dt_z[ID] = ((-mdvz[ID]+sqrt(abs((mdvz[ID]*mdvz[ID])+(2*mdZ_wall_dist[ID]*mdAz[ID]))))/mdAz[ID]);
+            else if(mdAz[ID]  != 0.0)   md_dt_z[ID] = ((-mdvz[ID]+sqrt(abs((mdvz[ID]*mdvz[ID])+(2*mdZ_wall_dist[ID]*mdAz[ID]))))/mdAz[ID]);
 
         }
 
