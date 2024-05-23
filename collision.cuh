@@ -442,7 +442,7 @@ __global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_
         double mean_x = d_ux[tid]; // Use the mean from d_ux[tid]
         double mean_y = d_uy[tid];
         double mean_z = d_uz[tid];
-        variance[tid] = (*N_avg - d_n[tid])/mass;//*(kT = 1)
+        variance[tid] = abs((*N_avg - d_n[tid])/mass);//*(kT = 1)
         double std_dev = sqrt(variance[tid]); // Calculate standard deviation from variance
         curandState localState = state[tid];
         a_x[tid] = mean_x + std_dev * boxMullerTransform(&localState); // Generate normally distributed random number
