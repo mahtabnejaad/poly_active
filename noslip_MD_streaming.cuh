@@ -1,4 +1,13 @@
 #include <stdlib.h>
+regular_distance(double x0,double x1, double x2, double y0, double y1, double y2, double *r,double *L,double ux, double t){
+
+    r[0] = x0 - y0;
+    r[1] = x1 - y1;
+    r[2] = x2 - y2;
+
+}
+
+
 
 //a function to consider velocity sign of particles and determine which sides of the box it should interact with 
 __global__ void md_wall_sign(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, int N){
