@@ -8,6 +8,125 @@ regular_distance(double x0,double x1, double x2, double y0, double y1, double y2
 }
 
 
+//calculating interaction matrix of the system in the given time when BC is periodic
+__global__ void noslip_nb_b_interaction( 
+double *mdX, double *mdY , double *mdZ ,
+double *fx , double *fy , double *fz, 
+double *L,int size , double ux, int mass, double real_time, int m , int topology)
+{
+    int size2 = size*(size); //size2 calculates the total number of particle pairs for the interaction.
+
+
+    //In the context of the nb_b_interaction kernel, each thread is responsible for calculating the interaction between a pair of particles. The goal is to calculate the interaction forces between all possible pairs of particles in the simulation. To achieve this, the thread ID is mapped to particle indices.
+    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+    if (tid<size2)
+    {
+        //ID1 and ID2 are calculated from tid to determine the indices of the interacting particles.
+        //The combination of these calculations ensures that each thread ID is mapped to a unique pair of particle indices. This way, all possible pairs of particles are covered, and the interactions between particles can be calculated in parallel.
+        int ID1 = int(tid /size);//tid / size calculates how many "rows" of particles the thread ID represents. In other words, it determines the index of the first particle in the pair (ID1).
+        int ID2 = tid%(size);//tid % size calculates the remainder of the division of tid by size. This remainder corresponds to the index of the second particle in the pair (ID2)
+        if(ID1 != ID2) //This condition ensures that the particle does not interact with itself. Interactions between a particle and itself are not considered
+        {
+        double r[3];
+        //This line calculates the nearest image of particle positions in the periodic boundary conditions using the LeeEdwNearestImage function
+        //The resulting displacement is stored in the r array.
+        regular_distance(mdX[ID1], mdY[ID1], mdZ[ID1] , mdX[ID2] , mdY[ID2] , mdZ[ID2] , r,L, ux, real_time);
+        double r_sqr = r[0] * r[0] + r[1] * r[1] + r[2] * r[2];//r_sqr calculates the squared distance between the particles.
+        double f =0;//initialize the force to zero.
+
+ 
+        //lennard jones:
+       
+        if (r_sqr < 1.258884)
+        {
+                double r8 = 1/r_sqr* 1/r_sqr; //r^{-4}
+                r8 *= r8; //r^{-8}
+                double r14 = r8 *r8; //r^{-16}
+                r14 *= r_sqr; //r^{-14}
+                f = 24 * (2 * r14 - r8);
+        }
+        
+        //FENE:
+        //This part of the code is responsible for calculating the interaction forces between particles based on the FENE (Finitely Extensible Nonlinear Elastic) potential. The FENE potential is often used to model polymer chains where bonds between particles cannot be stretched beyond a certain limit
+        
+        if (topology == 1)
+        {
+            if (int(ID1/m) == int(ID2/m)) //checks if the interacting particles belong to the same chain (monomer). This is achieved by dividing the particle indices by m (monomer size) and checking if they are in the same division.
+            {
+                //check if the interacting particles are next to each other in the same chain. If they are, it calculates the FENE interaction contribution,
+                if( ID2 - ID1 == 1 || ID2 - ID1 == m-1 ) 
+                {
+                    f -= 30/(1 - r_sqr/2.25);
+                }
+
+                if( ID1 - ID2 == 1 || ID1 - ID2 == m-1 ) 
+                {
+                    f -= 30/(1 - r_sqr/2.25);
+                }
+            }   
+        }
+        
+        //FENE:
+        if (topology == 2 || topology == 3)
+        {
+            if (int(ID1/m) == int(ID2/m)) //similar conditions are checked for particles within the same chain
+            {
+                if( ID2 - ID1 == 1 || ID2 - ID1 == m-1 ) 
+                {
+                    f -= 30/(1 - r_sqr/2.25);
+                }
+
+                if( ID1 - ID2 == 1 || ID1 - ID2 == m-1 ) 
+                {
+                    f -= 30/(1 - r_sqr/2.25);
+                }
+            }
+            
+            if (ID1==int(m/4) && ID2 ==m+int(3*m/4))
+            {
+                
+                f -= 30/(1 - r_sqr/2.25);
+            }
+                
+            if (ID2==int(m/4) && ID1 ==m+int(3*m/4))
+            {
+                f -= 30/(1 - r_sqr/2.25);
+            }
+        }
+        f/=mass; //After the interaction forces are calculated (f), they are divided by the mass of the particles to obtain the correct acceleration.
+
+        fx[tid] = f * r[0] ;
+        fy[tid] = f * r[1] ;
+        fz[tid] = f * r[2] ;
+        }
+    
+        /*else
+        {
+            fx[tid] = 0;
+            fy[tid] = 0;
+            fz[tid] = 0;
+        }*/
+      
+
+    }
+
+}
+
+__host__ void noslip_calc_accelaration( double *x ,double *y , double *z , 
+double *Fx , double *Fy , double *Fz,
+double *Ax , double *Ay , double *Az,
+double *L,int size ,int m ,int topology, double ux,double real_time, int grid_size)
+{
+    noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux,density, real_time , m , topology);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    sum_kernel<<<grid_size,blockSize>>>(Fx ,Fy,Fz, Ax ,Ay, Az, size);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+}
+
+
 
 //a function to consider velocity sign of particles and determine which sides of the box it should interact with 
 __global__ void md_wall_sign(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, int N){
