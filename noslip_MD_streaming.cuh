@@ -1,5 +1,5 @@
 #include <stdlib.h>
-regular_distance(double x0,double x1, double x2, double y0, double y1, double y2, double *r,double *L,double ux, double t){
+__device__ __host__ void regular_distance(double x0,double x1, double x2, double y0, double y1, double y2, double *r,double *L,double ux, double t){
 
     r[0] = x0 - y0;
     r[1] = x1 - y1;
