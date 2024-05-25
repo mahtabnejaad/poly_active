@@ -63,19 +63,21 @@ __global__ void Active_deltaT_min(double *dt_x, double *dt_y, double *dt_z, doub
 //calculate the crossing location where the particles intersect with one wall:
 __global__ void Active_mpcd_crossing_location(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *x_o, double *y_o, double *z_o, double *dt_min, double dt, double *L, int N, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
 
+    double mm = (Nmd*mass+mass_fluid*N);
+
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
         if( ((x[tid] + dt * vx[tid]) >L[0]/2 || (x[tid] + dt * vx[tid])<-L[0]/2 || (y[tid] + dt * vy[tid])>L[1]/2 || (y[tid] + dt * vy[tid])<-L[1]/2 || (z[tid]+dt * vz[tid])>L[2]/2 || (z[tid] + dt * vz[tid])<-L[2]/2) && dt_min[tid]>0.1) printf("dt_min[%i] = %f\n", tid, dt_min[tid]);
-        x_o[tid] = x[tid] + vx[tid]*dt_min[tid];
-        y_o[tid] = y[tid] + vy[tid]*dt_min[tid];
-        z_o[tid] = z[tid] + vz[tid]*dt_min[tid];
+        x_o[tid] = x[tid] + vx[tid]*dt_min[tid] + 0.5 * fa_x * dt_min[tid] * dt_min[tid] / mm;
+        y_o[tid] = y[tid] + vy[tid]*dt_min[tid] + 0.5 * fa_y * dt_min[tid] * dt_min[tid] / mm;
+        z_o[tid] = z[tid] + vz[tid]*dt_min[tid] + 0.5 * fa_z * dt_min[tid] * dt_min[tid] / mm;
     }
 
 }
 
 
 
-__global__ void Active_mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, int N, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
+__global__ void Active_mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, int N, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
@@ -83,9 +85,9 @@ __global__ void Active_mpcd_crossing_velocity(double *vx, double *vy, double *vz
         //calculate v(t+dt1) : in this case that we don't have acceleration it is equal to v(t).
         //then we put the velocity equal to v(t+dt1):
         //this part in this case is not necessary but we do it for generalization.
-        vx_o[tid] = vx[tid];
-        vy_o[tid] = vy[tid];
-        vz_o[tid] = vz[tid];
+        vx_o[tid] = vx[tid] + fa_x * dt_min[tid] / mm ;
+        vy_o[tid] = vy[tid] + fa_y * dt_min[tid] / mm;
+        vz_o[tid] = vz[tid] + fa_z * dt_min[tid] / mm;
     }
     
 }
@@ -175,7 +177,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_mpcd_crossing_velocity<<<grid_size,blockSize>>>(d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, N, *fa_x, *fa_y, *fa_z, Nmd, mass, mass_fluid);
+    Active_mpcd_crossing_velocity<<<grid_size,blockSize>>>(d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min N, *fa_x, *fa_y, *fa_z, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
