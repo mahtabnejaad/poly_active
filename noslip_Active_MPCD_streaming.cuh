@@ -44,8 +44,8 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
 
-        double QQ=-(dt*dt)/(2*(Nmd*mass+mass_fluid*N));
-        double Q=-dt/(Nmd*mass+mass_fluid*N);
+        double QQ2=-((dt - (dt_min[tid]))*(dt - (dt_min[tid])))/(2*(Nmd*mass+mass_fluid*N));
+        double Q2=-(dt - (dt_min[tid]))/(Nmd*mass+mass_fluid*N);
 
         if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
             //make the position of particle equal to (xo, yo, zo):
@@ -57,12 +57,12 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_
             vy[tid] = -vy_o[tid];
             vz[tid] = -vz_o[tid];
             //let the particle move during dt-dt1 with the reversed velocity:
-            x[tid] += (dt - (dt_min[tid])) * vx[tid] + QQ * fa_x;
-            y[tid] += (dt - (dt_min[tid])) * vy[tid] + QQ * fa_y;
-            z[tid] += (dt - (dt_min[tid])) * vz[tid] + QQ * fa_z;
-            vx[tid]=vx[tid]+Q * fa_x;
-            vy[tid]=vy[tid]+Q * fa_y;
-            vz[tid]=vz[tid]+Q * fa_z;
+            x[tid] += (dt - (dt_min[tid])) * vx[tid] + QQ2 * fa_x;
+            y[tid] += (dt - (dt_min[tid])) * vy[tid] + QQ2 * fa_y;
+            z[tid] += (dt - (dt_min[tid])) * vz[tid] + QQ2s * fa_z;
+            vx[tid]=vx[tid]+Q2 * fa_x;
+            vy[tid]=vy[tid]+Q2 * fa_y;
+            vz[tid]=vz[tid]+Q2 * fa_z;
 
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
