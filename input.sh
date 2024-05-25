@@ -43,7 +43,7 @@ t=0
 topology=4
 
 #Activity on or off (0 o1 1):
-Activity=0
+Activity=1
 
 #Random flag :
 random_flag=0
