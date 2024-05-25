@@ -571,27 +571,27 @@ double *NL,int Nsize , double Nux, int Nmass, double Nreal_time, int Nm , int Nt
 
 
 
-__host__ void Active_calc_accelaration( double *ax ,double *ay , double *az , 
-double *aFx , double *aFy , double *aFz, 
-double *aAx , double *aAy , double *aAz,double *afa_kx, double *afa_ky, double *afa_kz, double *afb_kx, double *afb_ky, double *afb_kz,
-double *aAa_kx, double *aAa_ky, double *aAa_kz,double *aAb_kx, double *aAb_ky, double *aAb_kz, double *aex, double *aey, double *aez, double aux, double amass, double *agama_T, 
-double *aL,int asize ,int am ,int atopology, double areal_time, int agrid_size, int amass_fluid, int aN, int *arandom_array, unsigned int aseed, double *aAx_tot, double *aAy_tot, double *aAz_tot, double *afa_x, double *afa_y, double *afa_z,double *afb_x, double *afb_y, double *afb_z, double *ablock_sum_ex, double *ablock_sum_ey, double *ablock_sum_ez, int *aflag_array, double u_scale)
+__host__ void Active_calc_accelaration( double *x ,double *y , double *z , 
+double *Fx , double *Fy , double *Fz, 
+double *Ax , double *Ay , double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
+double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T, 
+double *L,int size ,int m ,int topology, double real_time, int grid_size, int mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale)
 
 {
   
 
-    Active_nb_b_interaction<<<agrid_size,blockSize>>>(ax , ay , az, aFx , aFy , aFz ,aL , asize , aux, amass, areal_time , am , atopology);
+    Active_nb_b_interaction<<<agrid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux, mass, real_time , m , topology);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
-    sum_kernel<<<agrid_size,blockSize>>>(aFx ,aFy,aFz, aAx ,aAy, aAz, asize);
+    sum_kernel<<<agrid_size,blockSize>>>(Fx , Fy, Fz, Ax , Ay, Az, size);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     //printf("**GAMA=%f\n",*agama_T);
     
 
-    monomer_active_backward_forces(ax, ay ,az ,
-    aAx , aAy, aAz,afa_kx, afa_ky, afa_kz,afb_kx, afb_ky, afb_kz,aAa_kx, aAa_ky, aAa_kz, aAb_kx, aAb_ky, aAb_kz, aex, aey, aez, aux, amass, agama_T, 
-    aL, asize , amass_fluid, areal_time, am, atopology,  agrid_size, aN , arandom_array, aseed , aAx_tot, aAy_tot, aAz_tot, afa_x, afa_y, afa_z, afb_x, afb_y, afb_z, ablock_sum_ex, ablock_sum_ey, ablock_sum_ez, aflag_array, u_scale);
+    monomer_active_backward_forces(x, y ,z ,
+    Ax , Ay, Az, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, ex, ey, ez, ux, mass, gama_T, 
+    L, size , mass_fluid, real_time, m, topology, grid_size, N , random_array, seed , Ax_tot, Ay_tot, Az_tot, fa_x, fa_y, fa_z, fb_x, fb_y, fb_z, block_sum_ex, block_sum_ey, block_sum_ez, flag_array, u_scale);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
