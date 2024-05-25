@@ -18,6 +18,7 @@
 #include "thermostat.cuh"
 #include "streaming.cuh"
 #include "noslip_MPCD_streaming.cuh"
+#include "noslip_Active_MPCD_streaming.cuh"
 #include "collision.cuh"
 #include "gallileain_inv.cuh"
 #include "rerstart_file.cuh"
