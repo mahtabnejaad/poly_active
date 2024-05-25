@@ -651,15 +651,15 @@ __global__ void gotoCMframe(double *X, double *Y, double *Z, double *Xcm,double 
     }
 }
 
-__global__ void backtoLabframe(double *b_X, double *b_Y, double *b_Z, double *bXcm,double *bYcm, double *bZcm , int size_b){
+__global__ void backtoLabframe(double *X, double *Y, double *Z, double *Xcm,double *Ycm, double *Zcm , int size){
     
         int tid = blockIdx.x * blockDim.x + threadIdx.x ;
-        if (tid < size_b)
+        if (tid < size)
         {
             
-            b_X[tid] = b_X[tid] + *bXcm;
-            b_Y[tid] = b_Y[tid] + *bYcm;
-            b_Z[tid] = b_Z[tid] + *bZcm;
+            X[tid] = X[tid] + *Xcm;
+            Y[tid] = Y[tid] + *Ycm;
+            Z[tid] = Z[tid] + *Zcm;
         }
 }
 
