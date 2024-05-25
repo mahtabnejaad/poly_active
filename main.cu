@@ -839,7 +839,7 @@ int main(int argc, const char* argv[])
 
                 noslip_Active_MPCD_streaming(d_x , d_y , d_z , d_vx , d_vy , d_vz ,h_mpcd ,N ,grid_size ,
                  h_fa_x ,h_fa_y ,h_fa_z ,h_fb_x ,h_fb_y ,h_fb_z ,d_ex ,d_ey , d_ez, d_block_sum_ex ,d_block_sum_ey ,d_block_sum_ez ,
-                 L ,Nmd ,ux , density ,1 ,real_time ,m_md , topology, shared_mem_size, d_L, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_x_o, d_y_o, d_z_o, d_Vx_o, d_Vy_o, d_Vz_o, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z);
+                 L ,Nmd ,ux , density ,1 ,real_time ,m_md , topology, shared_mem_size, d_L, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_x_o, d_y_o, d_z_o, d_Vx_o, d_Vy_o, d_Vz_o, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z, totalT);
             
 
                 noslip_Active_MD_streaming(d_mdX , d_mdY , d_mdZ , d_mdVx , d_mdVy , d_mdVz ,
