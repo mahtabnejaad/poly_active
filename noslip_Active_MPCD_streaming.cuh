@@ -59,7 +59,7 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_
             //let the particle move during dt-dt1 with the reversed velocity:
             x[tid] += (dt - (dt_min[tid])) * vx[tid] + QQ2 * fa_x;
             y[tid] += (dt - (dt_min[tid])) * vy[tid] + QQ2 * fa_y;
-            z[tid] += (dt - (dt_min[tid])) * vz[tid] + QQ2s * fa_z;
+            z[tid] += (dt - (dt_min[tid])) * vz[tid] + QQ2 * fa_z;
             vx[tid]=vx[tid]+Q2 * fa_x;
             vy[tid]=vy[tid]+Q2 * fa_y;
             vz[tid]=vz[tid]+Q2 * fa_z;
