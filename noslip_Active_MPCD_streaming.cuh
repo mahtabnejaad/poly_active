@@ -38,7 +38,7 @@ __global__ void deltaT_min(double *dt_x, double *dt_y, double *dt_z, double *dt_
 
 }
 //calculate the crossing location where the particles intersect with one wall:
-__global__ void Active_mpcd_crossing_location(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *x_o, double *y_o, double *z_o, double *dt_min, double dt, double *L, int N){
+__global__ void Active_mpcd_crossing_location(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *x_o, double *y_o, double *z_o, double *dt_min, double dt, double *L, int N, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
@@ -52,7 +52,7 @@ __global__ void Active_mpcd_crossing_location(double *x, double *y, double *z, d
 
 
 
-__global__ void Active_mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, int N){
+__global__ void Active_mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, int N, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
