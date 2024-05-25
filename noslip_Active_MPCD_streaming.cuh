@@ -49,7 +49,7 @@ __global__ void Active_mpcd_deltaT(double *vx, double *vy, double *vz, double *w
 
 }
 //a function to calculate minimum of 3 items  (dt_x, dt_y and dt_z) :
-__global__ void deltaT_min(double *dt_x, double *dt_y, double *dt_z, double *dt_min, int N){
+__global__ void Active_deltaT_min(double *dt_x, double *dt_y, double *dt_z, double *dt_min, int N){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
@@ -167,7 +167,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    deltaT_min<<<grid_size,blockSize>>>(dt_x, dt_y, dt_z, dt_min, N);
+    Active_deltaT_min<<<grid_size,blockSize>>>(dt_x, dt_y, dt_z, dt_min, N);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
