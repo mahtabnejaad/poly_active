@@ -580,10 +580,10 @@ double *L,int size ,int m ,int topology, double real_time, int grid_size, int ma
 {
   
 
-    Active_nb_b_interaction<<<agrid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux, mass, real_time , m , topology);
+    Active_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux, mass, real_time , m , topology);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
-    sum_kernel<<<agrid_size,blockSize>>>(Fx , Fy, Fz, Ax , Ay, Az, size);
+    sum_kernel<<<grid_size,blockSize>>>(Fx , Fy, Fz, Ax , Ay, Az, size);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     //printf("**GAMA=%f\n",*agama_T);
