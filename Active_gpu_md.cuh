@@ -600,51 +600,51 @@ double *L,int size ,int m ,int topology, double real_time, int grid_size, int ma
 
 
 //second Kernel of velocity verelt: v += 0.5ha(old)
-__global__ void ActivevelocityVerletKernel2(double *VmdVx , double *VmdVy , double *VmdVz,
-double *VmdAx , double *VmdAy , double *VmdAz,
- double Vh, int Vsize)
+__global__ void ActivevelocityVerletKernel2(double *mdVx , double *mdVy , double *mdVz,
+double *mdAx , double *mdAy , double *mdAz,
+ double h, int size)
 {
     int particleID =  blockIdx.x * blockDim.x + threadIdx.x ;
-    if (particleID < Vsize)
+    if (particleID < size)
     {
-        VmdVx[particleID] += 0.5 * Vh * VmdAx[particleID];
-        VmdVy[particleID] += 0.5 * Vh * VmdAy[particleID];
-        VmdVz[particleID] += 0.5 * Vh * VmdAz[particleID];
+        mdVx[particleID] += 0.5 * h * mdAx[particleID];
+        mdVy[particleID] += 0.5 * h * mdAy[particleID];
+        mdVz[particleID] += 0.5 * h * mdAz[particleID];
     }
 }
 
 //first kernel: x+= hv(half time) + 0.5hha(new) ,v += 0.5ha(new)
 
-__global__ void ActivevelocityVerletKernel1(double *WmdX, double *WmdY , double *WmdZ , 
-double *WmdVx , double *WmdVy , double *WmdVz,
-double *WmdAx , double *WmdAy , double *WmdAz,
- double Wh, int Wsize)
+__global__ void ActivevelocityVerletKernel1(double *mdX, double *mdY , double *mdZ , 
+double *mdVx , double *mdVy , double *mdVz,
+double *mdAx , double *mdAy , double *mdAz,
+ double h, int size)
 {
     int particleID =  blockIdx.x * blockDim.x + threadIdx.x ;
-    if (particleID < Wsize)
+    if (particleID < size)
     {
         // Particle velocities are updated by half a time step, and particle positions are updated based on the new velocities.
 
-        WmdVx[particleID] += 0.5 * Wh * WmdAx[particleID];
-        WmdVy[particleID] += 0.5 * Wh * WmdAy[particleID];
-        WmdVz[particleID] += 0.5 * Wh * WmdAz[particleID];
+        mdVx[particleID] += 0.5 * h * mdAx[particleID];
+        mdVy[particleID] += 0.5 * h * mdAy[particleID];
+        mdVz[particleID] += 0.5 * h * mdAz[particleID];
 
-        WmdX[particleID] = WmdX[particleID] + Wh * WmdVx[particleID] ;
-        WmdY[particleID] = WmdY[particleID] + Wh * WmdVy[particleID] ;
-        WmdZ[particleID] = WmdZ[particleID] + Wh * WmdVz[particleID] ;
+        mdX[particleID] = mdX[particleID] + h * mdVx[particleID] ;
+        mdY[particleID] = mdY[particleID] + h * mdVy[particleID] ;
+        mdZ[particleID] = mdZ[particleID] + h * mdVz[particleID] ;
 
 
     }
 }
-__global__ void gotoCMframe(double *g_X, double *g_Y, double *g_Z, double *gXcm,double *gYcm, double *gZcm , int size_g){
+__global__ void gotoCMframe(double *X, double *Y, double *Z, double *Xcm,double *Ycm, double *Zcm , int size){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x ;
-    if (tid < size_g)
+    if (tid < size)
     {
         
-        g_X[tid] = g_X[tid] - *gXcm;
-        g_Y[tid] = g_Y[tid] - *gYcm;
-        g_Z[tid] = g_Z[tid] - *gZcm;
+        X[tid] = X[tid] - *Xcm;
+        Y[tid] = Y[tid] - *Ycm;
+        Z[tid] = Z[tid] - *Zcm;
 
 
 
