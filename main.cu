@@ -947,24 +947,18 @@ int main(int argc, const char* argv[])
         cudaFree(roundedNumber_vx); cudaFree(roundedNumber_vy); cudaFree(roundedNumber_vz);
         cudaFree(zerofactor);  cudaFree(zerofactorr);
         cudaFree(zerofactorsumblock); cudaFree(zerofactorrsumblock);
-        cudaFree(d_x_latest); cudaFree(d_y_latest); cudaFree(d_z_latest); 
-        cudaFree(d_mdX_latest); cudaFree(d_mdY_latest); cudaFree(d_mdZ_latest);
-        cudaFree(d_vx_latest); cudaFree(d_vy_latest); cudaFree(d_vz_latest); 
-        cudaFree(d_mdVx_latest); cudaFree(d_mdVy_latest); cudaFree(d_mdVz_latest);
         cudaFree(d_x_o); cudaFree(d_y_o); cudaFree(d_z_o);
         cudaFree(d_mdX_o); cudaFree(d_mdY_o); cudaFree(d_mdZ_o);
-        cudaFree(d_dt1); cudaFree(d_md_dt1);
-        cudaFree(d_x_wallDist_P); cudaFree(d_y_wallDist_P); cudaFree(d_z_wallDist_P);
-        cudaFree(d_x_wallDist_N); cudaFree(d_y_wallDist_N); cudaFree(d_z_wallDist_N);
-        cudaFree(d_mdX_wallDist_P); cudaFree(d_mdY_wallDist_P); cudaFree(d_mdZ_wallDist_P);
-        cudaFree(d_mdX_wallDist_N); cudaFree(d_mdY_wallDist_N); cudaFree(d_mdZ_wallDist_N);
-
-
-
-
-
-
-
+        cudaFree(d_Vx_o); cudaFree(d_Vy_o); cudaFree(d_Vz_o);
+         cudaFree(d_mdVx_o); cudaFree(d_mdVy_o); cudaFree(d_mdVz_o);
+        cudaFree(d_dt_min); cudaFree(d_md_dt_min);
+        cudaFree(d_dt_x); cudaFree(d_md_dt_x);
+        cudaFree(d_dt_y); cudaFree(d_md_dt_y);
+        cudaFree(d_dt_z); cudaFree(d_md_dt_z);
+        cudaFree(d_x_wall_dist); cudaFree(d_y_wall_dist); cudaFree(d_z_wall_dist);
+        cudaFree(d_wall_sign_x); cudaFree(d_wall_sign_y); cudaFree(d_wall_sign_z);
+        cudaFree(d_mdX_wall_dist); cudaFree(d_mdY_wall_dist); cudaFree(d_mdZ_wall_dist);
+        cudaFree(d_wall_sign_mdX); cudaFree(d_wall_sign_mdY); cudaFree(d_wall_sign_mdZ);
         curandDestroyGenerator(gen);
         
         //reducefile_traj();
