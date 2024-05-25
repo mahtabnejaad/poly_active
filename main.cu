@@ -509,13 +509,15 @@ int main(int argc, const char* argv[])
 
                 
 
-                noslip_MPCD_streaming(d_x , d_y , d_z , d_vx , d_vy , d_vz , h_mpcd , N , grid_size, d_L, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_x_o, d_y_o, d_z_o, d_Vx_o , d_Vy_o , d_Vz_o, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z, totalT);
+                noslip_MPCD_streaming(d_x , d_y , d_z , d_vx , d_vy , d_vz , h_mpcd , N , grid_size, d_L, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_x_o, d_y_o, d_z_o, 
+                d_Vx_o , d_Vy_o , d_Vz_o, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z, totalT);
             
 
                 noslip_MD_streaming(d_mdX , d_mdY , d_mdZ , d_mdVx , d_mdVy , d_mdVz ,
                     d_mdAx , d_mdAy , d_mdAz ,md_Fx_holder, md_Fy_holder, md_Fz_holder,
                     h_md , Nmd , density , d_L , ux , grid_size, delta, real_time,
-                    d_md_dt_min, d_md_dt_x, d_md_dt_y, d_md_dt_z, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdVx_o, d_mdVy_o, d_mdVz_o, d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ );
+                    d_md_dt_min, d_md_dt_x, d_md_dt_y, d_md_dt_z, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdVx_o, d_mdVy_o, d_mdVz_o, 
+                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ );
 
                 noslip_Sort_begin(d_x , d_y , d_z , d_vx, d_vy, d_vz, d_index , d_mdX , d_mdY , d_mdZ ,
                     d_mdVx, d_mdVy, d_mdVz, d_mdIndex ,ux , d_L , d_r , N , Nmd , real_time, grid_size);
@@ -837,7 +839,7 @@ int main(int argc, const char* argv[])
 
                 noslip_Active_MPCD_streaming(d_x , d_y , d_z , d_vx , d_vy , d_vz ,h_mpcd ,N ,grid_size ,
                  h_fa_x ,h_fa_y ,h_fa_z ,h_fb_x ,h_fb_y ,h_fb_z ,d_ex ,d_ey , d_ez, d_block_sum_ex ,d_block_sum_ey ,d_block_sum_ez ,
-                 L ,Nmd ,ux , density ,1 ,real_time ,m_md , topology, shared_mem_size, d_L, d_x_latest, d_y_latest, d_z_latest, d_vx_latest, d_vy_latest, d_vz_latest,  d_dt1, d_x_o, d_y_o, d_z_o, d_x_wallDist_P, d_y_wallDist_P, d_z_wallDist_P, d_x_wallDist_N, d_y_wallDist_N, d_z_wallDist_N);
+                 L ,Nmd ,ux , density ,1 ,real_time ,m_md , topology, shared_mem_size, d_L, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_x_o, d_y_o, d_z_o, d_Vx_o, d_Vy_o, d_Vz_o, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z);
             
 
                 noslip_Active_MD_streaming(d_mdX , d_mdY , d_mdZ , d_mdVx , d_mdVy , d_mdVz ,
@@ -845,15 +847,16 @@ int main(int argc, const char* argv[])
                     d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_ex, d_ey, d_ez,
                     h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, 
                     h_md , Nmd ,density ,d_L ,ux ,grid_size ,delta ,real_time ,m_md ,N ,density ,1 , gama_T, d_random_array, d_seed, topology, h_Xcm, h_Ycm, h_Zcm, d_flag_array, u_scale,
-                    d_L, d_mdX_latest, d_mdY_latest, d_mdZ_latest,d_mdVx_latest, d_mdVy_latest, d_mdVz_latest, d_md_dt1, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdX_wallDist_P, d_mdY_wallDist_P, d_mdZ_wallDist_P, d_mdX_wallDist_N, d_mdY_wallDist_N, d_mdZ_wallDist_N);
+                   , d_md_dt_min, d_md_dt_x, d_md_dt_y, d_md_dt_z, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdVx_o, d_mdVy_o, d_mdVz_o, d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ);
                 
                 noslip_Sort_begin(d_x , d_y , d_z ,d_vx, d_vy, d_vz, d_index , d_mdX , d_mdY , d_mdZ ,
                     d_mdVx, d_mdVy, d_mdVz, d_mdIndex ,ux , d_L , d_r , N , Nmd , real_time, grid_size);
 
-                MPCD_MD_collision(d_vx , d_vy , d_vz , d_index,
+                noslip_MPCD_MD_collision(d_vx , d_vy , d_vz , d_index,
                     d_mdVx , d_mdVy , d_mdVz , d_mdIndex,
                     d_ux , d_uy , d_uz , d_e , d_scalefactor , d_n , d_m ,
-                    d_rot , d_theta , d_phi , N , Nmd ,Nc ,devStates , grid_size);
+                    d_rot , d_theta , d_phi , N , Nmd ,Nc ,devStates , grid_size, dn_tot, N_avg, sumblock_n, dm_tot, M_avg, sumblock_m,
+                    a_x, a_y, a_z, d_variance, d_States);
             
                 noslip_Sort_finish(d_x , d_y , d_z , d_vx, d_vy, d_vz, d_index , 
                     d_mdX , d_mdY , d_mdZ, d_mdVx, d_mdVy, d_mdVz, d_mdIndex, ux, 
