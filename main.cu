@@ -577,7 +577,7 @@ int main(int argc, const char* argv[])
     }
 }
 
-/*
+
     //this part is specific for when we have activity and periodic boundary condition. 
     else if (Activity==1 && BC==1){ 
 
@@ -972,7 +972,7 @@ int main(int argc, const char* argv[])
 
 }
 
-*/
+
 
 
 
