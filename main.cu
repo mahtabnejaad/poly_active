@@ -575,7 +575,7 @@ int main(int argc, const char* argv[])
         std::cout<<"The program has terminated succesffuly at time:"<<real_time<<std::endl;
 
     }
-}
+
 
 
     //this part is specific for when we have activity and periodic boundary condition. 
