@@ -712,9 +712,9 @@ __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
         ux, mass, gama_T, d_L, Nmd , m , topology, real_time,  grid_size, mass_fluid, N, random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale);
 
 
-        Active_nb_b_interaction<<<grid_size,blockSize>>>(d_mdX , d_mdY , d_mdZ, d_Fx , d_Fy , d_Fz ,d_L , Nmd , ux,density, real_time , m , topology);
+        /*Active_nb_b_interaction<<<grid_size,blockSize>>>(d_mdX , d_mdY , d_mdZ, d_Fx , d_Fy , d_Fz ,d_L , Nmd , ux,density, real_time , m , topology);
         gpuErrchk( cudaPeekAtLastError() );
-        gpuErrchk( cudaDeviceSynchronize() );
+        gpuErrchk( cudaDeviceSynchronize() );*/
 
         sum_kernel<<<grid_size,blockSize>>>(d_Fx ,d_Fy,d_Fz, d_mdAx ,d_mdAy, d_mdAz, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
