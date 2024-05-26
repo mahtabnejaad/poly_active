@@ -571,7 +571,7 @@ double *NL,int Nsize , double Nux, int Nmass, double Nreal_time, int Nm , int Nt
 
 
 
-__host__ void Active_calc_accelaration( double *x ,double *y , double *z , 
+__host__ void Active_calc_acceleration( double *x ,double *y , double *z , 
 double *Fx , double *Fy , double *Fz, 
 double *Ax , double *Ay , double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
 double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T, 
@@ -705,7 +705,7 @@ __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
         //The function calc_accelaration is called to compute the new accelerations for each particle based on their positions and interactions.
         //These accelerations are used in the subsequent time step to update particle velocities.
         //***
-        Active_calc_accelaration( d_mdX ,d_mdY , d_mdZ , 
+        Active_calc_acceleration( d_mdX ,d_mdY , d_mdZ , 
         d_Fx , d_Fy , d_Fz,
         d_Ax_tot , d_Ay_tot , d_Az_tot, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fa_ky, d_fa_kz,
         d_Aa_kx, d_Aa_ky, d_Aa_kz,d_Ab_kx, d_Ab_ky, d_Ab_kz, d_ex, d_ey, d_ez,
