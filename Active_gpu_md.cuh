@@ -135,19 +135,19 @@ __global__ void reduce_kernel(double *FF1 ,double *FF2 , double *FF3,
 
 //a kernel to build a random 0 or 1 array of size Nmd   
 
-__global__ void randomArray(int *Arandom , int Asize, unsigned int Aseed)
+__global__ void randomArray(int *random , int size, unsigned int seed)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x ;
-    if (tid<Asize)
+    if (tid<size)
     {
         curandState state;
-        curand_init(Aseed, tid, 0, &state);
+        curand_init(seed, tid, 0, &state);
 
         // Generate a random float between 0 and 1
         float random_float = curand_uniform(&state);
 
         // Convert the float to an integer (0 or 1)
-        Arandom[tid] = (random_float < 0.5f) ? 0 : 1;
+        random[tid] = (random_float < 0.5f) ? 0 : 1;
     }
 }
 
@@ -167,52 +167,52 @@ __global__ void choiceArray(int *flag, int size)
 
 
 }   
-__global__ void Active_calc_forces(double *ffa_kx, double *ffa_ky, double *ffa_kz, double *ffb_kx, double *ffb_ky, double *ffb_kz,
-double *fAa_kx, double *fAa_ky, double *fAa_kz,double *fAb_kx, double *fAb_ky, double *fAb_kz, double *fex, double *fey, double *fez, double fux, double fmass,double fmass_fluid, int fsize, int fN, double *fgama_T,double u_scale){
+__global__ void Active_calc_forces(double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
+double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass,double mass_fluid, int size, int N, double *gama_T,double u_scale){
 
     int tid = blockIdx.x *blockDim.x + threadIdx.x;
     //calculating (-M/mN+MN(m))
     //***
-    double Q= -fmass/(fsize*fmass+fmass_fluid*fN);
+    double Q= -mass/(size*mass+mass_fluid*N);
     //double Q = 1.0;
-    if(tid<fsize){
+    if(tid<size){
         //printf("gama_T=%f\n",*fgama_T);
         //calculating active forces in each axis for each particle:
-        ffa_kx[tid]=fex[tid]*u_scale* *fgama_T;
-        ffa_ky[tid]=fey[tid]*u_scale* *fgama_T;
-        ffa_kz[tid]=fez[tid]*u_scale* *fgama_T;
-        fAa_kx[tid]=ffa_kx[tid]/fmass;
-        fAa_ky[tid]=ffa_ky[tid]/fmass;
-        fAa_kz[tid]=ffa_kz[tid]/fmass;
+        fa_kx[tid]=ex[tid]*u_scale* *gama_T;
+        fa_ky[tid]=ey[tid]*u_scale* *gama_T;
+        fa_kz[tid]=ez[tid]*u_scale* *gama_T;
+        Aa_kx[tid]=fa_kx[tid]/mass;
+        Aa_ky[tid]=fa_ky[tid]/mass;
+        Aa_kz[tid]=fa_kz[tid]/mass;
 
         //calculating backflow forces in each axis for each particle: k is the index for each particle. 
-        ffb_kx[tid]=ffa_kx[tid]*Q;
-        ffb_ky[tid]=ffa_ky[tid]*Q;
-        ffb_kz[tid]=ffa_kz[tid]*Q;
-        fAb_kx[tid]=ffb_kx[tid]/fmass;
-        fAb_ky[tid]=ffb_ky[tid]/fmass;
-        fAb_kz[tid]=ffb_kz[tid]/fmass;
+        fb_kx[tid]=fa_kx[tid]*Q;
+        fb_ky[tid]=fa_ky[tid]*Q;
+        fb_kz[tid]=fa_kz[tid]*Q;
+        Ab_kx[tid]=fb_kx[tid]/mass;
+        Ab_ky[tid]=fb_ky[tid]/mass;
+        Ab_kz[tid]=fb_kz[tid]/mass;
     }
 
-    //printf("gama_T=%f\n",*fgama_T);
+    //printf("gama_T=%f\n",*gama_T);
 
 }
 
 
 
-__global__ void totalActive_calc_acceleration(double *tAx, double *tAy, double *tAz, double *tAa_kx, double *tAa_ky, double *tAa_kz, double *tAb_kx, double *tAb_ky, double *tAb_kz, int *trandom_array, double *tAx_tot, double *tAy_tot, double *tAz_tot, int tsize){
+__global__ void totalActive_calc_acceleration(double *Ax, double *Ay, double *Az, double *Aa_kx, double *Aa_ky, double *Aa_kz, double *Ab_kx, double *Ab_ky, double *Ab_kz, int *random_array, double *Ax_tot, double *Ay_tot, double *Az_tot, int size){
 
     int tid=blockIdx.x * blockDim.x + threadIdx.x;
 
     //here I added a randomness to the active and backflow forces exerting on the monomers. 
     //we can change this manually or we can replace any other function instead of random_array as we prefer.
     
-    if(tid< tsize){
+    if(tid< size){
 
     
-        tAx_tot[tid]=tAx[tid]+(tAa_kx[tid]+tAb_kx[tid])*trandom_array[tid]; 
-        tAy_tot[tid]=tAy[tid]+(tAa_ky[tid]+tAb_ky[tid])*trandom_array[tid];
-        tAz_tot[tid]=tAz[tid]+(tAa_kz[tid]+tAb_kz[tid])*trandom_array[tid];
+        Ax_tot[tid]=Ax[tid]+(Aa_kx[tid]+Ab_kx[tid])*random_array[tid]; 
+        Ay_tot[tid]=Ay[tid]+(Aa_ky[tid]+Ab_ky[tid])*random_array[tid];
+        Az_tot[tid]=Az[tid]+(Aa_kz[tid]+Ab_kz[tid])*random_array[tid];
     }
    
 
@@ -222,27 +222,27 @@ __global__ void totalActive_calc_acceleration(double *tAx, double *tAy, double *
 
 }
 
-__global__ void random_tangential(double *rex, double *rey, double *rez, int *rrandom_array, int rsize){
+__global__ void random_tangential(double *ex, double *ey, double *ez, int *random_array, int size){
 
     int tid=blockIdx.x * blockDim.x + threadIdx.x;
 
-    if(tid<rsize){
+    if(tid<size){
 
-        rex[tid]=rex[tid]*rrandom_array[tid];
-        rey[tid]=rey[tid]*rrandom_array[tid];
-        rez[tid]=rez[tid]*rrandom_array[tid];
+        ex[tid]=ex[tid]*random_array[tid];
+        ey[tid]=ey[tid]*random_array[tid];
+        ez[tid]=ez[tid]*random_array[tid];
 
 
     }
 }
 
-__global__ void choice_tangential(double *cex, double *cey, double *cez, int *cflag_array, int size){
+__global__ void choice_tangential(double *ex, double *ey, double *ez, int *flag_array, int size){
 
     int tid=blockIdx.x * blockDim.x + threadIdx.x;
     if(tid<size) {
-        cex[tid]=cex[tid]*cflag_array[tid];
-        cey[tid]=cey[tid]*cflag_array[tid];
-        cez[tid]=cez[tid]*cflag_array[tid];
+        ex[tid]=ex[tid]*flag_array[tid];
+        ey[tid]=ey[tid]*flag_array[tid];
+        ez[tid]=ez[tid]*flag_array[tid];
     }
 
 }
