@@ -104,7 +104,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
 
 
 
-__host__ void noslip_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
+__host__ void Active_noslip_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
     double *d_mdvx, double *d_mdvy, double *d_mdvz, double *d_mdAx, double *d_mdAy, double *d_mdAz,
     double *d_Fx, double *d_Fy, double *d_Fz, double h_md, int Nmd, int density, double *d_L , double ux, int grid_size , int delta, double real_time,
     double *md_dt_min, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ){
