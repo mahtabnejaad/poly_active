@@ -320,26 +320,7 @@ __global__ void particle_on_box_and_reverse_velocity_and_md_bounceback_velocityv
 
 }
 
-/*
-__global__ void md_bounceback_velocityverlet1(double *mdX, double *mdY, double *mdZ, double *mdvx, double *mdvy, double *mdvz, double *mdAx, double *mdAy, double *mdAz, double *md_dt_min, double dt_md, double *L, int Nmd){
 
-    int ID = blockIdx.x * blockDim.x + threadIdx.x;
-    if (ID<Nmd){
-        if(mdX[ID]>L[0]/2 || mdX[ID]<-L[0]/2 || mdY[ID]>L[1]/2 || mdY[ID]<-L[1]/2 || mdZ[ID]>L[2]/2 || mdZ[ID]<-L[2]/2){
-
-            //let the particle stream during dt-dt1 with the reversed velocity:
-            mdvx[ID] += 0.5 * (dt_md - md_dt_min[ID]) * mdAx[ID];
-            mdvy[ID] += 0.5 * (dt_md - md_dt_min[ID]) * mdAy[ID];
-            mdvz[ID] += 0.5 * (dt_md - md_dt_min[ID]) * mdAz[ID];
-
-            mdX[ID] = mdX[ID] + (dt_md - md_dt_min[ID]) * mdvx[ID] ;
-            mdY[ID] = mdY[ID] + (dt_md - md_dt_min[ID]) * mdvy[ID] ;
-            mdZ[ID] = mdZ[ID] + (dt_md - md_dt_min[ID]) * mdvz[ID] ;
-
-        }
-    }
-}
-*/
 
 __host__ void noslip_md_velocityverletKernel1(double *mdX, double *mdY , double *mdZ , 
 double *mdvx , double *mdvy , double *mdvz, double *mdAx , double *mdAy , double *mdAz,
@@ -380,20 +361,8 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, mdAx, mdAy, mdAz, md_dt_min, h_md, L, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
-
-    /*
-    //reverse the velocity direction:
-    reverse_velocity<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, mdvx_o, mdvy_o, mdvz_o, L, Nmd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-    
-    md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz,mdAx, mdAy, mdAz, md_dt_min, h_md, L, Nmd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-    */
+   
 }
-
-
 
 
 
@@ -433,21 +402,7 @@ __global__ void particle_on_box_and_reverse_velocity_and_md_bounceback_velocityv
 
 }
 
-/*__global__ void md_bounceback_velocityverlet2(double *mdX, double *mdY, double *mdZ, double *mdvx, double *mdvy, double *mdvz, double *mdAx, double *mdAy, double *mdAz, double *md_dt_min, double dt_md, double *L, int Nmd){
 
-    int ID = blockIdx.x * blockDim.x + threadIdx.x;
-    if (ID<Nmd){
-        if(mdX[ID]>L[0]/2 || mdX[ID]<-L[0]/2 || mdY[ID]>L[1]/2 || mdY[ID]<-L[1]/2 || mdZ[ID]>L[2]/2 || mdZ[ID]<-L[2]/2){
-
-            //let the particle stream during dt-dt1 with the reversed velocity:
-            mdvx[ID] += 0.5 * (dt_md - md_dt_min[ID]) * mdAx[ID];
-            mdvy[ID] += 0.5 * (dt_md - md_dt_min[ID]) * mdAy[ID];
-            mdvz[ID] += 0.5 * (dt_md - md_dt_min[ID]) * mdAz[ID];
-
-         
-        }
-    }
-}*/
 
 __host__ void noslip_md_velocityverletKernel2(double *mdX, double *mdY , double *mdZ , 
 double *mdvx , double *mdvy , double *mdvz, double *mdAx , double *mdAy , double *mdAz,
@@ -488,18 +443,6 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet2<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, mdAx, mdAy, mdAz, md_dt_min, h_md, L, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
-
-    /*
-    //reverse the velocity direction:
-    reverse_velocity<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, mdvx_o, mdvy_o, mdvz_o, L, Nmd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-    
-    md_bounceback_velocityverlet2<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, mdAx, mdAy, mdAz, md_dt_min, h_md, L, Nmd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-    */
-
 
  }
 
