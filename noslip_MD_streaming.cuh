@@ -489,9 +489,6 @@ __host__ void noslip_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
     }
 
 
-
-
-
 }
 
 
