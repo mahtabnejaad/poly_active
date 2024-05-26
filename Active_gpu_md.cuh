@@ -720,11 +720,11 @@ __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
-        monomer_active_backward_forces( d_mdX , d_mdY , d_mdZ,
+        /*monomer_active_backward_forces( d_mdX , d_mdY , d_mdZ,
         d_mdAx ,d_mdAy, d_mdAz ,d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_ex, d_ey, d_ez, ux, mass,gama_T, 
         d_L, Nmd , mass_fluid, real_time, m, topology,  grid_size, N , random_array, seed , d_Ax_tot, d_Ay_tot, d_Az_tot, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale);
         gpuErrchk( cudaPeekAtLastError() );
-        gpuErrchk( cudaDeviceSynchronize() );
+        gpuErrchk( cudaDeviceSynchronize() );*/
       
 
         
