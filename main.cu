@@ -335,12 +335,20 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&zerofactorr7, sizeof(int) * N);
 
 //////////////////////////////////////////////////////////////////////
+    //center of mass attributes:
 
     double *CMsumblock_x; double *CMsumblock_y; double *CMsumblock_z;
     double *CMsumblock_mdx; double *CMsumblock_mdy; double *CMsumblock_mdz;
 
     cudaMalloc((void**)&CMsumblock_x, grid_size_ * sizeof(double)); cudaMalloc((void**)&CMsumblock_y, grid_size_ * sizeof(double)); cudaMalloc((void**)&CMsumblock_z, grid_size_ * sizeof(double));
     cudaMalloc((void**)&CMsumblock_mdx, grid_size * sizeof(double)); cudaMalloc((void**)&CMsumblock_mdy, grid_size * sizeof(double)); cudaMalloc((void**)&CMsumblock_mdz, grid_size * sizeof(double));
+
+    double *CMsumblock_Vx; double *CMsumblock_Vy; double *CMsumblock_Vz;
+    double *CMsumblock_mdVx; double *CMsumblock_mdVy; double *CMsumblock_mdVz;
+
+    cudaMalloc((void**)&CMsumblock_Vx, grid_size_ * sizeof(double)); cudaMalloc((void**)&CMsumblock_Vy, grid_size_ * sizeof(double)); cudaMalloc((void**)&CMsumblock_Vz, grid_size_ * sizeof(double));
+    cudaMalloc((void**)&CMsumblock_mdVx, grid_size * sizeof(double)); cudaMalloc((void**)&CMsumblock_mdVy, grid_size * sizeof(double)); cudaMalloc((void**)&CMsumblock_mdVz, grid_size * sizeof(double));
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
