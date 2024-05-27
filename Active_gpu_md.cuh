@@ -677,17 +677,18 @@ __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
     for (int tt = 0 ; tt < delta ; tt++)
     {
 
-
+        //with this function call particles go to box's center of mass frame. 
         gotoCMframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
-        ActivevelocityVerletKernel1<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, d_mdVx, d_mdVy, d_mdVz, d_Ax_tot, d_Ay_tot, d_Az_tot , h_md,Nmd);
+        //firt velocity verlet step, in which particles' positions and velocities are updated.
+        ActivevelocityVerletKernel1<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, d_mdVx, d_mdVy, d_mdVz, d_Ax_tot, d_Ay_tot, d_Az_tot , h_md, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
         
         
-        //After updating particle positions, a kernel named LEBC is called to apply boundary conditions to ensure that particles stay within the simulation box.
+        //After updating particles' positions, a kernel named LEBC is called to apply boundary conditions to ensure that particles stay within the simulation box.
         LEBC<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, d_mdVx , ux , d_L, real_time , Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
@@ -729,7 +730,7 @@ __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
         //This ensures that the velocities are synchronized with the newly calculated accelerations.
 
         //***
-        ActivevelocityVerletKernel2<<<grid_size,blockSize>>>(d_mdVx, d_mdVy, d_mdVz, d_mdAx, d_mdAy, d_mdAz, h_md, Nmd);
+        ActivevelocityVerletKernel2<<<grid_size,blockSize>>>(d_mdVx, d_mdVy, d_mdVz, d_Ax_tot, d_Ay_tot, d_Az_tot, h_md, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
