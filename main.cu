@@ -247,13 +247,22 @@ int main(int argc, const char* argv[])
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //center of mass attributes:
+    //center of mass POSITION attributes:
     double *mdX_tot , *mdY_tot, *mdZ_tot ;
     double *dX_tot , *dY_tot, *dZ_tot ;
     mdX_tot = (double*) malloc(sizeof(double)); mdY_tot = (double*) malloc(sizeof(double)); mdZ_tot = (double*) malloc(sizeof(double));
     dX_tot = (double*) malloc(sizeof(double)); dY_tot = (double*) malloc(sizeof(double)); dZ_tot = (double*) malloc(sizeof(double));
     *mdX_tot=0.0; *mdY_tot=0.0; *mdZ_tot=0.0;
     *dX_tot=0.0; *dY_tot=0.0; *dZ_tot=0.0;
+
+    //center of mass VELOCITY attributes:
+    double *mdVx_tot , *mdVy_tot, *mdVz_tot ;
+    double *dVx_tot , *dVy_tot, *dVz_tot ;
+    mdVx_tot = (double*) malloc(sizeof(double)); mdVy_tot = (double*) malloc(sizeof(double)); mdVz_tot = (double*) malloc(sizeof(double));
+    dVx_tot = (double*) malloc(sizeof(double)); dVy_tot = (double*) malloc(sizeof(double)); dVz_tot = (double*) malloc(sizeof(double));
+    *mdVx_tot=0.0; *mdVy_tot=0.0; *mdVz_tot=0.0;
+    *dVx_tot=0.0; *dVy_tot=0.0; *dVzs_tot=0.0;
+
 
     
 
@@ -836,7 +845,8 @@ int main(int argc, const char* argv[])
                 //printf("gama_T=%lf\n",*gama_T);
 
                 //go to center of mass reference frame:
-                CM_system(d_mdX, d_mdY, d_mdZ,d_x, d_y, d_z, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, dX_tot, dY_tot, dZ_tot, grid_size, shared_mem_size, blockSize_, grid_size_, density, 1, h_Xcm, h_Ycm, h_Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, topology );
+                CM_system(d_mdX, d_mdY, d_mdZ,d_x, d_y, d_z, d_mdVx, d_mdVy, d_mdVz,d_Vx, d_Vy, d_Vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, dX_tot, dY_tot, dZ_tot, mdVx_tot, mdVy_tot, mdVz_tot, dVx_tot, dVy_tot, dVz_tot, grid_size, shared_mem_size, blockSize_, grid_size_, density, 1,
+                h_Xcm, h_Ycm, h_Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, h_Vxcm, h_Vycm, h_Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
 
                 noslip_Active_MPCD_streaming(d_x , d_y , d_z , d_vx , d_vy , d_vz ,h_mpcd ,N ,grid_size ,
                 h_fa_x , h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_ex, d_ey, d_ez, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez,
