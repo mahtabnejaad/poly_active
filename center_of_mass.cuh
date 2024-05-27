@@ -96,6 +96,8 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         int shared_mem_size_ = 3 * blockSize_ * sizeof(double);
 
         double block_sum_dX[grid_size_]; double block_sum_dY[grid_size_]; double block_sum_dZ[grid_size_];
+        double block_sum_dVx[grid_size_]; double block_sum_dVy[grid_size_]; double block_sum_dVz[grid_size_];
+
 
         reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, CMsumblock_x, N);
         reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dY, CMsumblock_y, N);
@@ -103,12 +105,26 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
+        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, CMsumblock_Vx, N);
+        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVy, CMsumblock_Vy, N);
+        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVz, CMsumblock_Vz, N);
+        gpuErrchk( cudaPeekAtLastError() );
+        gpuErrchk( cudaDeviceSynchronize() );
+
+
         cudaMemcpy(block_sum_dX, CMsumblock_x, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
         cudaMemcpy(block_sum_dY, CMsumblock_y, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
         cudaMemcpy(block_sum_dZ, CMsumblock_z, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
 
+        cudaMemcpy(block_sum_dVx, CMsumblock_Vx, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(block_sum_dVy, CMsumblock_Vy, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(block_sum_dVz, CMsumblock_Vz, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
+
+
+
 
         *dX_tot=0.0; *dY_tot=0.0; *dZ_tot=0.0;
+        *dVx_tot=0.0; *dVy_tot=0.0; *dVz_tot=0.0;
 
 
         for (int j = 0; j < grid_size_; j++)
@@ -116,6 +132,12 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
             *dX_tot += block_sum_dX[j];
             *dY_tot += block_sum_dY[j];
             *dZ_tot += block_sum_dZ[j];
+
+            *dVx_tot += block_sum_dVx[j];
+            *dVy_tot += block_sum_dVy[j];
+            *dVz_tot += block_sum_dVz[j];
+
+
         }
 
         cudaDeviceSynchronize();
@@ -123,13 +145,14 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
 
         double XCM , YCM, ZCM;
         XCM=0.0; YCM=0.0; ZCM=0.0;
-
+ 
+        double VXCM , VYCM, VZCM;
+        VXCM=0.0; VYCM=0.0; VZCM=0.0;
 
     
         int M_tot = mass*Nmd+mass_fluid*N;
         //int M_tot = 1 ;
 
-   
         XCM = ( (mass*Nmd* *mdX_tot) + (mass_fluid*N* *dX_tot) )/M_tot;
         YCM = ( (mass*Nmd* *mdY_tot) + (mass_fluid*N* *dY_tot) )/M_tot;
         ZCM = ( (mass*Nmd* *mdZ_tot) + (mass_fluid*N* *dZ_tot) )/M_tot;
@@ -139,8 +162,19 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         cudaMemcpy(Zcm, &ZCM, sizeof(double), cudaMemcpyHostToDevice);
     
         //printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM, YCM, ZCM); 
-    }
     
+        VXCM = ( (mass*Nmd* *mdX_tot) + (mass_fluid*N* *dVx_tot) )/M_tot;
+        VYCM = ( (mass*Nmd* *mdY_tot) + (mass_fluid*N* *dVy_tot) )/M_tot;
+        VZCM = ( (mass*Nmd* *mdZ_tot) + (mass_fluid*N* *dVz_tot) )/M_tot;
+
+        cudaMemcpy(Vxcm, &VXCM, sizeof(double), cudaMemcpyHostToDevice);
+        cudaMemcpy(Vycm, &VYCM, sizeof(double), cudaMemcpyHostToDevice);
+        cudaMemcpy(Vycm, &VZCM, sizeof(double), cudaMemcpyHostToDevice);
+    
+        //printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM, YCM, ZCM); 
+
+        
+    }
     else
     {
         double block_sum_mdX[grid_size]; double block_sum_mdY[grid_size]; double block_sum_mdZ[grid_size];
@@ -148,11 +182,24 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
+        double block_sum_mdVx[grid_size]; double block_sum_mdVy[grid_size]; double block_sum_mdVz[grid_size];
+        reduce_kernel<<<grid_size,blockSize, shared_mem_size>>>(mdVx, mdVy, mdVz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, Nmd);
+        gpuErrchk( cudaPeekAtLastError() );
+        gpuErrchk( cudaDeviceSynchronize() );
+
+
         cudaMemcpy(block_sum_mdX, CMsumblock_mdx, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
         cudaMemcpy(block_sum_mdY, CMsumblock_mdy, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
         cudaMemcpy(block_sum_mdZ, CMsumblock_mdz, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
 
+        cudaMemcpy(block_sum_mdVx, CMsumblock_mdVx, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(block_sum_mdVy, CMsumblock_mdVy, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(block_sum_mdVz, CMsumblock_mdVz, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
+
+
         *mdX_tot = 0.0; *mdY_tot = 0.0; *mdZ_tot = 0.0;
+        *mdVx_tot = 0.0; *mdVy_tot = 0.0; *mdVz_tot = 0.0;
+
 
 
         for (int i = 0; i < grid_size; i++)
@@ -160,6 +207,10 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
             *mdX_tot +=block_sum_mdX[i];
             *mdY_tot +=block_sum_mdY[i];
             *mdZ_tot +=block_sum_mdZ[i];
+
+            *mdVx_tot +=block_sum_mdVx[i];
+            *mdVy_tot +=block_sum_mdVy[i];
+            *mdVz_tot +=block_sum_mdVz[i];
         }
 
         cudaDeviceSynchronize();
@@ -181,6 +232,11 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dY, CMsumblock_y, N);
         reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dZ, CMsumblock_z, N);
 
+        double block_sum_dVx[grid_size_]; double block_sum_dVy[grid_size_]; double block_sum_dVz[grid_size_];
+
+        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, CMsumblock_Vx, N);
+        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVy, CMsumblock_Vy, N);
+        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVz, CMsumblock_Vz, N);
 
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
@@ -189,8 +245,13 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         cudaMemcpy(block_sum_dY, CMsumblock_y, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
         cudaMemcpy(block_sum_dZ, CMsumblock_z, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
 
+        cudaMemcpy(block_sum_dVx, CMsumblock_Vx, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(block_sum_dVy, CMsumblock_Vy, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(block_sum_dVz, CMsumblock_Vz, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
+
 
         *dX_tot=0.0; *dY_tot=0.0; *dZ_tot=0.0;
+        *dVx_tot=0.0; *dVy_tot=0.0; *dVz_tot=0.0;
 
 
         for (int j = 0; j < grid_size; j++)
@@ -198,6 +259,10 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
             *dX_tot += block_sum_dX[j];
             *dY_tot += block_sum_dY[j];
             *dZ_tot += block_sum_dZ[j];
+
+            *dVx_tot += block_sum_dVx[j];
+            *dVy_tot += block_sum_dVy[j];
+            *dVz_tot += block_sum_dVz[j];
         }
 
         cudaDeviceSynchronize();
@@ -205,6 +270,9 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
 
         double XCM , YCM, ZCM;
         XCM=0.0; YCM=0.0; ZCM=0.0;
+
+        double VXCM , VYCM, VZCM;
+        VXCM=0.0; VYCM=0.0; VZCM=0.0;
 
 
     
@@ -216,11 +284,22 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         YCM = ( (mass*Nmd* *mdY_tot) + (mass_fluid*N* *dY_tot) )/M_tot;
         ZCM = ( (mass*Nmd* *mdZ_tot) + (mass_fluid*N* *dZ_tot) )/M_tot;
 
+        VXCM = ( (mass*Nmd* *mdX_tot) + (mass_fluid*N* *dVx_tot) )/M_tot;
+        VYCM = ( (mass*Nmd* *mdY_tot) + (mass_fluid*N* *dVy_tot) )/M_tot;
+        VZCM = ( (mass*Nmd* *mdZ_tot) + (mass_fluid*N* *dVz_tot) )/M_tot;
+
+
         cudaMemcpy(Xcm, &XCM, sizeof(double), cudaMemcpyHostToDevice);
         cudaMemcpy(Ycm, &YCM, sizeof(double), cudaMemcpyHostToDevice);
         cudaMemcpy(Zcm, &ZCM, sizeof(double), cudaMemcpyHostToDevice);
+
+        cudaMemcpy(Vxcm, &VXCM, sizeof(double), cudaMemcpyHostToDevice);
+        cudaMemcpy(Vycm, &VYCM, sizeof(double), cudaMemcpyHostToDevice);
+        cudaMemcpy(Vzcm, &VZCM, sizeof(double), cudaMemcpyHostToDevice);
     
-        printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM, YCM, ZCM); 
+    
+        printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM, YCM, ZCM);
+        printf("Vxcm = %lf, Vycm = %lf, Vzcm = %lf\n", VXCM, VYCM, VZCM); 
     }
 
 
