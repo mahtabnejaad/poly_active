@@ -355,6 +355,11 @@ int main(int argc, const char* argv[])
     double *h_Xcm , *h_Ycm, *h_Zcm ; 
     //h_Xcm = (double*) malloc(sizeof(double)); h_Ycm = (double*) malloc(sizeof(double)); h_Zcm = (double*) malloc(sizeof(double));
     cudaMalloc((void**)&h_Xcm, sizeof(double)); cudaMalloc((void**)&h_Ycm, sizeof(double)); cudaMalloc((void**)&h_Zcm, sizeof(double));
+
+    double *h_Vxcm , *h_Vycm, *h_Vzcm ; 
+
+    cudaMalloc((void**)&h_Vxcm, sizeof(double)); cudaMalloc((void**)&h_Vycm, sizeof(double)); cudaMalloc((void**)&h_Vzcm, sizeof(double));
+    
     
     //Allocate device memory for active and backward accelerations exerted on each MD particle:
    
