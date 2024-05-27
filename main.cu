@@ -261,7 +261,7 @@ int main(int argc, const char* argv[])
     mdVx_tot = (double*) malloc(sizeof(double)); mdVy_tot = (double*) malloc(sizeof(double)); mdVz_tot = (double*) malloc(sizeof(double));
     dVx_tot = (double*) malloc(sizeof(double)); dVy_tot = (double*) malloc(sizeof(double)); dVz_tot = (double*) malloc(sizeof(double));
     *mdVx_tot=0.0; *mdVy_tot=0.0; *mdVz_tot=0.0;
-    *dVx_tot=0.0; *dVy_tot=0.0; *dVzs_tot=0.0;
+    *dVx_tot=0.0; *dVy_tot=0.0; *dVz_tot=0.0;
 
 
     
