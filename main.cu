@@ -682,11 +682,12 @@ int main(int argc, const char* argv[])
                 Active_MD_streaming(d_mdX, d_mdY, d_mdZ, d_x , d_y , d_z, d_mdVx , d_mdVy , d_mdVz, d_vx , d_vy , d_vz,
                     d_mdAx, d_mdAy, d_mdAz, mdX_tot, mdY_tot, mdZ_tot, dX_tot, dY_tot, dZ_tot, mdVx_tot, mdVy_tot, mdVz_tot, dVx_tot, dVy_tot, dVz_tot,
                     CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz,
-                     CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz,
+                    CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz,
                     md_Fx_holder, md_Fy_holder, md_Fz_holder, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fa_kz, 
                     d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_ex, d_ey, d_ez,
                     h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, 
-                    h_md , Nmd ,density ,d_L ,ux ,grid_size ,delta ,real_time ,m_md ,N ,density ,1 , gama_T, d_random_array, d_seed, topology, h_Xcm, h_Ycm, h_Zcm, h_Vxcm, h_Vycm, h_Vzcm, d_flag_array, u_scale);
+                    h_md ,Nmd ,density , d_L, ux, grid_size, shared_mem_size, blockSize_, grid_size_, delta, real_time, m_md, N, 
+                    density, 1, gama_T, d_random_array, d_seed, topology, h_Xcm, h_Ycm, h_Zcm, h_Vxcm, h_Vycm, h_Vzcm, d_flag_array, u_scale);
                 
                 Sort_begin(d_x , d_y , d_z ,d_vx, d_vy, d_vz, d_index , d_mdX , d_mdY , d_mdZ ,
                     d_mdVx, d_mdVy, d_mdVz, d_mdIndex ,ux , d_L , d_r , N , Nmd , real_time, grid_size);
