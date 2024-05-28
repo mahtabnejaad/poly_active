@@ -687,7 +687,7 @@ __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
     double *h_fa_x, double *h_fa_y, double *h_fa_z,
     double *h_fb_x, double *h_fb_y, double *h_fb_z,
     double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
-    double h_md , int Nmd, int density, double *d_L , double ux,int grid_size ,int delta, 
+    double h_md , int Nmd, int density, double *d_L , double ux, int grid_size, int shared_mem_size, int blockSize_, int grid_size_, int delta, 
     double real_time, int m, int N, double mass, double mass_fluid, double *gama_T, int *random_array, unsigned int seed, int topology, 
     double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, int *flag_array, double u_scale)
 {
