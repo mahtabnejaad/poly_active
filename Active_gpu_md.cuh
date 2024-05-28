@@ -669,8 +669,14 @@ __global__ void backtoLabframe(double *X, double *Y, double *Z, double *Xcm,doub
 }
 
 __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
+    double *d_x, double *d_y, double *d_z,
     double *d_mdVx, double *d_mdVy, double *d_mdVz,
+    double *d_vx, double *d_vy, double *d_vz,
     double *d_mdAx, double *d_mdAy, double *d_mdAz,
+    double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *dX_tot, double *dY_tot, double *dZ_tot,
+    double *mdVx_tot, double *mdVy_tot, double *mdVz_tot, double *dVx_tot, double *dVy_tot, double *dVz_tot,
+    double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz,
+    double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz,
     double *d_Fx, double *d_Fy, double *d_Fz,
     double *d_fa_kx, double *d_fa_ky, double *d_fa_kz,
     double *d_fb_kx, double *d_fb_ky, double *d_fb_kz,
@@ -681,12 +687,15 @@ __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
     double *h_fa_x, double *h_fa_y, double *h_fa_z,
     double *h_fb_x, double *h_fb_y, double *h_fb_z,
     double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
-    double h_md ,int Nmd, int density, double *d_L ,double ux,int grid_size ,int delta, 
+    double h_md , int Nmd, int density, double *d_L , double ux,int grid_size ,int delta, 
     double real_time, int m, int N, double mass, double mass_fluid, double *gama_T, int *random_array, unsigned int seed, int topology, 
     double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, int *flag_array, double u_scale)
 {
     for (int tt = 0 ; tt < delta ; tt++)
     {
+
+        CM_system(d_mdX, d_mdY, d_mdZ,d_x, d_y, d_z, d_mdVx, d_mdVy, d_mdVz, d_vx, d_vy, d_vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, dX_tot, dY_tot, dZ_tot, mdVx_tot, mdVy_tot, mdVz_tot, dVx_tot, dVy_tot, dVz_tot, grid_size, shared_mem_size, blockSize_, grid_size_, density, 1,
+                Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Vxcm, Vycm, Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
 
         //with this function call particles go to box's center of mass frame. 
         gotoCMframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Nmd);
