@@ -16,6 +16,73 @@ __device__ void warp_Reduce_int(volatile int *ssdata, int tid) {
     ssdata[tid] += ssdata[tid + 1];
 }
 
+//this kernel is used to sum array components on block level in a parallel way
+__global__ void reduce_kernel(double *FF1 ,double *FF2 , double *FF3,
+ double *AA1 ,double *AA2 , double *AA3,
+  int size)
+{
+    //size= Nmd (or N )
+    //we want to add all the tangential vectors' components in one axis and calculate the total fa in one axis.
+    //(OR generally we want to add all the components of a 1D array to each other) 
+    int tid = threadIdx.x; //tid represents the index of the thread within the block.
+    int index = blockIdx.x * blockDim.x + threadIdx.x ;//index represents the global index of the element in the input (F1,F2 or F3) array that the thread is responsible for.
+    extern __shared__ double ssssdata[];  // This declares a shared memory array sdata, which will be used for the reduction within the block
+   
+
+ 
+    if(index<size){
+       
+        // Load the value into shared memory
+    //Each thread loads the corresponding element from the F1,F2 or F3 array into the shared memory array sdata. If the thread's index is greater than or equal to size, it loads a zero.
+        ssssdata[tid] = (index < size) ? FF1[index] : 0.0; 
+        __syncthreads();  // Synchronize threads within the block to ensure all threads have loaded their data into shared memory before proceeding.
+
+        ssssdata[tid+size] = (index < size) ? FF2[index] : 0.0;
+        __syncthreads();  // Synchronize threads within the block
+
+        ssssdata[tid+2*size] = (index < size) ? FF3[index] : 0.0;
+        __syncthreads();  // Synchronize threads within the block
+
+        // Reduction in shared memory
+        //This loop performs a binary reduction on the sdata array in shared memory.
+        //The loop iteratively adds elements from sdata[tid + s] to sdata[tid], where s is halved in each iteration.
+        //The threads cooperate to perform the reduction in parallel.
+        for (unsigned int s = blockDim.x / 2; s > 0; s >>= 1)
+        {
+            if (tid < s)
+            {
+                ssssdata[tid] += ssssdata[tid + s];
+                ssssdata[tid + size] += ssssdata[tid + size + s];
+                ssssdata[tid + 2 * size] += ssssdata[tid + 2 * size + s];
+
+            }
+            __syncthreads();
+        }
+    
+        // Store the block result in the result array
+        //Only the first thread in the block performs this operation.
+        //It stores the final reduced value of the block into A1, A2 or A3 array at the corresponding block index
+        if (tid == 0)
+        {
+            AA1[blockIdx.x] = ssssdata[0];
+            AA2[blockIdx.x] = ssssdata[size];
+            AA3[blockIdx.x] = ssssdata[2*size];
+  
+            //printf("A1[blockIdx.x]=%f",AA1[blockIdx.x]);
+            //printf("\nA2[blockIdx.x]=%f",AA2[blockIdx.x]);
+            //printf("\nA3[blockIdx.x]=%f\n",AA3[blockIdx.x]);
+
+
+        }
+        __syncthreads();
+        //printf("BLOCKSUM1[0]=%f\n",A1[0]);
+        //printf("BLOCKSUM1[1]=%f\n",A1[1]);
+    }
+   
+}
+
+
+
 __global__ void reduceKernel_(double *input, double *output, int N) {
     extern __shared__ double sssdata[];
     int tid = threadIdx.x;
