@@ -25,4 +25,16 @@ __device__ __host__ void LeeEdwNearestImage(double x0,double x1, double x2, doub
     r[2] -= L[2] * (round(r[2] / L[2]));
 }
 
-
+//Boundary condition in center of mass coordinates:
+__global__ void CM_LEBC(double *x1 ,double *x2 , double *x3, double *Xcm, double *Ycm, double *Zcm, double *v1, double *Vxcm, double ux, double *L, double t, int N)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if(tid<N)
+    {
+        x1[tid] -= ux * t * round((x3[tid] + *Zcm)/ L[2]);
+        x1[tid] -= L[0] * (round((x1[tid] + *Xcm) / L[0]));
+        v1[tid] -= ux * round((x3[tid] + *Zcm) / L[2]);
+        x2[tid] -= L[1] * (round((x2[tid] + *Ycm) / L[1]));
+        x3[tid] -= L[2] * (round((x3[tid] + *Zcm)/ L[2]));
+    }
+}
