@@ -1,3 +1,5 @@
+#include "center_of_mass.cuh"
+
 __global__ void tangential_vectors(double *mdX_v, double *mdY_v , double *mdZ_v ,
 double *ex_v , double *ey_v , double *ez_v, 
 double *L_v,int size_v , double ux_v, int mass_v, double real_time_v, int m_v , int topology_v) 
