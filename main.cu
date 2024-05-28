@@ -10,7 +10,7 @@
 #include <vector>
 #include <random>
 #include <exception>
-#include<unistd.h>
+#include <unistd.h>
 #include "mpcd_macro.cuh"
 //#include "nonslipXperiodic.cuh"
 #include "LEBC.cuh"
@@ -23,13 +23,13 @@
 #include "gallileain_inv.cuh"
 #include "rerstart_file.cuh"
 #include "md_analyser.cuh"
+#include "center_of_mass.cuh"
 #include "gpu_md.cuh"
 #include "Active_gpu_md.cuh"
 #include "noslip_MD_streaming.cuh"
 #include "begining.cuh"
 #include "logging.cuh"
 #include <ctime>
-#include "center_of_mass.cuh"
 #include "reducefileC.cuh"
 
 
