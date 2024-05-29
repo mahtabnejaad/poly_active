@@ -56,6 +56,10 @@ double *L,int size , double ux, int mass, int mass_fluid, double real_time, int 
     Active_mpcd_streaming<<<grid_size,blockSize>>>(d_x, d_y, d_z , d_vx, d_vy, d_vz, h_mpcd, N, *fa_x, *fa_y, *fa_z, size, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
+
+     backtoLabframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
     
 }
 
