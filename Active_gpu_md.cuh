@@ -569,41 +569,6 @@ double *mdAx , double *mdAy , double *mdAz,
 
     }
 }
-__global__ void gotoCMframe(double *X, double *Y, double *Z, double *Xcm,double *Ycm, double *Zcm, double *Vx, double *Vy, double *Vz, double *Vxcm,double *Vycm, double *Vzcm, int size){
-
-    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
-    if (tid < size)
-    {
-        
-        X[tid] = X[tid] - *Xcm;
-        Y[tid] = Y[tid] - *Ycm;
-        Z[tid] = Z[tid] - *Zcm;
-
-        Vx[tid] = Vx[tid] - *Vxcm;
-        Vy[tid] = Vy[tid] - *Vycm;
-        Vz[tid] = Vz[tid] - *Vzcm;
-
-
-
-    }
-}
-
-__global__ void backtoLabframe(double *X, double *Y, double *Z, double *Xcm,double *Ycm, double *Zcm, double *Vx, double *Vy, double *Vz, double *Vxcm,double *Vycm, double *Vzcm, int size){
-    
-        int tid = blockIdx.x * blockDim.x + threadIdx.x ;
-        if (tid < size)
-        {
-            
-            X[tid] = X[tid] + *Xcm;
-            Y[tid] = Y[tid] + *Ycm;
-            Z[tid] = Z[tid] + *Zcm;
-
-            Vx[tid] = Vx[tid] - *Vxcm;
-            Vy[tid] = Vy[tid] - *Vycm;
-            Vz[tid] = Vz[tid] - *Vzcm;
-
-        }
-}
 
 __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
     double *d_x, double *d_y, double *d_z,
@@ -646,7 +611,7 @@ __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
         
         
         //After updating particles' positions, a kernel named LEBC is called to apply boundary conditions to ensure that particles stay within the simulation box.
-        LEBC<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, d_mdVx , ux , d_L, real_time , Nmd);
+        CM_LEBC<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, d_mdVx, Vxcm, ux, d_L, real_time, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
