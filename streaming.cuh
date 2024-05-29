@@ -1,4 +1,47 @@
 #include "gpu_md.h"
+
+__global__ void gotoCMframe(double *X, double *Y, double *Z, double *Xcm,double *Ycm, double *Zcm, double *Vx, double *Vy, double *Vz, double *Vxcm,double *Vycm, double *Vzcm, int size){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+    if (tid < size)
+    {
+        
+        X[tid] = X[tid] - *Xcm;
+        Y[tid] = Y[tid] - *Ycm;
+        Z[tid] = Z[tid] - *Zcm;
+
+        Vx[tid] = Vx[tid] - *Vxcm;
+        Vy[tid] = Vy[tid] - *Vycm;
+        Vz[tid] = Vz[tid] - *Vzcm;
+
+
+
+    }
+}
+
+__global__ void backtoLabframe(double *X, double *Y, double *Z, double *Xcm,double *Ycm, double *Zcm, double *Vx, double *Vy, double *Vz, double *Vxcm,double *Vycm, double *Vzcm, int size){
+    
+        int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+        if (tid < size)
+        {
+            
+            X[tid] = X[tid] + *Xcm;
+            Y[tid] = Y[tid] + *Ycm;
+            Z[tid] = Z[tid] + *Zcm;
+
+            Vx[tid] = Vx[tid] - *Vxcm;
+            Vy[tid] = Vy[tid] - *Vycm;
+            Vz[tid] = Vz[tid] - *Vzcm;
+
+        }
+}
+
+
+
+
+
+
+
 //streaming: the first function no force field is considered while calculating the new postion of the fluid 
 __global__ void mpcd_streaming(double* x,double* y ,double* z,double* vx ,double* vy,double* vz ,double timestep, int N)
 {
@@ -23,6 +66,8 @@ __host__ void MPCD_streaming(double* d_x,double* d_y , double* d_z, double* d_vx
 
 
 //Active MPCD:
+
+
 
 __global__ void Active_mpcd_streaming(double* x,double* y ,double* z,double* vx ,double* vy,double* vz ,double timestep, int N, double fa_x, double fa_y, double fa_z, int size, double mass, double mass_fluid)
 {
