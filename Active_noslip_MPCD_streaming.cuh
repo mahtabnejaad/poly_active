@@ -24,7 +24,7 @@ __global__ void CM_wall_sign(double *vx, double *vy, double *vz, double *wall_si
 }
 
 //a function to calculate distance of particles which are inside the box from the corresponding walls:
-__global__ void CM_distance_from_walls(double *x, double *y, double *z, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *L, int N, double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm){
+__global__ void CM_distance_from_walls(double *x, double *y, double *z, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *L, int N, double *Xcm, double *Ycm, double *Zcm){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
@@ -211,7 +211,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm)
 {
 
-    CM_wall_sign<<<grid_size,blockSize>>>(d_vx , d_vy , d_vz, wall_sign_x, wall_sign_y, wall_sign_z, N);
+    CM_wall_sign<<<grid_size,blockSize>>>(d_vx , d_vy , d_vz, wall_sign_x, wall_sign_y, wall_sign_z, N, Vxcm, Vycm, Vzcm);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
