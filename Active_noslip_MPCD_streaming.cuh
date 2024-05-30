@@ -1,20 +1,20 @@
 
 //a function to consider velocity sign of particles and determine which sides of the box it should interact with 
-__global__ void CM_wall_sign(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, int N){
+__global__ void CM_wall_sign(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, int N, double *Vxcm, double *Vycm, double *Vzcm){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
-        if (vx[tid] > 0 )  wall_sign_x[tid] = 1;
-        else if (vx[tid] < 0)  wall_sign_x[tid] = -1;
-        else if(vx[tid] == 0)  wall_sign_x[tid] = 0;
+        if (vx[tid] > -*Vxcm )  wall_sign_x[tid] = 1;
+        else if (vx[tid] < -*Vxcm)  wall_sign_x[tid] = -1;
+        else if(vx[tid] == -*Vxcm)  wall_sign_x[tid] = 0;
         
-        if (vy[tid] > 0 ) wall_sign_y[tid] = 1;
-        else if (vy[tid] < 0) wall_sign_y[tid] = -1;
-        else if (vy[tid] == 0)  wall_sign_y[tid] = 0;
+        if (vy[tid] > -*Vycm ) wall_sign_y[tid] = 1;
+        else if (vy[tid] < -*Vycm) wall_sign_y[tid] = -1;
+        else if (vy[tid] == -*Vycm )  wall_sign_y[tid] = 0;
 
-        if (vz[tid] > 0) wall_sign_z[tid] = 1;
-        else if (vz[tid] < 0) wall_sign_z[tid] = -1;
-        else if (vz[tid] == 0)  wall_sign_z[tid] = 0;
+        if (vz[tid] > -*Vzcm) wall_sign_z[tid] = 1;
+        else if (vz[tid] < -*Vzcm) wall_sign_z[tid] = -1;
+        else if (vz[tid] == -*Vcm)  wall_sign_z[tid] = 0;
 
         (isnan(vx[tid])|| isnan(vy[tid]) || isnan(vz[tid])) ? printf("00vx[%i]=%f, vy[%i]=%f, vz[%i]=%f \n", tid, vx[tid], tid, vy[tid], tid, vz[tid])
                                                             : printf("");
