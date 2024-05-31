@@ -60,7 +60,7 @@ __global__ void CM_distance_from_walls(double *x, double *y, double *z, double *
 
 
 //a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
-__global__ void Active_mpcd_deltaT(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
+__global__ void Active_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
@@ -220,11 +220,11 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_mpcd_deltaT<<<grid_size,blockSize>>>(d_vx, d_vy, d_vz, wall_sign_x, wall_sign_y, wall_sign_z, x_wall_dist, y_wall_dist, z_wall_dist, dt_x, dt_y, dt_z, N, *fa_x, *fa_y, *fa_z, Nmd, mass, mass_fluid);
+    Active_noslip_mpcd_deltaT<<<grid_size,blockSize>>>(d_vx, d_vy, d_vz, wall_sign_x, wall_sign_y, wall_sign_z, x_wall_dist, y_wall_dist, z_wall_dist, dt_x, dt_y, dt_z, N, *fa_x, *fa_y, *fa_z, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_deltaT_min<<<grid_size,blockSize>>>(dt_x, dt_y, dt_z, dt_min, N);
+    deltaT_min<<<grid_size,blockSize>>>(dt_x, dt_y, dt_z, dt_min, N);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
