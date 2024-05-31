@@ -14,7 +14,7 @@ __global__ void CM_wall_sign(double *vx, double *vy, double *vz, double *wall_si
 
         if (vz[tid] > -*Vzcm) wall_sign_z[tid] = 1;
         else if (vz[tid] < -*Vzcm) wall_sign_z[tid] = -1;
-        else if (vz[tid] == -*Vcm)  wall_sign_z[tid] = 0;
+        else if (vz[tid] == -*Vzcm)  wall_sign_z[tid] = 0;
 
         (isnan(vx[tid])|| isnan(vy[tid]) || isnan(vz[tid])) ? printf("00vx[%i]=%f, vy[%i]=%f, vz[%i]=%f \n", tid, vx[tid], tid, vy[tid], tid, vz[tid])
                                                             : printf("");
@@ -204,9 +204,9 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_
 }
 
 
-__host__ void Active_noslip_MPCD_streaming(double* d_x, double* d_y , double* d_z, double* d_vx , double* d_vy, double* d_vz, double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double h_mpcd, int N, int grid_size, double *fa_x, double *fa_y, double *fa_z, 
-double *fb_x, double *fb_y, double *fb_z ,double *ex, double *ey, double *ez,double *block_sum_ex, double *block_sum_ey, double *block_sum_ez,
-int Nmd , double ux, int mass, int mass_fluid, double real_time, int m, int topology, int shared_mem_size, double *L, double *dt_x, double *dt_y, double *dt_z, double *dt_min, 
+__host__ void Active_noslip_MPCD_streaming(double* d_x, double* d_y , double* d_z, double* d_vx , double* d_vy, double* d_vz, double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double h_mpcd, int N, int grid_size,
+double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z ,double *ex, double *ey, double *ez,double *block_sum_ex, double *block_sum_ey, double *block_sum_ez,
+double *L, int Nmd , double ux, int mass, int mass_fluid, double real_time, int m, int topology, int shared_mem_size, double *dt_x, double *dt_y, double *dt_z, double *dt_min, 
 double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *T)
 
 {
