@@ -513,7 +513,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
 
 
         outerParticles_reduceKernels_(dX, dY, dZ, dVx, dVy, dVz, Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz,
-                                    shared_mem_size_, blockSize_, grid_size_, N, L, n_outbox, CMsumblock_n_outbox);
+                                    shared_mem_size_, blockSize_, grid_size_, N, L, n_outbox_mpcd, CMsumblock_n_outbox_mpcd);
 
         
 
@@ -589,7 +589,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
 
         //MD part:
         
-        outerParticles_reduceKernels_(mdX, mdY, mdZ, mdVx, mdVy, mdVz, Xcm, Ycm, Zcm, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, shared_mem_size_, blockSize_, grid_size_, N, L, n_outbox, CMsumblock_n_outbox);
+        outerParticles_reduceKernels_(mdX, mdY, mdZ, mdVx, mdVy, mdVz, Xcm, Ycm, Zcm, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, shared_mem_size_, blockSize_, grid_size_, N, L, n_outbox_md, CMsumblock_n_outbox_md);
 
         double block_sum_mdX[grid_size]; double block_sum_mdY[grid_size]; double block_sum_mdZ[grid_size];
         double block_sum_mdVx[grid_size]; double block_sum_mdVy[grid_size]; double block_sum_mdVz[grid_size];
@@ -638,7 +638,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
         //MPCD part:
         int shared_mem_size_ = 3 * blockSize_ * sizeof(double);
 
-        outerParticles_reduceKernels_(dX, dY, dZ, dVx, dVy, dVz, Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, shared_mem_size, blockSize_, grid_size_, N, L);
+        outerParticles_reduceKernels_(dX, dY, dZ, dVx, dVy, dVz, Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, shared_mem_size, blockSize_, grid_size_, N, L, n_outbox_mpcd, CMsumblock_n_outbox_mpcd);
 
         double block_sum_dX[grid_size_]; double block_sum_dY[grid_size_]; double block_sum_dZ[grid_size_];
         double block_sum_dVx[grid_size_]; double block_sum_dVy[grid_size_]; double block_sum_dVz[grid_size_];
