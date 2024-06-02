@@ -263,7 +263,18 @@ int main(int argc, const char* argv[])
     *mdVx_tot=0.0; *mdVy_tot=0.0; *mdVz_tot=0.0;
     *dVx_tot=0.0; *dVy_tot=0.0; *dVz_tot=0.0;
 
+    //outbox particles center of mass counter attributes:
+    int *h_dn_mpcd_tot; 
+    h_dn_mpcd_tot = (int*) malloc(sizeof(int));
+    
+    int *h_dn_md_tot; 
+    h_dn_md_tot = (int*) malloc(sizeof(int));
 
+    int *d_n_outbox_mpcd;
+    cudaMalloc((void**)&d_n_outbox_mpcd, sizeof(int) * N);
+
+    int *d_n_outbox_md;
+    cudaMalloc((void**)&d_n_outbox_md, sizeof(int) * Nmd);
     
 
 /////////////////////////////////////////////// I'd maximize the performance by adjusting new grid_size_ amd blockSize_ this way:
@@ -348,6 +359,15 @@ int main(int argc, const char* argv[])
 
     cudaMalloc((void**)&CMsumblock_Vx, grid_size_ * sizeof(double)); cudaMalloc((void**)&CMsumblock_Vy, grid_size_ * sizeof(double)); cudaMalloc((void**)&CMsumblock_Vz, grid_size_ * sizeof(double));
     cudaMalloc((void**)&CMsumblock_mdVx, grid_size * sizeof(double)); cudaMalloc((void**)&CMsumblock_mdVy, grid_size * sizeof(double)); cudaMalloc((void**)&CMsumblock_mdVz, grid_size * sizeof(double));
+    
+    //outbox CM attributes:
+    int *CMsumblock_n_outbox_mpcd;
+    cudaMalloc((void**)&CMsumblock_n_outbox_mpcd, grid_size_ * sizeof(int));
+
+    int *CMsumblock_n_outbox_md;
+    cudaMalloc((void**)&CMsumblock_n_outbox_md, grid_size_ * sizeof(int));
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -360,6 +380,13 @@ int main(int argc, const char* argv[])
 
     cudaMalloc((void**)&h_Vxcm, sizeof(double)); cudaMalloc((void**)&h_Vycm, sizeof(double)); cudaMalloc((void**)&h_Vzcm, sizeof(double));
     
+    double *h_Xcm_out , *h_Ycm_out, *h_Zcm_out ; 
+    //h_Xcm = (double*) malloc(sizeof(double)); h_Ycm = (double*) malloc(sizeof(double)); h_Zcm = (double*) malloc(sizeof(double));
+    cudaMalloc((void**)&h_Xcm_out, sizeof(double)); cudaMalloc((void**)&h_Ycm_out, sizeof(double)); cudaMalloc((void**)&h_Zcm_out, sizeof(double));
+
+    double *h_Vxcm_out , *h_Vycm_out, *h_Vzcm_out ; 
+
+    cudaMalloc((void**)&h_Vxcm_out, sizeof(double)); cudaMalloc((void**)&h_Vycm_out, sizeof(double)); cudaMalloc((void**)&h_Vzcm_out, sizeof(double));
     
     //Allocate device memory for active and backward accelerations exerted on each MD particle:
    
@@ -872,7 +899,7 @@ int main(int argc, const char* argv[])
                 h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_ex, d_ey, d_ez, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez,
                 d_L, Nmd, ux, density, 1, real_time, m_md, topology, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_x_o, d_y_o, d_z_o, 
                 d_Vx_o , d_Vy_o , d_Vz_o, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z, totalT,
-                d_n_outbox_mpcd, d_n_outbox_md, h_dn_mpcd_tot, h_dn_md_tot, d_CMsumblock_n_outbox_mpcd, d_CMsumblock_n_outbox_md);
+                d_n_outbox_mpcd, d_n_outbox_md, h_dn_mpcd_tot, h_dn_md_tot, CMsumblock_n_outbox_mpcd, CMsumblock_n_outbox_md);
             
 
                 Active_noslip_MD_streaming(d_mdX, d_mdY, d_mdZ, d_x , d_y , d_z, d_mdVx , d_mdVy , d_mdVz, d_vx , d_vy , d_vz,
