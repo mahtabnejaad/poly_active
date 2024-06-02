@@ -464,7 +464,7 @@ __host__ void outerParticles_reduceKernels_(double *dX, double *dY, double *dZ, 
 //a function in which center of mass of the particles that go outside the box is measured
 __host__ void outerParticles_CM_system(double *mdX, double *mdY, double *mdZ,  double *dX, double *dY, double *dZ,  double *mdVx, double *mdVy, double *mdVz, double *dVx, double *dVy, double *dVz, int Nmd, int N, int *n_outbox_md, int *n_outbox_mpcd,
 double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *dX_tot, double *dY_tot, double *dZ_tot, double *mdVx_tot, double *mdVy_tot, double *mdVz_tot, double *dVx_tot, double *dVy_tot, double *dVz_tot, int *dn_mpcd_tot, int *dn_md_tot,
-int grid_size, int shared_mem_size, int blockSize_, int grid_size_, int mass, int mass_fluid, double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, 
+int grid_size, int shared_mem_size_, int blockSize_, int grid_size_, int mass, int mass_fluid, double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, 
 double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz,
 double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md, int topology, double *L){
  
@@ -589,7 +589,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
 
         //MD part:
         
-        outerParticles_reduceKernels_(mdX, mdY, mdZ, mdVx, mdVy, mdVz, Xcm, Ycm, Zcm, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, shared_mem_size_, blockSize_, grid_size_, N, L, n_outbox_md, CMsumblock_n_outbox_md);
+        outerParticles_reduceKernels_(mdX, mdY, mdZ, mdVx, mdVy, mdVz, Xcm, Ycm, Zcm, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, shared_mem_size, blockSize_, grid_size_, N, L, n_outbox_md, CMsumblock_n_outbox_md);
 
         double block_sum_mdX[grid_size]; double block_sum_mdY[grid_size]; double block_sum_mdZ[grid_size];
         double block_sum_mdVx[grid_size]; double block_sum_mdVy[grid_size]; double block_sum_mdVz[grid_size];
