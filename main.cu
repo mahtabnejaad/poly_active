@@ -866,9 +866,12 @@ int main(int argc, const char* argv[])
                 CM_system(d_mdX, d_mdY, d_mdZ,d_x, d_y, d_z, d_mdVx, d_mdVy, d_mdVz, d_vx, d_vy, d_vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, dX_tot, dY_tot, dZ_tot, mdVx_tot, mdVy_tot, mdVz_tot, dVx_tot, dVy_tot, dVz_tot, grid_size, shared_mem_size, blockSize_, grid_size_, density, 1,
                 h_Xcm, h_Ycm, h_Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, h_Vxcm, h_Vycm, h_Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
 
-                Active_noslip_MPCD_streaming(d_x , d_y , d_z , d_vx , d_vy , d_vz, h_Xcm, h_Ycm, h_Zcm, h_Vxcm, h_Vycm, h_Vzcm, h_mpcd , N, grid_size,
-                 h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_ex, d_ey, d_ez, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez,
-                 L, Nmd, ux, density, 1, real_time, m_md, topology, shared_mem_size);
+                Active_noslip_MPCD_streaming(d_x , d_y, d_z, d_vx, d_vy, d_vz, d_mdX, d_mdY, d_mdZ, d_mdVx, d_mdVy, d_mdVz, dX_tot, dY_tot, dZ_tot, dVx_tot, dVy_tot, dVz_tot, 
+                mdX_tot, mdY_tot, mdZ_tot, mdVx_tot, mdVy_tot, mdVz_tot, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz,
+                h_Xcm, h_Ycm, h_Zcm, h_Vxcm, h_Vycm, h_Vzcm, h_mpcd , N, grid_size, shared_mem_size, blockSize_, grid_size_, 
+                h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_ex, d_ey, d_ez, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez,
+                d_L, Nmd, ux, density, 1, real_time, m_md, topology, shared_mem_size, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_x_o, d_y_o, d_z_o, 
+                d_Vx_o , d_Vy_o , d_Vz_o, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z, totalT);
             
 
                 Active_noslip_MD_streaming(d_mdX, d_mdY, d_mdZ, d_x , d_y , d_z, d_mdVx , d_mdVy , d_mdVz, d_vx , d_vy , d_vz,
