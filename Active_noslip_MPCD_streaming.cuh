@@ -207,14 +207,15 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_
 __host__ void Active_noslip_MPCD_streaming(double* d_x, double* d_y , double* d_z, double* d_vx , double* d_vy, double* d_vz, double* d_mdX, double* d_mdY, double* d_mdZ, double* d_mdVx , double* d_mdVy, double* d_mdVz,
 double *X_tot, double *Y_tot, double *Z_tot, double *Vx_tot, double *Vy_tot, double *Vz_tot, double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *mdVx_tot, double *mdVy_tot, double *mdVz_tot,
 double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz,
-double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz, double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double h_mpcd, int N, int grid_size, int shared_mem_size_, int blockSize_, int grid_size_,
+double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz,
+double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, double h_mpcd, int N, int grid_size, int shared_mem_size_, int blockSize_, int grid_size_,
 double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z ,double *ex, double *ey, double *ez,double *block_sum_ex, double *block_sum_ey, double *block_sum_ez,
 double *L, int Nmd , double ux, int mass, int mass_fluid, double real_time, int m, int topology, double *dt_x, double *dt_y, double *dt_z, double *dt_min, 
-double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *T)
+double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_tot, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md)
 
 {
 
-    CM_system(d_mdX, d_mdY, d_mdZ,d_x, d_y, d_z, d_mdVx, d_mdVy, d_mdVz, d_vx, d_vy, d_vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size, blockSize_, grid_size_, density, 1,
+    CM_system(d_mdX, d_mdY, d_mdZ,d_x, d_y, d_z, d_mdVx, d_mdVy, d_mdVz, d_vx, d_vy, d_vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size_, blockSize_, grid_size_, density, 1,
     Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Vxcm, Vycm, Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
 
     //take all MPCD particles to CM reference frame:
@@ -259,10 +260,10 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaDeviceSynchronize() );
 
     //CM_outside_particles
-    outerParticles_CM_system(d_mdX, d_mdY, d_mdZ, dx, dy, dz,  d_mdVx, d_mdVy, d_mdVz, dvx, dvy, dvz, Nmd, N, *n_outbox_md, *n_outbox_mpcd,
-    mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, *dn_mpcd_tot, *dn_md_tot, grid_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, 
+    outerParticles_CM_system(d_mdX, d_mdY, d_mdZ, d_x, d_y, d_z,  d_mdVx, d_mdVy, d_mdVz, d_vx, d_vy, d_vz, Nmd, N, n_outbox_md, n_outbox_mpcd,
+    mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, dn_mpcd_tot, dn_md_tot, grid_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, 
     Xcm_out, Ycm_out, Zcm_out, Vxcm_out, Vycm_out, Vzcm_out, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz,
-    CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, *CMsumblock_n_outbox_mpcd, *CMsumblock_n_outbox_md, topology, L);
+    CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_n_outbox_mpcd, CMsumblock_n_outbox_md, topology, L);
     //gotoCMOUTSIDEframe
 
     //put the particles that had traveled outside of the box , on box boundaries.
