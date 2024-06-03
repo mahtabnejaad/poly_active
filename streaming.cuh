@@ -56,7 +56,7 @@ __global__ void gotoOUTBOXCMframe(double *X, double *Y, double *Z, double *Xcm, 
     }
 }
 
-__global__ void gobackOUTBOX_OLDCMframe(double *X, double *Y, double *Z, double *Xcm, double *Ycm, double *Zcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vx, double *Vy, double *Vz, double *Vxcm, double *Vycm, double *Vzcm_out, double *Vxcm_out, double *Vycm, double *Vzcm_out, int size, double *L, int *n_outbox){
+__global__ void gobackOUTBOX_OLDCMframe(double *X, double *Y, double *Z, double *Xcm, double *Ycm, double *Zcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vx, double *Vy, double *Vz, double *Vxcm, double *Vycm, double *Vzcm, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, int size, double *L, int *n_outbox){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x ;
     if (tid < size){
