@@ -36,7 +36,45 @@ __global__ void backtoLabframe(double *X, double *Y, double *Z, double *Xcm,doub
         }
 }
 
+__global__ void gotoOUTBOXCMframe(double *X, double *Y, double *Z, double *Xcm, double *Ycm, double *Zcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vx, double *Vy, double *Vz, double *Vxcm, double *Vycm, double *Vzcm_out, double *Vxcm_out, double *Vycm, double *Vzcm_out, int size, double *L){
 
+    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+    if (tid < size){
+        if((X[tid]+ *Xcm) > L[0]/2 || (X[tid]+ *Xcm) < -L[0]/2 || (Y[tid] + *Ycm) > L[1]/2 || (Y[tid] + *Ycm) < -L[1]/2 || (Z[tid] + *Zcm) > L[2]/2 || (Z[tid] + *Zcm) < -L[2]/2){
+        
+        X[tid] = X[tid] - *Xcm_out;
+        Y[tid] = Y[tid] - *Ycm_out;
+        Z[tid] = Z[tid] - *Zcm_out;
+
+        Vx[tid] = Vx[tid] - *Vxcm_out;
+        Vy[tid] = Vy[tid] - *Vycm_out;
+        Vz[tid] = Vz[tid] - *Vzcm_out;
+
+
+
+        }
+    }
+}
+
+__global__ void gobackOUTBOX_OLDCMframe(double *X, double *Y, double *Z, double *Xcm, double *Ycm, double *Zcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vx, double *Vy, double *Vz, double *Vxcm, double *Vycm, double *Vzcm_out, double *Vxcm_out, double *Vycm, double *Vzcm_out, int size, double *L, int *n_outbox){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+    if (tid < size){
+       if(n_outbox[tid] == 1){
+        
+        X[tid] = X[tid] + *Xcm_out;
+        Y[tid] = Y[tid] + *Ycm_out;
+        Z[tid] = Z[tid] + *Zcm_out;
+
+        Vx[tid] = Vx[tid] + *Vxcm_out;
+        Vy[tid] = Vy[tid] + *Vycm_out;
+        Vz[tid] = Vz[tid] + *Vzcm_out;
+
+
+
+        }
+    }
+}
 
 
 
