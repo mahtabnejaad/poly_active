@@ -47,7 +47,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_md_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, mdAx, mdAy, mdAz, mdvx_o, mdvy_o, mdvz_o, md_dt_min, Nmd);
+    Active_md_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, mdvx_o, mdvy_o, mdvz_o, md_dt_min, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
