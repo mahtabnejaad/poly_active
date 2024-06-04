@@ -1,5 +1,412 @@
 
 
+__global__ void noslip_tangential_vectors(double *mdX, double *mdY , double *mdZ ,
+double *ex , double *ey , double *ez, 
+double *L, int size, double ux, int mass, double real_time, int m, int topology) 
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+   
+    //int ID=0;
+
+    if (tid<size)
+    {
+      
+        int loop = int(tid/m);
+        //if (tid == m-1)   printf("loop%i",loop);
+        int ID = tid % (m);
+        //printf("*%i",ID);
+        //printf("tid%i",tid);
+        double a[3];
+        if (ID == (m-1))
+        {
+           
+            regular_distance(mdX[tid], mdY[tid], mdZ[tid], mdX[m*loop], mdY[m*loop], mdZ[m*loop], a, L, ux, real_time);
+            
+        }
+        else if (ID < (m-1))
+        {
+           
+            regular_distance(mdX[tid], mdY[tid], mdZ[tid], mdX[tid+1], mdY[tid+1], mdZ[tid+1], a, L, ux, real_time);
+        }
+        else 
+        {
+            //printf("errrooooor");
+        }
+        double a_sqr=a[0]*a[0]+a[1]*a[1]+a[2]*a[2];
+        double a_root=sqrt(a_sqr);//length of the vector between two adjacent monomers. 
+
+        //tangential unit vector components :
+        ex[tid] = a[0]/a_root;
+        ey[tid] = a[1]/a_root;
+        ez[tid] = a[2]/a_root;
+       
+        //printf("ex=%f\n",ex[tid]);
+       // printf("ey=%f\n",ey[tid]);
+        //printf("ez=%f\n",ez[tid]);
+    
+
+
+    }
+}
+
+
+
+
+
+__host__ void noslip_monomer_active_backward_forces(double *mdX, double *mdY , double *mdZ ,
+double *Ax, double *Ay, double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
+double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T,
+double *L, int size, double mass_fluid, double real_time, int m, int topology, int grid_size, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot,
+double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array,double u_scale)
+{
+    double Q = -mass/(size*mass+mass_fluid*N);
+    //shared_mem_size: The amount of shared memory allocated per block for the reduction operation.
+    int shared_mem_size = 3 * blockSize * sizeof(double);
+    
+
+    if (topology == 4) //size= 1 (Nmd = 1) only one particle exists.
+    {
+        double *gamaTT;
+        cudaMalloc((void**)&gamaTT, sizeof(double));
+        cudaMemcpy(gamaTT, gama_T, sizeof(double) , cudaMemcpyHostToDevice);
+
+
+        SpecificOrientedForce<<<grid_size,blockSize>>>(mdX, mdY, mdZ, real_time, u_scale, size, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, gamaTT, Q, u_scale);
+        gpuErrchk( cudaPeekAtLastError() );
+        gpuErrchk( cudaDeviceSynchronize() );
+
+        double fax, fay, faz;
+        cudaMemcpy(&fax ,fa_kx, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(&fay ,fa_ky, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(&faz ,fa_kz, sizeof(double), cudaMemcpyDeviceToHost);
+
+        *fa_x= fax;
+        *fa_y= fay;
+        *fa_z= faz;
+        *fb_x= fax * Q;
+        *fb_y= fax * Q;
+        *fb_z= fax * Q;
+
+     
+    cudaFree(gamaTT);
+    }
+
+    else
+    {
+        
+        if (random_flag == 1)
+        {
+
+            //int shared_mem_size = 3 * blockSize * sizeof(double); // allocate shared memory for the intermediate reduction results.
+            //printf("ex[0]%f\n",ex[0]);
+            //calculating tangential vectors:
+            noslip_tangential_vectors<<<grid_size,blockSize>>>(mdX, mdY, mdZ, ex, ey, ez, L, size, u_scale, mass, real_time, m, topology);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+           
+            double *gamaT;
+            cudaMalloc((void**)&gamaT, sizeof(double));
+            cudaMemcpy(gamaT, gama_T, sizeof(double) , cudaMemcpyHostToDevice);
+            //printf("gama_T=%f\n",*gama_T);
+        
+            //printf("88gama_T=%f\n",*gama_T);
+            //forces calculations in a seperate kernel:
+            Active_calc_forces<<<grid_size,blockSize>>>(fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz,
+                    ex, ey, ez, u_scale, mass, mass_fluid, size, N, gamaT, u_scale);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+       
+            //calling the random_array kernel:
+            // **** I think I should define 3 different random arrays for each axis so I'm gonna apply this later
+            randomArray<<<grid_size, blockSize>>>(random_array, size, seed);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            //calling the totalActive_calc_acceleration kernel:
+            totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, random_array, Ax_tot, Ay_tot, Az_tot, size);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+    
+
+            //calculating the sum of tangential vectors in each axis:
+            //grid_size: The number of blocks launched in the grid.
+            //block_size: The number of threads per block.
+
+        
+            random_tangential<<<grid_size,blockSize>>>(ex, ey, ez, random_array, size);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+   
+
+            reduce_kernel<<<grid_size, blockSize, shared_mem_size>>>(ex, ey, ez, block_sum_ex, block_sum_ey, block_sum_ez, size);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            cudaDeviceSynchronize();
+            cudaError_t cudaStatus = cudaGetLastError();
+            if (cudaStatus != cudaSuccess) {
+                fprintf(stderr, "Kernel launch error: %s\n", cudaGetErrorString(cudaStatus));
+    
+            }
+            double sumx[grid_size];
+            double sumy[grid_size];
+            double sumz[grid_size];
+            cudaMemcpy(sumx ,block_sum_ex, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
+            cudaMemcpy(sumy ,block_sum_ey, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
+            cudaMemcpy(sumz ,block_sum_ez, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
+            //printf("%lf",sumx[0]);
+
+            //Perform the reduction on the host side to obtain the final sum.
+            *fa_x = 0.0; 
+            *fa_y = 0.0;
+            *fa_z = 0.0;
+            
+            for (int i = 0; i < grid_size; i++)
+            {
+               
+                *fa_x += sumx[i]* u_scale* *gama_T;
+                *fa_y += sumy[i]* u_scale* *gama_T;
+                *fa_z += sumz[i]* u_scale* *gama_T;
+
+            }
+            //printf("fa_x=%lf", *fa_x);
+           
+    
+            //*fa_x=*fa_x* *gama_T*u_scale;
+            //*fa_y=*fa_y* *gama_T*u_scale;
+            //*fa_z=*fa_z* *gama_T*u_scale;
+            *fb_x=*fa_x*Q;
+            *fb_y=*fa_y*Q;
+            *fb_z=*fa_z*Q;
+
+            
+            cudaFree(gamaT);
+        }
+        if(random_flag == 0)
+        { //if(random_flag == 0){
+            
+            //int shared_mem_size = 3 * blockSize * sizeof(double); // allocate shared memory for the intermediate reduction results.
+            //printf("ex[0]%f\n",ex[0]);
+            //calculating tangential vectors:
+            noslip_tangential_vectors<<<grid_size,blockSize>>>(mdX, mdY, mdZ, ex, ey, ez, L, size, ux, mass, real_time, m, topology);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+           
+            double *gamaT;
+            cudaMalloc((void**)&gamaT, sizeof(double));
+            cudaMemcpy(gamaT, gama_T, sizeof(double) , cudaMemcpyHostToDevice);
+            //printf("gama_T=%f\n",*gama_T);
+        
+            //printf("88gama_T=%f\n",*gama_T);
+            //forces calculations in a seperate kernel:
+            Active_calc_forces<<<grid_size,blockSize>>>(fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz,
+                    ex, ey, ez, ux, mass, mass_fluid, size, N, gamaT, u_scale);
+
+          
+    
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+       
+
+            choiceArray<<<grid_size,blockSize>>>(flag_array, size);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+   
+
+            totalActive_calc_acceleration<<<grid_size,blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, flag_array, Ax_tot, Ay_tot, Az_tot, size);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+
+            choice_tangential<<<grid_size, blockSize>>>(ex, ey, ez, flag_array, size);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            reduce_kernel<<<grid_size,blockSize>>>(ex, ey, ez, block_sum_ex, block_sum_ey, block_sum_ez, size);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+
+            cudaDeviceSynchronize();
+
+
+            double sumx[grid_size];
+            double sumy[grid_size];
+            double sumz[grid_size];
+            cudaMemcpy(sumx ,block_sum_ex, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
+            cudaMemcpy(sumy ,block_sum_ey, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
+            cudaMemcpy(sumz ,block_sum_ez, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
+            //printf("%lf",sumx[0]);
+
+            //Perform the reduction on the host side to obtain the final sum.
+            for (int i = 0; i < grid_size; i++)
+            {
+             
+                *fa_x += sumx[i]* u_scale* *gama_T;
+                *fa_y += sumy[i]* u_scale* *gama_T;
+                *fa_z += sumz[i]* u_scale* *gama_T;
+
+            }
+            //printf("fa_x=%lf", *fa_x);
+           
+    
+            //*fa_x=*fa_x* *gama_T*u_scale;
+            //*fa_y=*fa_y* *gama_T*u_scale;
+            //*fa_z=*fa_z* *gama_T*u_scale;
+            *fb_x=*fa_x*Q;
+            *fb_y=*fa_y*Q;
+            *fb_z=*fa_z*Q;
+
+            cudaFree(gamaT);
+     
+        }
+  
+    }
+}
+
+
+
+
+
+
+//calculating interaction matrix of the system in the given time when BC is periodic
+__global__ void Active_noslip_nb_b_interaction( 
+double *mdX, double *mdY , double *mdZ ,
+double *fx , double *fy , double *fz, 
+double *L,int size , double ux, int mass, double real_time, int m , int topology)
+{
+    int size2 = size*(size); //size2 calculates the total number of particle pairs for the interaction.
+
+
+    //In the context of the nb_b_interaction kernel, each thread is responsible for calculating the interaction between a pair of particles. The goal is to calculate the interaction forces between all possible pairs of particles in the simulation. To achieve this, the thread ID is mapped to particle indices.
+    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+    if (tid<size2)
+    {
+        //ID1 and ID2 are calculated from tid to determine the indices of the interacting particles.
+        //The combination of these calculations ensures that each thread ID is mapped to a unique pair of particle indices. This way, all possible pairs of particles are covered, and the interactions between particles can be calculated in parallel.
+        int ID1 = int(tid /size);//tid / size calculates how many "rows" of particles the thread ID represents. In other words, it determines the index of the first particle in the pair (ID1).
+        int ID2 = tid%(size);//tid % size calculates the remainder of the division of tid by size. This remainder corresponds to the index of the second particle in the pair (ID2)
+        if(ID1 != ID2) //This condition ensures that the particle does not interact with itself. Interactions between a particle and itself are not considered
+        {
+        double r[3];
+        //This line calculates the distance of particle positions in the noslip regular conditions using the regular_distance function
+        //The resulting displacement is stored in the r array.
+        regular_distance(mdX[ID1], mdY[ID1], mdZ[ID1] , mdX[ID2] , mdY[ID2] , mdZ[ID2] , r,L, ux, real_time);
+        double r_sqr = r[0] * r[0] + r[1] * r[1] + r[2] * r[2];//r_sqr calculates the squared distance between the particles.
+        double f =0;//initialize the force to zero.
+
+ 
+        //lennard jones:
+       
+        if (r_sqr < 1.258884)
+        {
+                double r8 = 1/r_sqr* 1/r_sqr; //r^{-4}
+                r8 *= r8; //r^{-8}
+                double r14 = r8 *r8; //r^{-16}
+                r14 *= r_sqr; //r^{-14}
+                f = 24 * (2 * r14 - r8);
+        }
+        
+        //FENE:
+        //This part of the code is responsible for calculating the interaction forces between particles based on the FENE (Finitely Extensible Nonlinear Elastic) potential. The FENE potential is often used to model polymer chains where bonds between particles cannot be stretched beyond a certain limit
+        
+        if (topology == 1)
+        {
+            if (int(ID1/m) == int(ID2/m)) //checks if the interacting particles belong to the same chain (monomer). This is achieved by dividing the particle indices by m (monomer size) and checking if they are in the same division.
+            {
+                //check if the interacting particles are next to each other in the same chain. If they are, it calculates the FENE interaction contribution,
+                if( ID2 - ID1 == 1 || ID2 - ID1 == m-1 ) 
+                {
+                    f -= 30/(1 - r_sqr/2.25);
+                }
+
+                if( ID1 - ID2 == 1 || ID1 - ID2 == m-1 ) 
+                {
+                    f -= 30/(1 - r_sqr/2.25);
+                }
+            }   
+        }
+        
+        //FENE:
+        if (topology == 2 || topology == 3)
+        {
+            if (int(ID1/m) == int(ID2/m)) //similar conditions are checked for particles within the same chain
+            {
+                if( ID2 - ID1 == 1 || ID2 - ID1 == m-1 ) 
+                {
+                    f -= 30/(1 - r_sqr/2.25);
+                }
+
+                if( ID1 - ID2 == 1 || ID1 - ID2 == m-1 ) 
+                {
+                    f -= 30/(1 - r_sqr/2.25);
+                }
+            }
+            
+            if (ID1==int(m/4) && ID2 ==m+int(3*m/4))
+            {
+                
+                f -= 30/(1 - r_sqr/2.25);
+            }
+                
+            if (ID2==int(m/4) && ID1 ==m+int(3*m/4))
+            {
+                f -= 30/(1 - r_sqr/2.25);
+            }
+        }
+        f/=mass; //After the interaction forces are calculated (f), they are divided by the mass of the particles to obtain the correct acceleration.
+
+        fx[tid] = f * r[0] ;
+        fy[tid] = f * r[1] ;
+        fz[tid] = f * r[2] ;
+        }
+    
+        /*else
+        {
+            fx[tid] = 0;
+            fy[tid] = 0;
+            fz[tid] = 0;
+        }*/
+      
+
+    }
+
+}
+
+
+//Active_noslip_calc_acceleration
+
+    __host__ void Active_noslip_calc_acceleration( double *x ,double *y , double *z , 
+double *Fx , double *Fy , double *Fz, 
+double *Ax , double *Ay , double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
+double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T, 
+double *L, int size, int m, int topology, double real_time, int grid_size, double mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale)
+
+{
+  
+
+    Active_noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux, mass, real_time , m , topology);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    sum_kernel<<<grid_size,blockSize>>>(Fx , Fy, Fz, Ax , Ay, Az, size);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    //printf("**GAMA=%f\n",*agama_T);
+    
+
+    noslip_monomer_active_backward_forces(x, y ,z ,
+    Ax , Ay, Az, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, ex, ey, ez, ux, mass, gama_T, 
+    L, size , mass_fluid, real_time, m, topology, grid_size, N , random_array, seed , Ax_tot, Ay_tot, Az_tot, fa_x, fa_y, fa_z, fb_x, fb_y, fb_z, block_sum_ex, block_sum_ey, block_sum_ez, flag_array, u_scale);
+    
+
+    
+}
+
+
 
 
 __host__ void Active_noslip_md_velocityverletKernel1(double *mdX, double *mdY , double *mdZ, double *x, double *y, double *z,
@@ -209,15 +616,6 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
 
 
  }
-
-
-    //Active_noslip_calc_acceleration
-
-
-
-
-
-
 
 
 
