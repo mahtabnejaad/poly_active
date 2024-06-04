@@ -28,7 +28,7 @@ double *L,int size , double ux, int mass, double real_time, int m , int topology
         if(ID1 != ID2) //This condition ensures that the particle does not interact with itself. Interactions between a particle and itself are not considered
         {
         double r[3];
-        //This line calculates the nearest image of particle positions in the periodic boundary conditions using the LeeEdwNearestImage function
+        //This line calculates the distance of particle positions in the noslip regular conditions using the regular_distance function
         //The resulting displacement is stored in the r array.
         regular_distance(mdX[ID1], mdY[ID1], mdZ[ID1] , mdX[ID2] , mdY[ID2] , mdZ[ID2] , r,L, ux, real_time);
         double r_sqr = r[0] * r[0] + r[1] * r[1] + r[2] * r[2];//r_sqr calculates the squared distance between the particles.
