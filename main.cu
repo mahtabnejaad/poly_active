@@ -27,6 +27,7 @@
 #include "gpu_md.cuh"
 #include "Active_gpu_md.cuh"
 #include "noslip_MD_streaming.cuh"
+#include "Active_noslip_MD_streaming.cuh"
 #include "begining.cuh"
 #include "logging.cuh"
 #include <ctime>
