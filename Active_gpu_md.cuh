@@ -401,7 +401,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
 
 __global__ void Active_nb_b_interaction( 
 double *mdX, double *mdY , double *mdZ ,
-double *fx , double *fy , double *Nfz, 
+double *fx , double *fy , double *fz, 
 double *L,int size , double ux, int mass, double real_time, int m , int topology)
 {
     int size2 = size*(size); //size2 calculates the total number of particle pairs for the interaction.
