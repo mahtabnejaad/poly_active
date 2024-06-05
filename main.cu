@@ -300,6 +300,7 @@ int main(int argc, const char* argv[])
 
     // Calculate the grid size based on your data size and the block size
     int grid_size_ = (dataSize + blockSize_ - 1) / blockSize_;
+    int shared_mem_size_ = 3 * blockSize_ * sizeof(double);
 /////////////////////////////////////////////////////////////////////
 
     //allocate memory for counting zero factors in reducing and limiting the data to a specific box around the MD particles. 
@@ -905,7 +906,7 @@ int main(int argc, const char* argv[])
                 Active_noslip_MD_streaming(d_mdX, d_mdY, d_mdZ, d_x , d_y , d_z, d_mdVx , d_mdVy , d_mdVz, d_vx , d_vy , d_vz,
                     d_mdAx, d_mdAy, d_mdAz, mdX_tot, mdY_tot, mdZ_tot, dX_tot, dY_tot, dZ_tot, mdVx_tot, mdVy_tot, mdVz_tot, dVx_tot, dVy_tot, dVz_tot, h_dn_md_tot, h_dn_mpcd_tot,
                     CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_x, CMsumblock_y, CMsumblock_z,
-                    CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz,, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_n_outbox_md, CMsumblock_n_outbox_mpcd, n_outbox_md, n_outbox_mpcd,
+                    CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_n_outbox_md, CMsumblock_n_outbox_mpcd, d_n_outbox_md, d_n_outbox_mpcd,
                     h_Xcm, h_Ycm, h_Zcm, h_Vxcm, h_Vycm, h_Vzcm, h_Xcm_out, h_Ycm_out, h_Zcm_out, h_Vxcm_out, h_Vycm_out, h_Vzcm_out, 
                     md_Fx_holder, md_Fy_holder, md_Fz_holder, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, 
                     d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_ex, d_ey, d_ez,
