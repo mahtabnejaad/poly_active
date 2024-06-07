@@ -572,7 +572,7 @@ double *mdAx_tot , double *mdAy_tot , double *mdAz_tot,
 __global__ void Active_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *md_dt_min, double dt, double *L, int Nmd){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    if (tid<N){
+    if (tid<Nmd){
 
      
 
