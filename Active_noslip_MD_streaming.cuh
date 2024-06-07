@@ -672,7 +672,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaDeviceSynchronize() );
 
     //??with this function call MD particles go to box's center of mass frame:(should I???)
-    gotoCMframe<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Xcm, Ycm, Zcm, mdVx, mdVy, mdVz, Vxcm, Vycm, Vzcm, Nmd);
+    gotoCMframe<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Xcm, Ycm, Zcm, mdvx, mdvy, mdvz, Vxcm, Vycm, Vzcm, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
@@ -776,7 +776,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaDeviceSynchronize() );
 
     //??with this function call MD particles go to box's center of mass frame:(should I???)
-    gotoCMframe<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Xcm, Ycm, Zcm, mdVx, mdVy, mdVz, Vxcm, Vycm, Vzcm, Nmd);
+    gotoCMframe<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Xcm, Ycm, Zcm, mdvx, mdvy, mdvz, Vxcm, Vycm, Vzcm, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
