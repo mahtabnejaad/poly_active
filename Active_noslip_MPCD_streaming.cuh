@@ -100,6 +100,7 @@ __global__ void Active_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, do
 
 
 }
+
 //a function to calculate minimum of 3 items  (dt_x, dt_y and dt_z) :
 __global__ void Active_deltaT_min(double *dt_x, double *dt_y, double *dt_z, double *dt_min, int N){
 
@@ -112,6 +113,7 @@ __global__ void Active_deltaT_min(double *dt_x, double *dt_y, double *dt_z, doub
     }
 
 }
+
 //calculate the crossing location where the particles intersect with one wall:
 __global__ void Active_mpcd_crossing_location(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *x_o, double *y_o, double *z_o, double *dt_min, double dt, double *L, int N, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
 
