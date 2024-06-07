@@ -574,8 +574,7 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_md_bounceback_ve
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
 
-        double QQ2=-((dt - (dt_min[tid]))*(dt - (dt_min[tid])))/(2*(Nmd*mass+mass_fluid*N));
-        double Q2=-(dt - (dt_min[tid]))/(Nmd*mass+mass_fluid*N);
+     
 
         if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
             //make the position of particle equal to (xo, yo, zo):
