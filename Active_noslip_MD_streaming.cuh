@@ -633,12 +633,12 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_md_bounceback_ve
             mdvy[tid] = -mdvy_o[tid];
             mdvz[tid] = -mdvz_o[tid];
             //let the particle move during dt-dt1 with the reversed velocity:
-            mdx[tid] += (dt - (dt_min[tid])) * mdvx[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAx_tot[tid];
-            mdy[tid] += (dt - (dt_min[tid])) * mdvy[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAy_tot[tid];
-            mdz[tid] += (dt - (dt_min[tid])) * mdvz[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAz_tot[tid];
-            mdvx[tid]=mdvx[tid]+ (dt - (dt_min[tid])) * mdAx_tot[tid];
-            mdvy[tid]=mdvy[tid]+ (dt - (dt_min[tid])) * mdAy_tot[tid];
-            mdvz[tid]=mdvz[tid]+ (dt - (dt_min[tid])) * mdAz_tot[tid];
+            mdx[tid] += (dt - (dt_min[tid])) * mdvx[tid] + 0.5 * ((dt - (md_dt_min[tid]))*(dt - (md_dt_min[tid]))) * mdAx_tot[tid];
+            mdy[tid] += (dt - (dt_min[tid])) * mdvy[tid] + 0.5 * ((dt - (md_dt_min[tid]))*(dt - (md_dt_min[tid]))) * mdAy_tot[tid];
+            mdz[tid] += (dt - (dt_min[tid])) * mdvz[tid] + 0.5 * ((dt - (md_dt_min[tid]))*(dt - (md_dt_min[tid]))) * mdAz_tot[tid];
+            mdvx[tid]=mdvx[tid]+ (dt - (md_dt_min[tid])) * mdAx_tot[tid];
+            mdvy[tid]=mdvy[tid]+ (dt - (md_dt_min[tid])) * mdAy_tot[tid];
+            mdvz[tid]=mdvz[tid]+ (dt - (md_dt_min[tid])) * mdAz_tot[tid];
 
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
