@@ -174,9 +174,11 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         //MPCD particles part
        
 
-        double block_sum_dX[grid_size_]; double block_sum_dY[grid_size_]; double block_sum_dZ[grid_size_];
-        double block_sum_dVx[grid_size_]; double block_sum_dVy[grid_size_]; double block_sum_dVz[grid_size_];
-
+        double *block_sum_dX, *block_sum_dY, *block_sum_dZ, *block_sum_dVx, *block_sum_dVy, *block_sum_dVz;
+        //host allocation:
+        block_sum_dX = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dY = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dZ = (double*)malloc(sizeof(double) * grid_size_);
+        block_sum_dVx = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVy = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVz = (double*)malloc(sizeof(double) * grid_size_);
+       
 
         reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, CMsumblock_x, N);
         reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dY, CMsumblock_y, N);
@@ -256,12 +258,18 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
     }
     else
     {
-        double block_sum_mdX[grid_size]; double block_sum_mdY[grid_size]; double block_sum_mdZ[grid_size];
+
+        double *block_sum_mdX, *block_sum_mdY, *block_sum_mdZ, *block_sum_mdVx, *block_sum_mdVy, *block_sum_mdVz;
+        //host allocation:
+        block_sum_mdX = (double*)malloc(sizeof(double) * grid_size);  block_sum_mdY = (double*)malloc(sizeof(double) * grid_size);  block_sum_mdZ = (double*)malloc(sizeof(double) * grid_size);
+        block_sum_mdVx = (double*)malloc(sizeof(double) * grid_size); block_sum_mdVy = (double*)malloc(sizeof(double) * grid_size); block_sum_mdVz = (double*)malloc(sizeof(double) * grid_size);
+       
+
         reduce_kernel<<<grid_size,blockSize, shared_mem_size>>>(mdX, mdY, mdZ, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
-        double block_sum_mdVx[grid_size]; double block_sum_mdVy[grid_size]; double block_sum_mdVz[grid_size];
+        
         reduce_kernel<<<grid_size,blockSize, shared_mem_size>>>(mdVx, mdVy, mdVz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
@@ -301,17 +309,15 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
   
     
   
-
-
-        int shared_mem_size_ = 3 * blockSize_ * sizeof(double);
-
-        double block_sum_dX[grid_size_]; double block_sum_dY[grid_size_]; double block_sum_dZ[grid_size_];
+        double *block_sum_dX, *block_sum_dY, *block_sum_dZ, *block_sum_dVx, *block_sum_dVy, *block_sum_dVz;
+        //host allocation:
+        block_sum_dX = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dY = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dZ = (double*)malloc(sizeof(double) * grid_size_);
+        block_sum_dVx = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVy = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVz = (double*)malloc(sizeof(double) * grid_size_);
+       
 
         reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, CMsumblock_x, N);
         reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dY, CMsumblock_y, N);
         reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dZ, CMsumblock_z, N);
-
-        double block_sum_dVx[grid_size_]; double block_sum_dVy[grid_size_]; double block_sum_dVz[grid_size_];
 
         reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, CMsumblock_Vx, N);
         reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVy, CMsumblock_Vy, N);
