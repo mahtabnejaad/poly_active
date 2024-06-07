@@ -144,13 +144,13 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         double mdVxtot, mdVytot, mdVztot;
         mdVxtot=0.0; mdVytot=0.0; mdVztot=0.0;
         
-        cudaMemcpy(&mdXtot, mdX, sizeof(double), cudaMemcpyDeviceToHost);
-        cudaMemcpy(&mdYtot, mdY, sizeof(double), cudaMemcpyDeviceToHost);
-        cudaMemcpy(&mdZtot, mdZ, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(mdXtot, mdX, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(mdYtot, mdY, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(mdZtot, mdZ, sizeof(double), cudaMemcpyDeviceToHost);
 
-        cudaMemcpy(&mdVxtot, mdVx, sizeof(double), cudaMemcpyDeviceToHost);
-        cudaMemcpy(&mdVytot, mdVy, sizeof(double), cudaMemcpyDeviceToHost);
-        cudaMemcpy(&mdVztot, mdVz, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(mdVxtot, mdVx, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(mdVytot, mdVy, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(mdVztot, mdVz, sizeof(double), cudaMemcpyDeviceToHost);
 
         cudaError_t err = cudaGetLastError();        // Get error code
 
@@ -160,13 +160,13 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
             exit(-1);
         }
 
-        *mdX_tot = mdXtot;
-        *mdY_tot = mdYtot;
-        *mdZ_tot = mdZtot;
+        *mdX_tot = &mdXtot;
+        *mdY_tot = &mdYtot;
+        *mdZ_tot = &mdZtot;
 
-        *mdVx_tot = mdVxtot;
-        *mdVy_tot = mdVytot;
-        *mdVz_tot = mdVztot;
+        *mdVx_tot = &mdVxtot;
+        *mdVy_tot = &mdVytot;
+        *mdVz_tot = &mdVztot;
 
         //MPCD particles part
        
