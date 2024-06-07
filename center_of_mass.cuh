@@ -143,6 +143,9 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         //mdXtot=0.0; mdYtot=0.0; mdZtot=0.0;
         double *mdVxtot, *mdVytot, *mdVztot;
         //mdVxtot=0.0; mdVytot=0.0; mdVztot=0.0;
+
+        mdXtot = (double *)malloc(sizeof(double));  mdYtot = (double *)malloc(sizeof(double));  mdZtot = (double *)malloc(sizeof(double));
+        mdVxtot = (double *)malloc(sizeof(double));  mdVytot = (double *)malloc(sizeof(double));  mdVztot = (double *)malloc(sizeof(double));
         
         cudaMemcpy(mdXtot, mdX, sizeof(double), cudaMemcpyDeviceToHost);
         cudaMemcpy(mdYtot, mdY, sizeof(double), cudaMemcpyDeviceToHost);
