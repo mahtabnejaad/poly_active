@@ -128,7 +128,7 @@ __global__ void Active_mpcd_streaming(double* x,double* y ,double* z,double* vx 
 
 __host__ void Active_MPCD_streaming(double* d_x,double* d_y ,double* d_z,double* d_vx ,double* d_vy,double* d_vz, double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, 
 double h_mpcd, int N, int grid_size, double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z ,double *ex, double *ey, double *ez,double *block_sum_ex, double *block_sum_ey, double *block_sum_ez,
-double *L,int size , double ux, int mass, int mass_fluid, double real_time, int m, int topology, int shared_mem_size)
+double *L,int size , double ux, int mass, int mass_fluid, double real_time, int m, int topology, int shared_mem_size, int shared_mem_size_)
 {
     
     gotoCMframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, N);
