@@ -406,6 +406,249 @@ double *L, int size, int m, int topology, double real_time, int grid_size, doubl
     
 }
 
+///////// functions we need for noslip part:
+
+//CM_md_wall_sign
+//a function to consider velocity sign of particles and determine which sides of the box it should interact with 
+__global__ void CM_md_wall_sign(double *mdvx, double *mdvy, double *mdvz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, int Nmd, double *Vxcm, double *Vycm, double *Vzcm){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<Nmd){
+        if (mdvx[tid] > -*Vxcm )  wall_sign_x[tid] = 1;
+        else if (mdvx[tid] < -*Vxcm)  wall_sign_x[tid] = -1;
+        else if(mdvx[tid] == -*Vxcm)  wall_sign_x[tid] = 0;
+        
+        if (mdvy[tid] > -*Vycm ) wall_sign_y[tid] = 1;
+        else if (mdvy[tid] < -*Vycm) wall_sign_y[tid] = -1;
+        else if (mdvy[tid] == -*Vycm )  wall_sign_y[tid] = 0;
+
+        if (mdvz[tid] > -*Vzcm) wall_sign_z[tid] = 1;
+        else if (mdvz[tid] < -*Vzcm) wall_sign_z[tid] = -1;
+        else if (mdvz[tid] == -*Vzcm)  wall_sign_z[tid] = 0;
+
+        (isnan(mdvx[tid])|| isnan(mdvy[tid]) || isnan(mdvz[tid])) ? printf("00vx[%i]=%f, vy[%i]=%f, vz[%i]=%f \n", tid, mdvx[tid], tid, mdvy[tid], tid, mdvz[tid])
+                                                            : printf("");
+
+
+    }
+}
+
+//CM_md_distance_from_walls
+//a function to calculate distance of particles which are inside the box from the corresponding walls:
+__global__ void CM_distance_from_walls(double *mdx, double *mdy, double *mdz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<Nmd){
+        if (wall_sign_x[tid] == 1)   x_wall_dist[tid] = L[0]/2-((mdx[tid]) + *Xcm);
+        else if (wall_sign_x[tid] == -1)  x_wall_dist[tid] = L[0]/2+((mdx[tid]) + *Xcm);
+        else if(wall_sign_x[tid] == 0)  x_wall_dist[tid] = L[0]/2 -((mdx[tid]) + *Xcm);//we can change it as we like . it doesn't matter.
+
+
+        if (wall_sign_y[tid] == 1)   y_wall_dist[tid] = L[1]/2-((mdy[tid]) + *Ycm);
+        else if (wall_sign_y[tid] == -1)  y_wall_dist[tid] = L[1]/2+((mdy[tid]) + *Ycm);
+        else if(wall_sign_y[tid] == 0)  y_wall_dist[tid] = L[1]/2 -((mdy[tid]) + *Ycm);//we can change it as we like . it doesn't matter.
+
+
+        if (wall_sign_z[tid] == 1)   z_wall_dist[tid] = L[2]/2-((mdz[tid]) + *Zcm);
+        else if (wall_sign_z[tid] == -1)  z_wall_dist[tid] = L[2]/2+((mdz[tid]) + *Zcm);
+        else if(wall_sign_z[tid] == 0)  z_wall_dist[tid] = L[2]/2 -((mdz[tid]) + *Zcm);//we can change it as we like . it doesn't matter.
+
+
+
+        //printf("***dist_x[%i]=%f, dist_y[%i]=%f, dist_z[%i]=%f\n", tid, x_wall_dist[tid], tid, y_wall_dist[tid], tid, z_wall_dist[tid]);
+        int idxx;
+        idxx = (int(x[tid] + L[0] / 2 + 2) + (L[0] + 4) * int(y[tid] + L[1] / 2 + 2) + (L[0] + 4) * (L[1] + 4) * int(z[tid] + L[2] / 2 + 2));
+        //printf("index[%i]=%i, x[%i]=%f, y[%i]=%f, z[%i]=%f\n", tid, idxx, tid, x[tid], tid, y[tid], tid, z[tid]);//checking
+
+    }    
+
+
+}
+
+
+//************
+//Active_noslip_md_deltaT
+//a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
+__global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, int Nmd){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<Nmd){
+        
+        
+
+        if(wall_sign_x[tid] == 0 ) md_dt_x[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        else if(wall_sign_x[tid] == 1 || wall_sign_x[tid] == -1){
+            
+            if(mdAx_tot[tid] == 0.0)   md_dt_x[tid] = abs(x_wall_dist[tid]/mdvx[tid]);
+
+            else if (mdAx_tot[tid] != 0.0)  md_dt_x[tid] = ((-mdvx[tid]+sqrt(abs((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])))))/(mdAx_tot[tid]));
+
+        }  
+
+        if(wall_sign_y[tid] == 0 ) md_dt_y[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
+            
+            if(mdAy_tot[tid]  == 0.0)   md_dt_y[tid] = abs(y_wall_dist[tid]/mdvy[tid]);
+
+            else if (mdAy_tot[tid] != 0.0)  md_dt_y[tid] = ((-mdvy[tid]+sqrt(abs((mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid])))))/(mdAy_tot[tid]));
+
+        }  
+
+        if(wall_sign_z[tid] == 0 ) md_dt_z[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
+            
+            if(mdAz_tot[tid] == 0.0)   md_dt_z[tid] = abs(z_wall_dist[tid]/mdvz[tid]);
+
+            else if (mdAz_tot[tid] != 0.0)  md_dt_z[tid] = ((-mdvz[tid]+sqrt(abs((mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid])))))/(mdAz_tot[tid]));
+
+        }  
+
+
+
+    }
+
+
+}
+
+//Active_md_crossing_location
+//calculate the crossing location where the particles intersect with one wall:
+__global__ void Active_md_crossing_location(double *mdx, double *mdy, double *mdz, double *mdvx, double *mdvy, double *mdvz, double *mdx_o, double *mdy_o, double *mdz_o, double *md_dt_min, double md_dt, double *L, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, int Nmd){
+
+    
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<Nmd){
+        if( ((mdx[tid] + md_dt * mdvx[tid]) >L[0]/2 || (mdx[tid] + md_dt * mdvx[tid])<-L[0]/2 || (mdy[tid] + md_dt * mdvy[tid])>L[1]/2 || (mdy[tid] + md_dt * mdvy[tid])<-L[1]/2 || (mdz[tid]+ md_dt * mdvz[tid])>L[2]/2 || (mdz[tid] + md_dt * mdvz[tid])<-L[2]/2) && md_dt_min[tid]>0.1) printf("dt_min[%i] = %f\n", tid, md_dt_min[tid]);
+        mdx_o[tid] = mdx[tid] + mdvx[tid] * md_dt_min[tid] + 0.5 * mdAx_tot[tid] * md_dt_min[tid] * md_dt_min[tid];
+        mdy_o[tid] = mdy[tid] + mdvy[tid] * md_dt_min[tid] + 0.5 * mdAy_tot[tid] * md_dt_min[tid] * md_dt_min[tid];
+        mdz_o[tid] = mdz[tid] + mdvz[tid] * md_dt_min[tid] + 0.5 * mdAz_tot[tid] * md_dt_min[tid] * md_dt_min[tid];
+    }
+
+}
+
+
+//Active_md_crossing_velocity
+__global__ void Active_md_crossing_velocity(double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *md_dt_min, double mdAx_tot, double mdAy_tot, double mdAz_tot, int Nmd){
+
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<Nmd){
+
+        //calculate v(t+dt1) : in this case that we don't have acceleration it is equal to v(t).
+        //then we put the velocity equal to v(t+dt1):
+        //this part in this case is not necessary but we do it for generalization.
+        mdvx_o[tid] = mdvx[tid] + md_dt_min[tid] * mdAx_tot;
+        mdvy_o[tid] = mdvy[tid] + md_dt_min[tid] * mdAy_tot;
+        mdvz_o[tid] = mdvz[tid] + md_dt_min[tid] * mdAz_tot;
+    }
+    
+}
+
+//Active_md_velocityverlet1
+__global__ void Active_md_velocityverlet1(double *mdX, double *mdY , double *mdZ , 
+double *mdVx , double *mdVy , double *mdVz,
+double *mdAx_tot , double *mdAy_tot , double *mdAz_tot,
+ double h, int Nmd)
+{
+    int particleID =  blockIdx.x * blockDim.x + threadIdx.x ;
+    if (particleID < Nmd)
+    {
+        // Particle velocities are updated by half a time step, and particle positions are updated based on the new velocities.
+
+        mdVx[particleID] += 0.5 * h * mdAx_tot[particleID];
+        mdVy[particleID] += 0.5 * h * mdAy_tot[particleID];
+        mdVz[particleID] += 0.5 * h * mdAz_tot[particleID];
+
+        mdX[particleID] = mdX[particleID] + h * mdVx[particleID] ;
+        mdY[particleID] = mdY[particleID] + h * mdVy[particleID] ;
+        mdZ[particleID] = mdZ[particleID] + h * mdVz[particleID] ;
+
+
+    }
+}
+
+//*********************
+//Active_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1
+__global__ void Active_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *md_dt_min, double dt, double *L, int Nmd){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N){
+
+        double QQ2=-((dt - (dt_min[tid]))*(dt - (dt_min[tid])))/(2*(Nmd*mass+mass_fluid*N));
+        double Q2=-(dt - (dt_min[tid]))/(Nmd*mass+mass_fluid*N);
+
+        if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
+            //make the position of particle equal to (xo, yo, zo):
+            mdx[tid] = mdx_o[tid];
+            mdy[tid] = mdy_o[tid];
+            mdz[tid] = mdz_o[tid];
+            //make the velocity equal to the reverse of the velocity in crossing point.
+            mdvx[tid] = -mdvx_o[tid];
+            mdvy[tid] = -mdvy_o[tid];
+            mdvz[tid] = -mdvz_o[tid];
+            //let the particle move during dt-dt1 with the reversed velocity:
+            mdx[tid] += (dt - (dt_min[tid])) * mdvx[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAx_tot;
+            mdy[tid] += (dt - (dt_min[tid])) * mdvy[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAy_tot;
+            mdz[tid] += (dt - (dt_min[tid])) * mdvz[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAz_tot;
+            mdvx[tid]=vx[tid]+ (dt - (dt_min[tid])) * mdAx_tot;
+            mdvy[tid]=vy[tid]+ (dt - (dt_min[tid])) * mdAy_tot;
+            mdvz[tid]=vz[tid]+ (dt - (dt_min[tid])) * mdAz_tot;
+
+        }
+        //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
+    }
+
+}
+
+//Active_md_velocityverlet2
+//second Kernel of velocity verelt: v += 0.5ha(old)
+__global__ void Active_md_velocityverlet2(double *mdx , double *mdy , double *mdz, double *mdVx , double *mdVy , double *mdVz,
+double *mdAx_tot , double *mdAy_tot , double *mdAz_tot, double h, int Nmd)
+{
+    int particleID =  blockIdx.x * blockDim.x + threadIdx.x ;
+    if (particleID < Nmd)
+    {
+        mdVx[particleID] += 0.5 * h * mdAx_tot[particleID];
+        mdVy[particleID] += 0.5 * h * mdAy_tot[particleID];
+        mdVz[particleID] += 0.5 * h * mdAz_tot[particleID];
+    }
+}
+
+
+//Active_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet2
+__global__ void Active_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet2(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *md_dt_min, double dt, double *L, int Nmd){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<Nmd){
+
+    
+
+        if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
+            //make the position of particle equal to (xo, yo, zo):
+            mdx[tid] = mdx_o[tid];
+            mdy[tid] = mdy_o[tid];
+            mdz[tid] = mdz_o[tid];
+            //make the velocity equal to the reverse of the velocity in crossing point.
+            mdvx[tid] = -mdvx_o[tid];
+            mdvy[tid] = -mdvy_o[tid];
+            mdvz[tid] = -mdvz_o[tid];
+            //let the particle move during dt-dt1 with the reversed velocity:
+            mdx[tid] += (dt - (dt_min[tid])) * mdvx[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAx_tot[tid];
+            mdy[tid] += (dt - (dt_min[tid])) * mdvy[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAy_tot[tid];
+            mdz[tid] += (dt - (dt_min[tid])) * mdvz[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAz_tot[tid];
+            mdvx[tid]=mdvx[tid]+ (dt - (dt_min[tid])) * mdAx_tot[tid];
+            mdvy[tid]=mdvy[tid]+ (dt - (dt_min[tid])) * mdAy_tot[tid];
+            mdvz[tid]=mdvz[tid]+ (dt - (dt_min[tid])) * mdAz_tot[tid];
+
+        }
+        //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
+    }
+
+}
+
+
+
+
 
 
 
@@ -442,7 +685,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, Nmd);
+    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -450,11 +693,11 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_md_crossing_location<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, mdX_o, mdY_o, mdZ_o, md_dt_min, Nmd);
+    Active_md_crossing_location<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, mdX_o, mdY_o, mdZ_o, md_dt_min, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_md_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, mdvx_o, mdvy_o, mdvz_o, md_dt_min, Nmd);
+    Active_md_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min,  d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
@@ -546,7 +789,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
-    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, Nmd);
+    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -555,11 +798,11 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_md_crossing_location<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, mdX_o, mdY_o, mdZ_o, md_dt_min, Nmd);
+    Active_md_crossing_location<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, mdX_o, mdY_o, mdZ_o, md_dt_min, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_md_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, mdvx_o, mdvy_o, mdvz_o, md_dt_min, Nmd);
+    Active_md_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
