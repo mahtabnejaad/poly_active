@@ -476,7 +476,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
         
         
 
-        if(wall_sign_x[tid] == 0 ) md_dt_x[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        if(wall_sign_x[tid] == 0 ) md_dt_x[tid] = 10000;//a big number because next step is to consider the minimum of dt .
         else if(wall_sign_x[tid] == 1 || wall_sign_x[tid] == -1){
             
             if(mdAx_tot[tid] == 0.0)   md_dt_x[tid] = abs(x_wall_dist[tid]/mdvx[tid]);
@@ -485,7 +485,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
 
         }  
 
-        if(wall_sign_y[tid] == 0 ) md_dt_y[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        if(wall_sign_y[tid] == 0 ) md_dt_y[tid] = 10000;//a big number because next step is to consider the minimum of dt .
         else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
             
             if(mdAy_tot[tid]  == 0.0)   md_dt_y[tid] = abs(y_wall_dist[tid]/mdvy[tid]);
@@ -494,7 +494,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
 
         }  
 
-        if(wall_sign_z[tid] == 0 ) md_dt_z[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        if(wall_sign_z[tid] == 0 ) md_dt_z[tid] = 10000;//a big number because next step is to consider the minimum of dt .
         else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
             
             if(mdAz_tot[tid] == 0.0)   md_dt_z[tid] = abs(z_wall_dist[tid]/mdvz[tid]);
