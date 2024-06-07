@@ -590,9 +590,9 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_md_bounceback_ve
             mdx[tid] += (dt - (dt_min[tid])) * mdvx[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAx_tot;
             mdy[tid] += (dt - (dt_min[tid])) * mdvy[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAy_tot;
             mdz[tid] += (dt - (dt_min[tid])) * mdvz[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * mdAz_tot;
-            mdvx[tid]=vx[tid]+ (dt - (dt_min[tid])) * mdAx_tot;
-            mdvy[tid]=vy[tid]+ (dt - (dt_min[tid])) * mdAy_tot;
-            mdvz[tid]=vz[tid]+ (dt - (dt_min[tid])) * mdAz_tot;
+            mdvx[tid]=mdvx[tid]+ (dt - (dt_min[tid])) * mdAx_tot;
+            mdvy[tid]=mdvy[tid]+ (dt - (dt_min[tid])) * mdAy_tot;
+            mdvz[tid]=mdvz[tid]+ (dt - (dt_min[tid])) * mdAz_tot;
 
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
