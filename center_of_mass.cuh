@@ -132,7 +132,7 @@ __global__ void intreduceKernel_(int *input, int *output, int N) {
 }
 
 __host__ void CM_system(double *mdX, double *mdY, double *mdZ,  double *dX, double *dY, double *dZ, double *mdVx, double *mdVy, double *mdVz,  double *dVx, double *dVy, double *dVz, int Nmd, int N, 
-double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *dX_tot, double *dY_tot, double *dZ_tot, double *mdVx_tot, double *mdVy_tot, double *mdVz_tot, double *dVx_tot, double *dVy_tot, double *dVz_tot, int grid_size, int shared_mem_size, int blockSize_, int grid_size_, int mass, int mass_fluid,
+double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *dX_tot, double *dY_tot, double *dZ_tot, double *mdVx_tot, double *mdVy_tot, double *mdVz_tot, double *dVx_tot, double *dVy_tot, double *dVz_tot, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, int mass, int mass_fluid,
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, 
 double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz, double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz, int topology){
  
