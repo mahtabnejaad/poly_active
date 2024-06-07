@@ -152,7 +152,13 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         cudaMemcpy(&mdVytot, mdVy, sizeof(double), cudaMemcpyDeviceToHost);
         cudaMemcpy(&mdVztot, mdVz, sizeof(double), cudaMemcpyDeviceToHost);
 
-        cudaErrorCheck(cudaMemcpy(&mdVztot, mdVz, sizeof(double), cudaMemcpyDeviceToHost));
+        cudaError_t err = cudaGetLastError();        // Get error code
+
+        if ( err != cudaSuccess )
+        {
+            printf("CUDA Error: %s\n", cudaGetErrorString(err));
+            exit(-1);
+        }
 
         *mdX_tot = mdXtot;
         *mdY_tot = mdYtot;
