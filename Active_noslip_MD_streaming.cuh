@@ -457,7 +457,7 @@ __global__ void CM_md_distance_from_walls(double *mdx, double *mdy, double *mdz,
 
         //printf("***dist_x[%i]=%f, dist_y[%i]=%f, dist_z[%i]=%f\n", tid, x_wall_dist[tid], tid, y_wall_dist[tid], tid, z_wall_dist[tid]);
         int idxx;
-        idxx = (int(x[tid] + L[0] / 2 + 2) + (L[0] + 4) * int(y[tid] + L[1] / 2 + 2) + (L[0] + 4) * (L[1] + 4) * int(z[tid] + L[2] / 2 + 2));
+        idxx = (int(mdx[tid] + L[0] / 2 + 2) + (L[0] + 4) * int(mdy[tid] + L[1] / 2 + 2) + (L[0] + 4) * (L[1] + 4) * int(mdz[tid] + L[2] / 2 + 2));
         //printf("index[%i]=%i, x[%i]=%f, y[%i]=%f, z[%i]=%f\n", tid, idxx, tid, x[tid], tid, y[tid], tid, z[tid]);//checking
 
     }    
@@ -633,9 +633,9 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_md_bounceback_ve
             mdvy[tid] = -mdvy_o[tid];
             mdvz[tid] = -mdvz_o[tid];
             //let the particle move during dt-dt1 with the reversed velocity:
-            mdx[tid] += (dt - (dt_min[tid])) * mdvx[tid] + 0.5 * ((dt - (md_dt_min[tid]))*(dt - (md_dt_min[tid]))) * mdAx_tot[tid];
-            mdy[tid] += (dt - (dt_min[tid])) * mdvy[tid] + 0.5 * ((dt - (md_dt_min[tid]))*(dt - (md_dt_min[tid]))) * mdAy_tot[tid];
-            mdz[tid] += (dt - (dt_min[tid])) * mdvz[tid] + 0.5 * ((dt - (md_dt_min[tid]))*(dt - (md_dt_min[tid]))) * mdAz_tot[tid];
+            mdx[tid] += (dt - (md_dt_min[tid])) * mdvx[tid] + 0.5 * ((dt - (md_dt_min[tid]))*(dt - (md_dt_min[tid]))) * mdAx_tot[tid];
+            mdy[tid] += (dt - (md_dt_min[tid])) * mdvy[tid] + 0.5 * ((dt - (md_dt_min[tid]))*(dt - (md_dt_min[tid]))) * mdAy_tot[tid];
+            mdz[tid] += (dt - (md_dt_min[tid])) * mdvz[tid] + 0.5 * ((dt - (md_dt_min[tid]))*(dt - (md_dt_min[tid]))) * mdAz_tot[tid];
             mdvx[tid]=mdvx[tid]+ (dt - (md_dt_min[tid])) * mdAx_tot[tid];
             mdvy[tid]=mdvy[tid]+ (dt - (md_dt_min[tid])) * mdAy_tot[tid];
             mdvz[tid]=mdvz[tid]+ (dt - (md_dt_min[tid])) * mdAz_tot[tid];
