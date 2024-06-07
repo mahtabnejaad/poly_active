@@ -733,7 +733,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaDeviceSynchronize() );
 
      //go back to the old CM frame md
-    gobackOUTBOX_OLDCMframe<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, mdVx, mdVy, mdVz, Vxcm, Vycm, Vzcm, Vxcm_out, Vycm_out, Vzcm_out, Nmd, L, n_outbox_md);
+    gobackOUTBOX_OLDCMframe<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, mdvx, mdvy, mdvz, Vxcm, Vycm, Vzcm, Vxcm_out, Vycm_out, Vzcm_out, Nmd, L, n_outbox_md);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -744,12 +744,12 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaDeviceSynchronize() );
 
     //gotoLabFrame for md particles:
-    backtoLabframe<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Xcm, Ycm, Zcm, mdVx, mdVy, mdVz, Vxcm, Vycm, Vzcm, Nmd);
+    backtoLabframe<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Xcm, Ycm, Zcm, mdvx, mdvy, mdvz, Vxcm, Vycm, Vzcm, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
     //CM_system: now the CM has changed.
-    CM_system(mdX, mdY, mdZ, x, y, z, mdVx, mdVy, mdVz, vx, vy, vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid,
+    CM_system(mdX, mdY, mdZ, x, y, z, mdvx, mdvy, mdvz, vx, vy, vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid,
     Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Vxcm, Vycm, Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
 
    
