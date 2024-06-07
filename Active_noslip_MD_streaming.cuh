@@ -435,7 +435,7 @@ __global__ void CM_md_wall_sign(double *mdvx, double *mdvy, double *mdvz, double
 
 //CM_md_distance_from_walls
 //a function to calculate distance of particles which are inside the box from the corresponding walls:
-__global__ void CM_distance_from_walls(double *mdx, double *mdy, double *mdz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm){
+__global__ void CM_md_distance_from_walls(double *mdx, double *mdy, double *mdz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<Nmd){
