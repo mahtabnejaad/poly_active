@@ -528,7 +528,7 @@ __global__ void Active_md_crossing_location(double *mdx, double *mdy, double *md
 
 
 //Active_md_crossing_velocity
-__global__ void Active_md_crossing_velocity(double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *md_dt_min, double mdAx_tot, double mdAy_tot, double mdAz_tot, int Nmd){
+__global__ void Active_md_crossing_velocity(double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *md_dt_min, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, int Nmd){
 
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -537,9 +537,9 @@ __global__ void Active_md_crossing_velocity(double *mdvx, double *mdvy, double *
         //calculate v(t+dt1) : in this case that we don't have acceleration it is equal to v(t).
         //then we put the velocity equal to v(t+dt1):
         //this part in this case is not necessary but we do it for generalization.
-        mdvx_o[tid] = mdvx[tid] + md_dt_min[tid] * mdAx_tot;
-        mdvy_o[tid] = mdvy[tid] + md_dt_min[tid] * mdAy_tot;
-        mdvz_o[tid] = mdvz[tid] + md_dt_min[tid] * mdAz_tot;
+        mdvx_o[tid] = mdvx[tid] + md_dt_min[tid] * mdAx_tot[tid];
+        mdvy_o[tid] = mdvy[tid] + md_dt_min[tid] * mdAy_tot[tid];
+        mdvz_o[tid] = mdvz[tid] + md_dt_min[tid] * mdAz_tot[tid];
     }
     
 }
