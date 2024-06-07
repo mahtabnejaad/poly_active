@@ -152,6 +152,8 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         cudaMemcpy(&mdVytot, mdVy, sizeof(double), cudaMemcpyDeviceToHost);
         cudaMemcpy(&mdVztot, mdVz, sizeof(double), cudaMemcpyDeviceToHost);
 
+        cudaErrorCheck(cudaMemcpy(&mdVztot, mdVz, sizeof(double), cudaMemcpyDeviceToHost));
+
         *mdX_tot = mdXtot;
         *mdY_tot = mdYtot;
         *mdZ_tot = mdZtot;
@@ -161,7 +163,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         *mdVz_tot = mdVztot;
 
         //MPCD particles part
-        int shared_mem_size_ = 3 * blockSize_ * sizeof(double);
+       
 
         double block_sum_dX[grid_size_]; double block_sum_dY[grid_size_]; double block_sum_dZ[grid_size_];
         double block_sum_dVx[grid_size_]; double block_sum_dVy[grid_size_]; double block_sum_dVz[grid_size_];
