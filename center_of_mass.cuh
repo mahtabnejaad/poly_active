@@ -139,10 +139,10 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
     if(topology == 4)
     {
         //MD particle part
-        double mdXtot, mdYtot, mdZtot;
-        mdXtot=0.0; mdYtot=0.0; mdZtot=0.0;
-        double mdVxtot, mdVytot, mdVztot;
-        mdVxtot=0.0; mdVytot=0.0; mdVztot=0.0;
+        double *mdXtot, *mdYtot, *mdZtot;
+        //mdXtot=0.0; mdYtot=0.0; mdZtot=0.0;
+        double *mdVxtot, *mdVytot, *mdVztot;
+        //mdVxtot=0.0; mdVytot=0.0; mdVztot=0.0;
         
         cudaMemcpy(mdXtot, mdX, sizeof(double), cudaMemcpyDeviceToHost);
         cudaMemcpy(mdYtot, mdY, sizeof(double), cudaMemcpyDeviceToHost);
@@ -160,13 +160,13 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
             exit(-1);
         }
 
-        *mdX_tot = &mdXtot;
-        *mdY_tot = &mdYtot;
-        *mdZ_tot = &mdZtot;
+        *mdX_tot = *mdXtot;
+        *mdY_tot = *mdYtot;
+        *mdZ_tot = *mdZtot;
 
-        *mdVx_tot = &mdVxtot;
-        *mdVy_tot = &mdVytot;
-        *mdVz_tot = &mdVztot;
+        *mdVx_tot = *mdVxtot;
+        *mdVy_tot = *mdVytot;
+        *mdVz_tot = *mdVztot;
 
         //MPCD particles part
        
