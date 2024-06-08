@@ -367,7 +367,7 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&CMsumblock_n_outbox_mpcd, grid_size_ * sizeof(int));
 
     int *CMsumblock_n_outbox_md;
-    cudaMalloc((void**)&CMsumblock_n_outbox_md, grid_size_ * sizeof(int));
+    cudaMalloc((void**)&CMsumblock_n_outbox_md, grid_size * sizeof(int));
 
 
 
