@@ -26,22 +26,28 @@ __global__ void reduce_kernel(double *FF1 ,double *FF2 , double *FF3,
     //(OR generally we want to add all the components of a 1D array to each other) 
     int tid = threadIdx.x; //tid represents the index of the thread within the block.
     int index = blockIdx.x * blockDim.x + threadIdx.x ;//index represents the global index of the element in the input (F1,F2 or F3) array that the thread is responsible for.
-    extern __shared__ double ssssdata[];  // This declares a shared memory array sdata, which will be used for the reduction within the block
-   
+    extern __shared__ double ssssdata1[];  // This declares a shared memory array sdata, which will be used for the reduction within the block
+    extern __shared__ double ssssdata2[];
+    extern __shared__ double ssssdata3[];
+    
+
 
  
     if(index<size){
        
         // Load the value into shared memory
     //Each thread loads the corresponding element from the F1,F2 or F3 array into the shared memory array sdata. If the thread's index is greater than or equal to size, it loads a zero.
-        ssssdata[tid] = (index < size) ? FF1[index] : 0.0; 
+        ssssdata1[tid] = (index < size) ? FF1[index] : 0.0; 
         __syncthreads();  // Synchronize threads within the block to ensure all threads have loaded their data into shared memory before proceeding.
 
-        ssssdata[tid+size] = (index < size) ? FF2[index] : 0.0;
+        //printf("iiikkk\n");
+        ssssdata2[tid] = (index < size) ? FF2[index] : 0.0;
         __syncthreads();  // Synchronize threads within the block
 
-        ssssdata[tid+2*size] = (index < size) ? FF3[index] : 0.0;
+        ssssdata3[tid] = (index < size) ? FF3[index] : 0.0;
         __syncthreads();  // Synchronize threads within the block
+
+        //printf("hihihi\n");
 
         // Reduction in shared memory
         //This loop performs a binary reduction on the sdata array in shared memory.
@@ -51,10 +57,10 @@ __global__ void reduce_kernel(double *FF1 ,double *FF2 , double *FF3,
         {
             if (tid < s)
             {
-                ssssdata[tid] += ssssdata[tid + s];
-                ssssdata[tid + size] += ssssdata[tid + size + s];
-                ssssdata[tid + 2 * size] += ssssdata[tid + 2 * size + s];
-
+                ssssdata1[tid] += ssssdata1[tid + s];
+                ssssdata2[tid] += ssssdata2[tid + s];
+                ssssdata3[tid] += ssssdata3[tid + s];
+                //printf("***");
             }
             __syncthreads();
         }
@@ -64,9 +70,9 @@ __global__ void reduce_kernel(double *FF1 ,double *FF2 , double *FF3,
         //It stores the final reduced value of the block into A1, A2 or A3 array at the corresponding block index
         if (tid == 0)
         {
-            AA1[blockIdx.x] = ssssdata[0];
-            AA2[blockIdx.x] = ssssdata[size];
-            AA3[blockIdx.x] = ssssdata[2*size];
+            AA1[blockIdx.x] = ssssdata1[0];
+            AA2[blockIdx.x] = ssssdata2[0];
+            AA3[blockIdx.x] = ssssdata3[0];
   
             //printf("A1[blockIdx.x]=%f",AA1[blockIdx.x]);
             //printf("\nA2[blockIdx.x]=%f",AA2[blockIdx.x]);
@@ -80,7 +86,6 @@ __global__ void reduce_kernel(double *FF1 ,double *FF2 , double *FF3,
     }
    
 }
-
 
 
 __global__ void reduceKernel_(double *input, double *output, int N) {
