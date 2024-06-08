@@ -173,6 +173,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
 
         //MPCD particles part
        
+        grid_size_=grid_size;
 
         double *block_sum_dX, *block_sum_dY, *block_sum_dZ, *block_sum_dVx, *block_sum_dVy, *block_sum_dVz;
         //host allocation:
@@ -244,9 +245,9 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
     
         //printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM, YCM, ZCM); 
     
-        VXCM = ( (mass*Nmd* *mdX_tot) + (mass_fluid*N* *dVx_tot) )/M_tot;
-        VYCM = ( (mass*Nmd* *mdY_tot) + (mass_fluid*N* *dVy_tot) )/M_tot;
-        VZCM = ( (mass*Nmd* *mdZ_tot) + (mass_fluid*N* *dVz_tot) )/M_tot;
+        VXCM = ( (mass*Nmd* *mdVx_tot) + (mass_fluid*N* *dVx_tot) )/M_tot;
+        VYCM = ( (mass*Nmd* *mdVy_tot) + (mass_fluid*N* *dVy_tot) )/M_tot;
+        VZCM = ( (mass*Nmd* *mdVz_tot) + (mass_fluid*N* *dVz_tot) )/M_tot;
 
         cudaMemcpy(Vxcm, &VXCM, sizeof(double), cudaMemcpyHostToDevice);
         cudaMemcpy(Vycm, &VYCM, sizeof(double), cudaMemcpyHostToDevice);
@@ -339,7 +340,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         *dVx_tot=0.0; *dVy_tot=0.0; *dVz_tot=0.0;
 
 
-        for (int j = 0; j < grid_size; j++)
+        for (int j = 0; j < grid_size_; j++)
         {
             *dX_tot += block_sum_dX[j];
             *dY_tot += block_sum_dY[j];
@@ -369,9 +370,9 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         YCM = ( (mass*Nmd* *mdY_tot) + (mass_fluid*N* *dY_tot) )/M_tot;
         ZCM = ( (mass*Nmd* *mdZ_tot) + (mass_fluid*N* *dZ_tot) )/M_tot;
 
-        VXCM = ( (mass*Nmd* *mdX_tot) + (mass_fluid*N* *dVx_tot) )/M_tot;
-        VYCM = ( (mass*Nmd* *mdY_tot) + (mass_fluid*N* *dVy_tot) )/M_tot;
-        VZCM = ( (mass*Nmd* *mdZ_tot) + (mass_fluid*N* *dVz_tot) )/M_tot;
+        VXCM = ( (mass*Nmd* *mdVx_tot) + (mass_fluid*N* *dVx_tot) )/M_tot;
+        VYCM = ( (mass*Nmd* *mdVy_tot) + (mass_fluid*N* *dVy_tot) )/M_tot;
+        VZCM = ( (mass*Nmd* *mdVz_tot) + (mass_fluid*N* *dVz_tot) )/M_tot;
 
 
         cudaMemcpy(Xcm, &XCM, sizeof(double), cudaMemcpyHostToDevice);
