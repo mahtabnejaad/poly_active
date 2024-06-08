@@ -16,8 +16,8 @@ __global__ void CM_wall_sign(double *vx, double *vy, double *vz, double *wall_si
         else if (vz[tid] < -*Vzcm) wall_sign_z[tid] = -1;
         else if (vz[tid] == -*Vzcm)  wall_sign_z[tid] = 0;
 
-        (isnan(vx[tid])|| isnan(vy[tid]) || isnan(vz[tid])) ? printf("00vx[%i]=%f, vy[%i]=%f, vz[%i]=%f \n", tid, vx[tid], tid, vy[tid], tid, vz[tid])
-                                                            : printf("");
+        //(isnan(vx[tid])|| isnan(vy[tid]) || isnan(vz[tid])) ? printf("00vx[%i]=%f, vy[%i]=%f, vz[%i]=%f \n", tid, vx[tid], tid, vy[tid], tid, vz[tid])
+                                                            //: printf("");
 
 
     }
@@ -121,7 +121,7 @@ __global__ void Active_mpcd_crossing_location(double *x, double *y, double *z, d
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
-        if( ((x[tid] + dt * vx[tid]) >L[0]/2 || (x[tid] + dt * vx[tid])<-L[0]/2 || (y[tid] + dt * vy[tid])>L[1]/2 || (y[tid] + dt * vy[tid])<-L[1]/2 || (z[tid]+dt * vz[tid])>L[2]/2 || (z[tid] + dt * vz[tid])<-L[2]/2) && dt_min[tid]>0.1) printf("dt_min[%i] = %f\n", tid, dt_min[tid]);
+        //if( ((x[tid] + dt * vx[tid]) >L[0]/2 || (x[tid] + dt * vx[tid])<-L[0]/2 || (y[tid] + dt * vy[tid])>L[1]/2 || (y[tid] + dt * vy[tid])<-L[1]/2 || (z[tid]+dt * vz[tid])>L[2]/2 || (z[tid] + dt * vz[tid])<-L[2]/2) && dt_min[tid]>0.1) printf("dt_min[%i] = %f\n", tid, dt_min[tid]);
         x_o[tid] = x[tid] + vx[tid]*dt_min[tid] + 0.5 * fa_x * dt_min[tid] * dt_min[tid] / mm;
         y_o[tid] = y[tid] + vy[tid]*dt_min[tid] + 0.5 * fa_y * dt_min[tid] * dt_min[tid] / mm;
         z_o[tid] = z[tid] + vz[tid]*dt_min[tid] + 0.5 * fa_z * dt_min[tid] * dt_min[tid] / mm;
@@ -160,7 +160,7 @@ __global__ void Active_mpcd_velocityverlet(double *x, double *y, double *z, doub
         double QQ=-(dt*dt)/(2*(Nmd*mass+mass_fluid*N));
         double Q=-dt/(Nmd*mass+mass_fluid*N);
 
-        if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2) printf("********** x[%i]=%f, y[%i]=%f, z[%i]=%f\n", tid, x[tid], tid, y[tid], tid, z[tid]);
+        //if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2) printf("********** x[%i]=%f, y[%i]=%f, z[%i]=%f\n", tid, x[tid], tid, y[tid], tid, z[tid]);
         x[tid] += dt * vx[tid]+QQ * fa_x;
         y[tid] += dt * vy[tid]+QQ * fa_y;
         z[tid] += dt * vz[tid]+QQ * fa_z;
