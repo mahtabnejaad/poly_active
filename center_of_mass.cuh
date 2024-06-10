@@ -87,6 +87,77 @@ __global__ void reduce_kernel(double *FF1 ,double *FF2 , double *FF3,
    
 }
 
+//this kernel is used to sum array components on block level in a parallel way
+__global__ void reduce_kernel_var(double *FF1 ,double *FF2 , double *FF3,
+ double *AA1 ,double *AA2 , double *AA3,
+  int size)
+{
+    //size= Nmd (or N )
+    //we want to add all the tangential vectors' components in one axis and calculate the total fa in one axis.
+    //(OR generally we want to add all the components of a 1D array to each other) 
+    int tid = threadIdx.x; //tid represents the index of the thread within the block.
+    int index = blockIdx.x * blockDim.x + threadIdx.x ;//index represents the global index of the element in the input (F1,F2 or F3) array that the thread is responsible for.
+    const int gridSize = blockSize*gridDim.x;
+    double sum1 = 0.0;
+    double sum2 = 0.0;
+    double sum3 = 0.0;
+
+
+    for (int i = index; i < size; i += gridSize){
+        sum1 += FF1[i];
+        sum2 += FF2[i];
+        sum3 += FF3[i];
+      }
+
+    
+    __shared__ double ssssdata1[blockSize];  // This declares a shared memory array sdata, which will be used for the reduction within the block
+    __shared__ double ssssdata2[blockSize];
+    __shared__ double ssssdata3[blockSize];
+    
+    ssssdata1[tid] = sum1;
+    ssssdata2[tid] = sum2;
+    ssssdata3[tid] = sum3;
+
+
+      
+
+        // Reduction in shared memory
+        //This loop performs a binary reduction on the sdata array in shared memory.
+        //The loop iteratively adds elements from sdata[tid + s] to sdata[tid], where s is halved in each iteration.
+        //The threads cooperate to perform the reduction in parallel.
+        for (int s = blockSize/2; s>0; s/=2)
+        {
+            if (tid < s)
+            {
+                ssssdata1[tid] += ssssdata1[tid + s];
+                ssssdata2[tid] += ssssdata2[tid + s];
+                ssssdata3[tid] += ssssdata3[tid + s];
+                //printf("***");
+            }
+            __syncthreads();
+        }
+    
+        // Store the block result in the result array
+        //Only the first thread in the block performs this operation.
+        //It stores the final reduced value of the block into A1, A2 or A3 array at the corresponding block index
+        if (tid == 0)
+        {
+            AA1[blockIdx.x] = ssssdata1[0];
+            AA2[blockIdx.x] = ssssdata2[0];
+            AA3[blockIdx.x] = ssssdata3[0];
+  
+            //printf("A1[blockIdx.x]=%f",AA1[blockIdx.x]);
+            //printf("\nA2[blockIdx.x]=%f",AA2[blockIdx.x]);
+            //printf("\nA3[blockIdx.x]=%f\n",AA3[blockIdx.x]);
+
+
+        }
+        __syncthreads();
+        //printf("BLOCKSUM1[0]=%f\n",A1[0]);
+        //printf("BLOCKSUM1[1]=%f\n",A1[1]);
+}
+   
+
 
 __global__ void reduceKernel_(double *input, double *output, int N) {
     extern __shared__ double sssdata[];
@@ -186,15 +257,23 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         block_sum_dVx = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVy = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVz = (double*)malloc(sizeof(double) * grid_size_);
        
 
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, CMsumblock_x, N);
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dY, CMsumblock_y, N);
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dZ, CMsumblock_z, N);
+        reduce_kernel_var<<<grid_size,blockSize>>>(dX, dY, dZ, CMsumblock_x, CMsumblock_y, CMsumblock_z,  N);
+
+        //reduce_kernel<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, dY, dZ, CMsumblock_x, CMsumblock_y, CMsumblock_z,  N);
+
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, CMsumblock_x, N);
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dY, CMsumblock_y, N);
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dZ, CMsumblock_z, N);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, CMsumblock_Vx, N);
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVy, CMsumblock_Vy, N);
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVz, CMsumblock_Vz, N);
+        reduce_kernel_var<<<grid_size,blockSize>>>(dVx, dVy, dVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz,  N);
+
+        //sreduce_kernel<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, dVy, dVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz,  N);
+
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, CMsumblock_Vx, N);
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVy, CMsumblock_Vy, N);
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVz, CMsumblock_Vz, N);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
