@@ -113,7 +113,7 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&d_index, sizeof(int) *N);
 
     //Allocate device memory for reduced mpcd files:
-    int skipfactor = 3000;
+    int skipfactor = 1;
     double *scalefactor;
     scalefactor = (double*) malloc(sizeof(double));
     *scalefactor = 1.0;
