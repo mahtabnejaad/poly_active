@@ -56,7 +56,7 @@ __global__ void SpecificOrientedForce(double *mdX, double *mdY, double *mdZ, dou
     if (tid < size)
     {
         //printf("gama-T=%f\n", *gama_T);
-        fa_kx[tid] = 200;
+        fa_kx[tid] = 1;
         fa_ky[tid] = 0.0;  //u_scale * sin(real_time) * *gama_T;
         fa_kz[tid] = 0.0;
         fb_kx[tid] = fa_kx[tid] * Q;
