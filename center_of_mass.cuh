@@ -467,7 +467,8 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         }
   
     
-  
+        /////// mpcd part:
+        
         double *block_sum_dX, *block_sum_dY, *block_sum_dZ, *block_sum_dVx, *block_sum_dVy, *block_sum_dVz;
         //host allocation:
         block_sum_dX = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dY = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dZ = (double*)malloc(sizeof(double) * grid_size_);
@@ -550,6 +551,8 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
 
 
 }
+
+////////////////////////////////// outer particles part:
 
 __global__ void reduceKernel_outbox(double *input_X, double *output_X, double *input_V, double *output_V, double *x, double *y, double *z, int N, double *L, double *Xcm, double *Ycm, double *Zcm){
     extern __shared__ double sssdata_x[];
