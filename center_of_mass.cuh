@@ -183,6 +183,44 @@ __global__ void reduceKernel_(double *input, double *output, int N) {
     }
 }
 
+__global__ void reduceKernel_var(double *input_X, double *output_X, int N){
+    
+    int tid = threadIdx.x;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    const int gridSize = blockSize*gridDim.x;
+    double sum1 = 0.0;
+    
+    
+    
+    for (int j = i; j < N; i += gridSize)
+    {
+       
+        sum1 += input_X[j];
+        
+        __syncthreads();
+    }
+
+    __shared__ double sssdata_x[blockSize];
+  
+
+    sssdata_x[tid] = sum1;
+ 
+
+    for (int s = blockSize/2; s>0; s/=2)
+    {
+        if (tid<s)
+            sssdata_x[tid] += sssdata_x[tid+s];
+           
+
+        __syncthreads();
+    }
+
+    if (tid == 0) {
+        output_X[blockIdx.x] = sssdata_x[0];
+       
+    }
+}
+
 __global__ void intreduceKernel_(int *input, int *output, int N) {
     extern __shared__ int sssdata_int[];
     int tid = threadIdx.x;
@@ -206,6 +244,42 @@ __global__ void intreduceKernel_(int *input, int *output, int N) {
         output[blockIdx.x] = sssdata_int[0];
     }
 }
+
+__global__ void intreduceKernel_var(int *input_X, int *output_X, int N){
+    
+    int tid = threadIdx.x;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    const int gridSize = blockSize*gridDim.x;
+    double sum1 = 0;
+    
+    
+    
+    for (int j = i; j < N; i += gridSize)
+    {
+       
+        sum1 += input_X[j];
+       
+        __syncthreads();
+    }
+
+    __shared__ double sssdata_x[blockSize];
+    
+
+    sssdata_x[tid] = sum1;
+
+    for (int s = blockSize/2; s>0; s/=2)
+    {
+        if (tid<s)
+            sssdata_x[tid] += sssdata_x[tid+s];
+
+        __syncthreads();
+    }
+
+    if (tid == 0) {
+        output_X[blockIdx.x] = sssdata_x[0];
+    }
+}
+
 
 __host__ void CM_system(double *mdX, double *mdY, double *mdZ,  double *dX, double *dY, double *dZ, double *mdVx, double *mdVy, double *mdVz,  double *dVx, double *dVy, double *dVz, int Nmd, int N, 
 double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *dX_tot, double *dY_tot, double *dZ_tot, double *mdVx_tot, double *mdVy_tot, double *mdVz_tot, double *dVx_tot, double *dVy_tot, double *dVz_tot, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, int mass, int mass_fluid,
@@ -350,12 +424,12 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         block_sum_mdVx = (double*)malloc(sizeof(double) * grid_size); block_sum_mdVy = (double*)malloc(sizeof(double) * grid_size); block_sum_mdVz = (double*)malloc(sizeof(double) * grid_size);
        
 
-        reduce_kernel<<<grid_size,blockSize, shared_mem_size>>>(mdX, mdY, mdZ, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Nmd);
+        reduce_kernel_var<<<grid_size,blockSize, shared_mem_size>>>(mdX, mdY, mdZ, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
         
-        reduce_kernel<<<grid_size,blockSize, shared_mem_size>>>(mdVx, mdVy, mdVz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, Nmd);
+        reduce_kernel_var<<<grid_size,blockSize, shared_mem_size>>>(mdVx, mdVy, mdVz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
@@ -399,14 +473,16 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         block_sum_dX = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dY = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dZ = (double*)malloc(sizeof(double) * grid_size_);
         block_sum_dVx = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVy = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVz = (double*)malloc(sizeof(double) * grid_size_);
        
+        reduce_kernel_var<<<grid_size,blockSize>>>(dX, dY, dZ, CMsumblock_x, CMsumblock_y, CMsumblock_z,  N);
 
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, CMsumblock_x, N);
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dY, CMsumblock_y, N);
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dZ, CMsumblock_z, N);
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, CMsumblock_x, N);
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dY, CMsumblock_y, N);
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dZ, CMsumblock_z, N);
 
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, CMsumblock_Vx, N);
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVy, CMsumblock_Vy, N);
-        reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVz, CMsumblock_Vz, N);
+        reduce_kernel_var<<<grid_size,blockSize>>>(dVx, dVy, dVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz,  N);
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, CMsumblock_Vx, N);
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVy, CMsumblock_Vy, N);
+        //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVz, CMsumblock_Vz, N);
 
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
@@ -480,6 +556,8 @@ __global__ void reduceKernel_outbox(double *input_X, double *output_X, double *i
     extern __shared__ double sssdata_v[];
     int tid = threadIdx.x;
     int i = blockIdx.x * blockDim.x + threadIdx.x;
+    
+
 
     if (i < N){
         if((x[i]+ *Xcm) > L[0]/2 || (x[i]+ *Xcm) < -L[0]/2 || (y[i] + *Ycm) > L[1]/2 || (y[i] + *Ycm) < -L[1]/2 || (z[i] + *Zcm) > L[2]/2 || (z[i] + *Zcm) < -L[2]/2){
@@ -515,6 +593,50 @@ __global__ void reduceKernel_outbox(double *input_X, double *output_X, double *i
     }
 }
 
+__global__ void reduceKernel_outbox_var(double *input_X, double *output_X, double *input_V, double *output_V, double *x, double *y, double *z, int N, double *L, double *Xcm, double *Ycm, double *Zcm){
+    
+    int tid = threadIdx.x;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    const int gridSize = blockSize*gridDim.x;
+    double sum1 = 0.0;
+    double sum2 = 0.0;
+    
+
+
+    
+    for (int j = i; j < N; i += gridSize)
+    {
+        if((x[i]+ *Xcm) > L[0]/2 || (x[i]+ *Xcm) < -L[0]/2 || (y[i] + *Ycm) > L[1]/2 || (y[i] + *Ycm) < -L[1]/2 || (z[i] + *Zcm) > L[2]/2 || (z[i] + *Zcm) < -L[2]/2){
+            sum1 += input_X[j];
+            sum2 += input_V[j];
+        }
+        __syncthreads();
+    }
+
+    __shared__ double sssdata_x[blockSize];
+    __shared__ double sssdata_v[blockSize];
+
+    sssdata_x[tid] = sum1;
+    sssdata_v[tid] = sum2;
+
+    for (int s = blockSize/2; s>0; s/=2)
+    {
+        if (tid<s)
+            sssdata_x[tid] += sssdata_x[tid+s];
+            sssdata_v[tid] += sssdata_v[tid+s];
+
+        __syncthreads();
+    }
+
+    if (tid == 0) {
+        output_X[blockIdx.x] = sssdata_x[0];
+        output_V[blockIdx.x] = sssdata_v[0];
+    }
+}
+
+
+
+
 __global__ void particles_outbox_counter(double *x, double *y, double *z, int N, double *L, double *Xcm, double *Ycm, double *Zcm, int *n_outbox){
 
     int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -535,15 +657,15 @@ __global__ void particles_outbox_counter(double *x, double *y, double *z, int N,
 __host__ void outerParticles_reduceKernels_(double *dX, double *dY, double *dZ, double *dVx, double *dVy, double *dVz, double *Xcm, double *Ycm, double *Zcm, double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz,
  int shared_mem_size_, int blockSize_, int grid_size_, int N, double *L, int *n_outbox, int *CMsumblock_n_outbox){
 
-    reduceKernel_outbox<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, CMsumblock_x, dVx, CMsumblock_Vx, dX, dY , dZ, N, L, Xcm, Ycm, Zcm);
+    reduceKernel_outbox_var<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, CMsumblock_x, dVx, CMsumblock_Vx, dX, dY , dZ, N, L, Xcm, Ycm, Zcm);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    reduceKernel_outbox<<<grid_size_,blockSize_,shared_mem_size_>>>(dY, CMsumblock_y, dVy, CMsumblock_Vy, dX, dY , dZ, N, L, Xcm, Ycm, Zcm);
+    reduceKernel_outbox_var<<<grid_size_,blockSize_,shared_mem_size_>>>(dY, CMsumblock_y, dVy, CMsumblock_Vy, dX, dY , dZ, N, L, Xcm, Ycm, Zcm);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    reduceKernel_outbox<<<grid_size_,blockSize_,shared_mem_size_>>>(dZ, CMsumblock_z, dVz, CMsumblock_Vz, dX, dY , dZ, N, L, Xcm, Ycm, Zcm);
+    reduceKernel_outbox_var<<<grid_size_,blockSize_,shared_mem_size_>>>(dZ, CMsumblock_z, dVz, CMsumblock_Vz, dX, dY , dZ, N, L, Xcm, Ycm, Zcm);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -551,7 +673,7 @@ __host__ void outerParticles_reduceKernels_(double *dX, double *dY, double *dZ, 
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    intreduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(n_outbox, CMsumblock_n_outbox, N);
+    intreduceKernel_var<<<grid_size_,blockSize_,shared_mem_size_>>>(n_outbox, CMsumblock_n_outbox, N);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
