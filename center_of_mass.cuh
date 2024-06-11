@@ -723,7 +723,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
   
 
 
-        if((mdXtot+ *Xcm) > L[0]/2 || (mdXtot+ *Xcm) < -L[0]/2 || (mdYtot + *Ycm) > L[1]/2 || (mdYtot + *Ycm) < -L[1]/2 || (mdZtot + *Zcm) > L[2]/2 || (mdZtot + *Zcm) < -L[2]/2)
+        if((*mdXtot+ *Xcm) > L[0]/2 || (*mdXtot+ *Xcm) < -L[0]/2 || (*mdYtot + *Ycm) > L[1]/2 || (*mdYtot + *Ycm) < -L[1]/2 || (*mdZtot + *Zcm) > L[2]/2 || (*mdZtot + *Zcm) < -L[2]/2)
         {
 
                     *mdX_tot = *mdXtot;
