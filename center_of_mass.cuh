@@ -413,10 +413,10 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
     
         //printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM, YCM, ZCM); 
 
-        free(mdXtot); free(mdYtot); free(mdZtot); free(mdVxtot); free(mdVytot); free(mdVztot); free(dnMDtot);
+        free(mdXtot); free(mdYtot); free(mdZtot); free(mdVxtot); free(mdVytot); free(mdVztot); 
 
 
-        free(block_sum_dX); free(block_sum_dY); free(block_sum_dZ); free(block_sum_dVx); free(block_sum_dVy); free(block_sum_dVz); free(block_sum_n_mpcd);
+        free(block_sum_dX); free(block_sum_dY); free(block_sum_dZ); free(block_sum_dVx); free(block_sum_dVy); free(block_sum_dVz); 
  
 
         
@@ -555,9 +555,9 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         printf("Vxcm = %lf, Vycm = %lf, Vzcm = %lf\n", VXCM, VYCM, VZCM); 
 
 
-        free(block_sum_mdX); free(block_sum_mdY); free(block_sum_mdZ); free(block_sum_mdVx); free(block_sum_mdVy); free(block_sum_mdVz); free(block_sum_n_md);
+        free(block_sum_mdX); free(block_sum_mdY); free(block_sum_mdZ); free(block_sum_mdVx); free(block_sum_mdVy); free(block_sum_mdVz);
 
-        free(block_sum_dX); free(block_sum_dY); free(block_sum_dZ); free(block_sum_dVx); free(block_sum_dVy); free(block_sum_dVz); free(block_sum_n_mpcd);
+        free(block_sum_dX); free(block_sum_dY); free(block_sum_dZ); free(block_sum_dVx); free(block_sum_dVy); free(block_sum_dVz); 
  
     }
 
