@@ -966,7 +966,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
 
     free(block_sum_mdX); free(block_sum_mdY); free(block_sum_mdZ); free(block_sum_mdVx); free(block_sum_mdVy); free(block_sum_mdVz); free(block_sum_n_md);
 
-    //free(block_sum_dX); free(block_sum_dY); free(block_sum_dZ); free(block_sum_dVx); free(block_sum_dVy); free(block_sum_dVz); free(block_sum_n_mpcd);
+    free(block_sum_dX); free(block_sum_dY); free(block_sum_dZ); free(block_sum_dVx); free(block_sum_dVy); free(block_sum_dVz); free(block_sum_n_mpcd);
  
     }
 
