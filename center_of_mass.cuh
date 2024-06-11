@@ -700,11 +700,11 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
 
         //MD particle part
         double *mdXtot, *mdYtot, *mdZtot;
-        mdXtot=0.0; mdYtot=0.0; mdZtot=0.0;
+        *mdXtot=0.0; *mdYtot=0.0; *mdZtot=0.0;
         double *mdVxtot, *mdVytot, *mdVztot;
-        mdVxtot=0.0; mdVytot=0.0; mdVztot=0.0;
+        *mdVxtot=0.0; *mdVytot=0.0; *mdVztot=0.0;
         int *dnMDtot;
-        dnMDtot=0;
+        *dnMDtot=0;
 
         mdXtot = (double *)malloc(sizeof(double));  mdYtot = (double *)malloc(sizeof(double));  mdZtot = (double *)malloc(sizeof(double));
         mdVxtot = (double *)malloc(sizeof(double));  mdVytot = (double *)malloc(sizeof(double));  mdVztot = (double *)malloc(sizeof(double));
