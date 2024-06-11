@@ -708,7 +708,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
 
         mdXtot = (double *)malloc(sizeof(double));  mdYtot = (double *)malloc(sizeof(double));  mdZtot = (double *)malloc(sizeof(double));
         mdVxtot = (double *)malloc(sizeof(double));  mdVytot = (double *)malloc(sizeof(double));  mdVztot = (double *)malloc(sizeof(double));
-        dnMDtot = (double *)malloc(sizeof(int));
+        dnMDtot = (int *)malloc(sizeof(int));
         
         
         cudaMemcpy(mdXtot, mdX, sizeof(double), cudaMemcpyDeviceToHost);
