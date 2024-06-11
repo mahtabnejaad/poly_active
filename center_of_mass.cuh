@@ -321,7 +321,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         *mdVy_tot = *mdVytot;
         *mdVz_tot = *mdVztot;
 
-        //MPCD particles part
+        ///////MPCD particles part:
        
         grid_size_=grid_size;
 
@@ -468,7 +468,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
   
     
         /////// mpcd part:
-        
+
         double *block_sum_dX, *block_sum_dY, *block_sum_dZ, *block_sum_dVx, *block_sum_dVy, *block_sum_dVz;
         //host allocation:
         block_sum_dX = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dY = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dZ = (double*)malloc(sizeof(double) * grid_size_);
@@ -549,6 +549,11 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         printf("Vxcm = %lf, Vycm = %lf, Vzcm = %lf\n", VXCM, VYCM, VZCM); 
     }
 
+    Free(mdXtot); Free(mdYtot); Free(mdZtot); Free(mdVxtot); Free(mdVytot); Free(mdVztot); Free(dnMDtot);
+
+    Free(block_sum_mdX); Free(block_sum_mdY); Free(block_sum_mdZ); Free(block_sum_mdVx); Free(block_sum_mdVy); Free(block_sum_mdVz); Free(block_sum_n_md);
+
+    Free(block_sum_dX); Free(block_sum_dY); Free(block_sum_dZ); Free(block_sum_dVx); Free(block_sum_dVy); Free(block_sum_dVz); Free(block_sum_n_mpcd);
 
 }
 
@@ -697,46 +702,60 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
  
     if(topology == 4)
     {
+
         //MD particle part
-       *mdX_tot = 0.0; *mdY_tot = 0.0; *mdZ_tot = 0.0;
-        *mdVx_tot = 0.0; *mdVy_tot = 0.0; *mdVz_tot = 0.0;
-        *dn_md_tot=0;
- 
-        
-        double mdXtot, mdYtot, mdZtot;
+        double *mdXtot, *mdYtot, *mdZtot;
         mdXtot=0.0; mdYtot=0.0; mdZtot=0.0;
-        double mdVxtot, mdVytot, mdVztot;
+        double *mdVxtot, *mdVytot, *mdVztot;
         mdVxtot=0.0; mdVytot=0.0; mdVztot=0.0;
-        int dnMDtot=0;
+        int *dnMDtot;
+        dnMDtot=0;
+
+        mdXtot = (double *)malloc(sizeof(double));  mdYtot = (double *)malloc(sizeof(double));  mdZtot = (double *)malloc(sizeof(double));
+        mdVxtot = (double *)malloc(sizeof(double));  mdVytot = (double *)malloc(sizeof(double));  mdVztot = (double *)malloc(sizeof(double));
+        dnMDtot = (double *)malloc(sizeof(int));
         
-        cudaMemcpy(&mdXtot, mdX, sizeof(double), cudaMemcpyDeviceToHost);
-        cudaMemcpy(&mdYtot, mdY, sizeof(double), cudaMemcpyDeviceToHost);
-        cudaMemcpy(&mdZtot, mdZ, sizeof(double), cudaMemcpyDeviceToHost);
+        
+        cudaMemcpy(mdXtot, mdX, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(mdYtot, mdY, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(mdZtot, mdZ, sizeof(double), cudaMemcpyDeviceToHost);
 
-        cudaMemcpy(&mdVxtot, mdVx, sizeof(double), cudaMemcpyDeviceToHost);
-        cudaMemcpy(&mdVytot, mdVy, sizeof(double), cudaMemcpyDeviceToHost);
-        cudaMemcpy(&mdVztot, mdVz, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(mdVxtot, mdVx, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(mdVytot, mdVy, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(mdVztot, mdVz, sizeof(double), cudaMemcpyDeviceToHost);
+ 
+      
+  
 
 
-        if((mdXtot+ *Xcm) > L[0]/2 || (mdXtot+ *Xcm) < -L[0]/2 || (mdYtot + *Ycm) > L[1]/2 || (mdYtot + *Ycm) < -L[1]/2 || (mdZtot + *Zcm) > L[2]/2 || (mdZtot + *Zcm) < -L[2]/2){
-                    *mdX_tot = mdXtot;
-                    *mdY_tot = mdYtot;
-                    *mdZ_tot = mdZtot;
+        if((mdXtot+ *Xcm) > L[0]/2 || (mdXtot+ *Xcm) < -L[0]/2 || (mdYtot + *Ycm) > L[1]/2 || (mdYtot + *Ycm) < -L[1]/2 || (mdZtot + *Zcm) > L[2]/2 || (mdZtot + *Zcm) < -L[2]/2)
+        {
 
-                    *mdVx_tot = mdVxtot;
-                    *mdVy_tot = mdVytot;
-                    *mdVz_tot = mdVztot;
+                    *mdX_tot = *mdXtot;
+                    *mdY_tot = *mdYtot;
+                    *mdZ_tot = *mdZtot;
+
+                    *mdVx_tot = *mdVxtot;
+                    *mdVy_tot = *mdVytot;
+                    *mdVz_tot = *mdVztot;
 
                     *dn_md_tot = 1;
         }
 
 
-        //MPCD particles part
-        int shared_mem_size_ = 3 * blockSize_ * sizeof(double);
+        ////////////////// MPCD particles part:
+   
+        grid_size_=grid_size;
 
-        double block_sum_dX[grid_size_]; double block_sum_dY[grid_size_]; double block_sum_dZ[grid_size_];
-        double block_sum_dVx[grid_size_]; double block_sum_dVy[grid_size_]; double block_sum_dVz[grid_size_];
-        int block_sum_n_mpcd[grid_size_]; 
+        double *block_sum_dX, *block_sum_dY, *block_sum_dZ, *block_sum_dVx, *block_sum_dVy, *block_sum_dVz;
+        int *block_sum_n_mpcd;
+        //host allocation:
+        block_sum_dX = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dY = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dZ = (double*)malloc(sizeof(double) * grid_size_);
+        block_sum_dVx = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVy = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVz = (double*)malloc(sizeof(double) * grid_size_);
+        block_sum_n_mpcd = (int*)malloc(sizeof(int) * grid_size_);
+
+
+
 
 
         outerParticles_reduceKernels_(dX, dY, dZ, dVx, dVy, dVz, Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz,
@@ -786,7 +805,8 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
         VXCM_out=0.0; VYCM_out=0.0; VZCM_out=0.0;
 
     
-        int M_tot = mass * *dn_md_tot+mass_fluid * *dn_mpcd_tot;
+        int M_tot;
+        M_tot = mass * *dn_md_tot+mass_fluid * *dn_mpcd_tot;
         //int M_tot = 1 ;
 
         XCM_out = ( (mass * *dn_md_tot * *mdX_tot) + (mass_fluid * *dn_mpcd_tot * *dX_tot) )/M_tot;
@@ -799,9 +819,9 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
     
         //printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM, YCM, ZCM); 
     
-        VXCM_out = ( (mass*Nmd* *mdX_tot) + (mass_fluid*N* *dVx_tot) )/M_tot;
-        VYCM_out = ( (mass*Nmd* *mdY_tot) + (mass_fluid*N* *dVy_tot) )/M_tot;
-        VZCM_out = ( (mass*Nmd* *mdZ_tot) + (mass_fluid*N* *dVz_tot) )/M_tot;
+        VXCM_out = ( (mass*Nmd* *mdVx_tot) + (mass_fluid*N* *dVx_tot) )/M_tot;
+        VYCM_out = ( (mass*Nmd* *mdVy_tot) + (mass_fluid*N* *dVy_tot) )/M_tot;
+        VZCM_out = ( (mass*Nmd* *mdVz_tot) + (mass_fluid*N* *dVz_tot) )/M_tot;
 
         cudaMemcpy(Vxcm_out, &VXCM_out, sizeof(double), cudaMemcpyHostToDevice);
         cudaMemcpy(Vycm_out, &VYCM_out, sizeof(double), cudaMemcpyHostToDevice);
@@ -818,9 +838,15 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
         
         outerParticles_reduceKernels_(mdX, mdY, mdZ, mdVx, mdVy, mdVz, Xcm, Ycm, Zcm, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, shared_mem_size_, blockSize_, grid_size_, N, L, n_outbox_md, CMsumblock_n_outbox_md);
 
-        double block_sum_mdX[grid_size]; double block_sum_mdY[grid_size]; double block_sum_mdZ[grid_size];
-        double block_sum_mdVx[grid_size]; double block_sum_mdVy[grid_size]; double block_sum_mdVz[grid_size];
-        int block_sum_n_md[grid_size]; 
+        grid_size_ = grid_size;
+
+        double *block_sum_mdX, *block_sum_mdY, *block_sum_mdZ, *block_sum_mdVx, *block_sum_mdVy, *block_sum_mdVz;
+        int *block_sum_n_md;
+        //host allocation:
+        block_sum_mdX = (double*)malloc(sizeof(double) * grid_size);  block_sum_mdY = (double*)malloc(sizeof(double) * grid_size);  block_sum_mdZ = (double*)malloc(sizeof(double) * grid_size);
+        block_sum_mdVx = (double*)malloc(sizeof(double) * grid_size); block_sum_mdVy = (double*)malloc(sizeof(double) * grid_size); block_sum_mdVz = (double*)malloc(sizeof(double) * grid_size);
+        block_sum_n_md = (int*)malloc(sizeof(int) * grid_size);
+ 
 
         cudaMemcpy(block_sum_mdX, CMsumblock_mdx, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
         cudaMemcpy(block_sum_mdY, CMsumblock_mdy, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
@@ -837,7 +863,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
         *mdVx_tot = 0.0; *mdVy_tot = 0.0; *mdVz_tot = 0.0;
         *dn_md_tot=0;
 
-
+        
 
         for (int i = 0; i < grid_size; i++)
         {
@@ -863,13 +889,17 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
   
 
         //MPCD part:
-        int shared_mem_size_ = 3 * blockSize_ * sizeof(double);
 
         outerParticles_reduceKernels_(dX, dY, dZ, dVx, dVy, dVz, Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, shared_mem_size_, blockSize_, grid_size_, N, L, n_outbox_mpcd, CMsumblock_n_outbox_mpcd);
 
-        double block_sum_dX[grid_size_]; double block_sum_dY[grid_size_]; double block_sum_dZ[grid_size_];
-        double block_sum_dVx[grid_size_]; double block_sum_dVy[grid_size_]; double block_sum_dVz[grid_size_];
-        int block_sum_n_mpcd[grid_size_]; 
+        grid_size_=grid_size;
+
+        double *block_sum_dX, *block_sum_dY, *block_sum_dZ, *block_sum_dVx, *block_sum_dVy, *block_sum_dVz;
+        int *block_sum_n_mpcd;
+        //host allocation:
+        block_sum_dX = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dY = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dZ = (double*)malloc(sizeof(double) * grid_size_);
+        block_sum_dVx = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVy = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVz = (double*)malloc(sizeof(double) * grid_size_);
+        block_sum_n_mpcd = (int*)malloc(sizeof(int) * grid_size_);
 
         cudaMemcpy(block_sum_dX, CMsumblock_x, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
         cudaMemcpy(block_sum_dY, CMsumblock_y, grid_size_*sizeof(double), cudaMemcpyDeviceToHost);
@@ -936,6 +966,14 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
         printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM_out, YCM_out, ZCM_out);
         printf("Vxcm = %lf, Vycm = %lf, Vzcm = %lf\n", VXCM_out, VYCM_out, VZCM_out); 
     }
+
+    Free(mdXtot); Free(mdYtot); Free(mdZtot); Free(mdVxtot); Free(mdVytot); Free(mdVztot); Free(dnMDtot);
+
+    Free(block_sum_mdX); Free(block_sum_mdY); Free(block_sum_mdZ); Free(block_sum_mdVx); Free(block_sum_mdVy); Free(block_sum_mdVz); Free(block_sum_n_md);
+
+    Free(block_sum_dX); Free(block_sum_dY); Free(block_sum_dZ); Free(block_sum_dVx); Free(block_sum_dVy); Free(block_sum_dVz); Free(block_sum_n_mpcd);
+
+
 
 
 }
