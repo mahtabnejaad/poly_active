@@ -962,11 +962,11 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
         printf("Vxcm = %lf, Vycm = %lf, Vzcm = %lf\n", VXCM_out, VYCM_out, VZCM_out);
 
 
-    Free(mdXtot); Free(mdYtot); Free(mdZtot); Free(mdVxtot); Free(mdVytot); Free(mdVztot); Free(dnMDtot);
+    //Free(mdXtot); Free(mdYtot); Free(mdZtot); Free(mdVxtot); Free(mdVytot); Free(mdVztot); Free(dnMDtot);
 
-    Free(block_sum_mdX); Free(block_sum_mdY); Free(block_sum_mdZ); Free(block_sum_mdVx); Free(block_sum_mdVy); Free(block_sum_mdVz); Free(block_sum_n_md);
+    //Free(block_sum_mdX); Free(block_sum_mdY); Free(block_sum_mdZ); Free(block_sum_mdVx); Free(block_sum_mdVy); Free(block_sum_mdVz); Free(block_sum_n_md);
 
-    Free(block_sum_dX); Free(block_sum_dY); Free(block_sum_dZ); Free(block_sum_dVx); Free(block_sum_dVy); Free(block_sum_dVz); Free(block_sum_n_mpcd);
+    //Free(block_sum_dX); Free(block_sum_dY); Free(block_sum_dZ); Free(block_sum_dVx); Free(block_sum_dVy); Free(block_sum_dVz); Free(block_sum_n_mpcd);
  
     }
 
