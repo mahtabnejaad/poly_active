@@ -280,6 +280,15 @@ __global__ void intreduceKernel_var(int *input_X, int *output_X, int N){
     }
 }
 
+__global__ void print_kernel(double *X, double *Y, double *Z, int N){
+    
+    
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if(tid<N){
+      printf("X[%i]=%f, Y[%i]=%f, Z[%i]=%f\n", tid, X[tid], tid, Y[tid], tid, Z[tid]);
+    }
+}
+
 
 __host__ void CM_system(double *mdX, double *mdY, double *mdZ,  double *dX, double *dY, double *dZ, double *mdVx, double *mdVy, double *mdVz,  double *dVx, double *dVy, double *dVz, int Nmd, int N, 
 double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *dX_tot, double *dY_tot, double *dZ_tot, double *mdVx_tot, double *mdVy_tot, double *mdVz_tot, double *dVx_tot, double *dVy_tot, double *dVz_tot, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, int mass, int mass_fluid,
@@ -321,6 +330,8 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         *mdVy_tot = *mdVytot;
         *mdVz_tot = *mdVztot;
 
+        print_kernel<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Nmd);
+
         ///////MPCD particles part:
        
         grid_size_=grid_size;
@@ -330,6 +341,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         block_sum_dX = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dY = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dZ = (double*)malloc(sizeof(double) * grid_size_);
         block_sum_dVx = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVy = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVz = (double*)malloc(sizeof(double) * grid_size_);
        
+        print_kernel<<<grid_size,blockSize>>>(dX, dY, dZ, N);
 
         reduce_kernel_var<<<grid_size,blockSize>>>(dX, dY, dZ, CMsumblock_x, CMsumblock_y, CMsumblock_z,  N);
 
@@ -343,7 +355,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
 
         reduce_kernel_var<<<grid_size,blockSize>>>(dVx, dVy, dVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz,  N);
 
-        //sreduce_kernel<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, dVy, dVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz,  N);
+        //reduce_kernel<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, dVy, dVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz,  N);
 
         //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, CMsumblock_Vx, N);
         //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVy, CMsumblock_Vy, N);
@@ -381,7 +393,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         }
 
         cudaDeviceSynchronize();
-        //printf("Xtot = %lf, Ytot = %lf, Ztot = %lf\n", *dX_tot, *dY_tot, *dZ_tot); 
+        printf("Xtot = %f, Ytot = %f, Ztot = %f\n", *dX_tot, *dY_tot, *dZ_tot); 
 
         double XCM , YCM, ZCM;
         XCM=0.0; YCM=0.0; ZCM=0.0;
@@ -390,7 +402,8 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         VXCM=0.0; VYCM=0.0; VZCM=0.0;
 
     
-        int M_tot = mass*Nmd+mass_fluid*N;
+        int M_tot;
+        M_tot = (mass*Nmd)+(mass_fluid*N);
         //int M_tot = 1 ;
 
         XCM = ( (mass*Nmd* *mdX_tot) + (mass_fluid*N* *dX_tot) )/M_tot;
@@ -411,7 +424,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         cudaMemcpy(Vycm, &VYCM, sizeof(double), cudaMemcpyHostToDevice);
         cudaMemcpy(Vycm, &VZCM, sizeof(double), cudaMemcpyHostToDevice);
     
-        //printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM, YCM, ZCM); 
+        printf("Xcm = %f, Ycm = %f, Zcm = %f\n", XCM, YCM, ZCM); 
 
         free(mdXtot); free(mdYtot); free(mdZtot); free(mdVxtot); free(mdVytot); free(mdVztot); 
 
