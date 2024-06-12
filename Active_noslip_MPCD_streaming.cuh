@@ -115,23 +115,23 @@ __global__ void Active_deltaT_min(double *dt_x, double *dt_y, double *dt_z, doub
 }
 
 //calculate the crossing location where the particles intersect with one wall:
-__global__ void Active_mpcd_crossing_location(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *x_o, double *y_o, double *z_o, double *dt_min, double dt, double *L, int N, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
+__global__ void Active_mpcd_crossing_location(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *x_o, double *y_o, double *z_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid){
 
     double mm = (Nmd*mass+mass_fluid*N);
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
         //if( ((x[tid] + dt * vx[tid]) >L[0]/2 || (x[tid] + dt * vx[tid])<-L[0]/2 || (y[tid] + dt * vy[tid])>L[1]/2 || (y[tid] + dt * vy[tid])<-L[1]/2 || (z[tid]+dt * vz[tid])>L[2]/2 || (z[tid] + dt * vz[tid])<-L[2]/2) && dt_min[tid]>0.1) printf("dt_min[%i] = %f\n", tid, dt_min[tid]);
-        x_o[tid] = x[tid] + vx[tid]*dt_min[tid] + 0.5 * fa_x * dt_min[tid] * dt_min[tid] / mm;
-        y_o[tid] = y[tid] + vy[tid]*dt_min[tid] + 0.5 * fa_y * dt_min[tid] * dt_min[tid] / mm;
-        z_o[tid] = z[tid] + vz[tid]*dt_min[tid] + 0.5 * fa_z * dt_min[tid] * dt_min[tid] / mm;
+        x_o[tid] = x[tid] + vx[tid]*dt_min[tid] + 0.5 * *fa_x * dt_min[tid] * dt_min[tid] / mm;
+        y_o[tid] = y[tid] + vy[tid]*dt_min[tid] + 0.5 * *fa_y * dt_min[tid] * dt_min[tid] / mm;
+        z_o[tid] = z[tid] + vz[tid]*dt_min[tid] + 0.5 * *fa_z * dt_min[tid] * dt_min[tid] / mm;
     }
 
 }
 
 
 
-__global__ void Active_mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, int N, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
+__global__ void Active_mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid){
 
     double mm = (Nmd*mass+mass_fluid*N);
 
@@ -141,9 +141,9 @@ __global__ void Active_mpcd_crossing_velocity(double *vx, double *vy, double *vz
         //calculate v(t+dt1) : in this case that we don't have acceleration it is equal to v(t).
         //then we put the velocity equal to v(t+dt1):
         //this part in this case is not necessary but we do it for generalization.
-        vx_o[tid] = vx[tid] + fa_x * dt_min[tid] / mm ;
-        vy_o[tid] = vy[tid] + fa_y * dt_min[tid] / mm;
-        vz_o[tid] = vz[tid] + fa_z * dt_min[tid] / mm;
+        vx_o[tid] = vx[tid] + *fa_x * dt_min[tid] / mm ;
+        vy_o[tid] = vy[tid] + *fa_y * dt_min[tid] / mm;
+        vz_o[tid] = vz[tid] + *fa_z * dt_min[tid] / mm;
     }
     
 }
@@ -152,7 +152,7 @@ __global__ void Active_mpcd_crossing_velocity(double *vx, double *vy, double *vz
 
 
 
-__global__ void Active_mpcd_velocityverlet(double *x, double *y, double *z, double *vx, double *vy, double *vz, double dt, int N, double *L, double *T, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
+__global__ void Active_mpcd_velocityverlet(double *x, double *y, double *z, double *vx, double *vy, double *vz, double dt, int N, double *L, double *T, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
@@ -161,12 +161,12 @@ __global__ void Active_mpcd_velocityverlet(double *x, double *y, double *z, doub
         double Q=-dt/(Nmd*mass+mass_fluid*N);
 
         //if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2) printf("********** x[%i]=%f, y[%i]=%f, z[%i]=%f\n", tid, x[tid], tid, y[tid], tid, z[tid]);
-        x[tid] += dt * vx[tid]+QQ * fa_x;
-        y[tid] += dt * vy[tid]+QQ * fa_y;
-        z[tid] += dt * vz[tid]+QQ * fa_z;
-        vx[tid]=vx[tid]+Q * fa_x;
-        vy[tid]=vy[tid]+Q * fa_y;
-        vz[tid]=vz[tid]+Q * fa_z;
+        x[tid] += dt * vx[tid]+QQ * *fa_x;
+        y[tid] += dt * vy[tid]+QQ * *fa_y;
+        z[tid] += dt * vz[tid]+QQ * *fa_z;
+        vx[tid]=vx[tid]+Q * *fa_x;
+        vy[tid]=vy[tid]+Q * *fa_y;
+        vz[tid]=vz[tid]+Q * *fa_z;
 
         T[tid]+=dt;
         /*if(tid == 0) {
@@ -174,7 +174,7 @@ __global__ void Active_mpcd_velocityverlet(double *x, double *y, double *z, doub
         }*/
     }
 }
-__global__ void Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, double fa_x, double fa_y, double fa_z, int Nmd, double mass, double mass_fluid){
+__global__ void Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
@@ -192,12 +192,12 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_
             vy[tid] = -vy_o[tid];
             vz[tid] = -vz_o[tid];
             //let the particle move during dt-dt1 with the reversed velocity:
-            x[tid] += (dt - (dt_min[tid])) * vx[tid] + QQ2 * fa_x;
-            y[tid] += (dt - (dt_min[tid])) * vy[tid] + QQ2 * fa_y;
-            z[tid] += (dt - (dt_min[tid])) * vz[tid] + QQ2 * fa_z;
-            vx[tid]=vx[tid]+Q2 * fa_x;
-            vy[tid]=vy[tid]+Q2 * fa_y;
-            vz[tid]=vz[tid]+Q2 * fa_z;
+            x[tid] += (dt - (dt_min[tid])) * vx[tid] + QQ2 * *fa_x;
+            y[tid] += (dt - (dt_min[tid])) * vy[tid] + QQ2 * *fa_y;
+            z[tid] += (dt - (dt_min[tid])) * vz[tid] + QQ2 * *fa_z;
+            vx[tid]=vx[tid]+Q2 * *fa_x;
+            vy[tid]=vy[tid]+Q2 * *fa_y;
+            vz[tid]=vz[tid]+Q2 * *fa_z;
 
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
@@ -248,16 +248,16 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_mpcd_crossing_location<<<grid_size,blockSize>>>(d_x , d_y , d_z , d_vx , d_vy , d_vz, x_o, y_o, z_o, dt_min, h_mpcd, L, N, *fa_x, *fa_y, *fa_z, Nmd, mass, mass_fluid);
+    Active_mpcd_crossing_location<<<grid_size,blockSize>>>(d_x , d_y , d_z , d_vx , d_vy , d_vz, x_o, y_o, z_o, dt_min, h_mpcd, L, N, fa_x, fa_y, fa_z, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_mpcd_crossing_velocity<<<grid_size,blockSize>>>(d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, N, *fa_x, *fa_y, *fa_z, Nmd, mass, mass_fluid);
+    Active_mpcd_crossing_velocity<<<grid_size,blockSize>>>(d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, N, fa_x, fa_y, fa_z, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
 
-    Active_mpcd_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z , d_vx , d_vy , d_vz, h_mpcd, N, L, T, *fa_x, *fa_y, *fa_z, Nmd, mass, mass_fluid);
+    Active_mpcd_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z , d_vx , d_vy , d_vz, h_mpcd, N, L, T, fa_x, fa_y, fa_z, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -280,7 +280,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
 
 
     //put the particles that had traveled outside of the box , on box boundaries.
-    Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, *fa_x, *fa_y, *fa_z, Nmd, mass, mass_fluid);
+    Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, fa_x, fa_y, fa_z, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
