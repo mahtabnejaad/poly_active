@@ -732,11 +732,14 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
         int *dnMDtot;
 
         double dL[3];
+
+        double *XCM, *YCM, *ZCM;
         
 
         mdXtot = (double *)malloc(sizeof(double));  mdYtot = (double *)malloc(sizeof(double));  mdZtot = (double *)malloc(sizeof(double));
         mdVxtot = (double *)malloc(sizeof(double));  mdVytot = (double *)malloc(sizeof(double));  mdVztot = (double *)malloc(sizeof(double));
         dnMDtot = (int *)malloc(sizeof(int));
+        XCM = (double *)malloc(sizeof(double));  YCM = (double *)malloc(sizeof(double)); ZCM = (double *)malloc(sizeof(double));
         
         
         cudaMemcpy(mdXtot, mdX, sizeof(double), cudaMemcpyDeviceToHost);
@@ -748,12 +751,18 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
         cudaMemcpy(mdVztot, mdVz, sizeof(double), cudaMemcpyDeviceToHost);
 
         cudaMemcpy(dL, L, sizeof(double) * 3, cudaMemcpyDeviceToHost);
+
+        cudaMemcpy(XCM, Xcm, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(YCM, Ycm, sizeof(double), cudaMemcpyDeviceToHost);
+        cudaMemcpy(ZCM, Zcm, sizeof(double), cudaMemcpyDeviceToHost);
+
  
-      
-  
+        printf("dL[0]=%f\n", dL[0]);
+        printf("*mdXtot=%f\n", *mdXtot);
+        printf("*XCM=%f\n", *XCM);
 
 
-        if((*mdXtot+ *Xcm) > dL[0]/2 || (*mdXtot+ *Xcm) < -dL[0]/2 || (*mdYtot + *Ycm) > dL[1]/2 || (*mdYtot + *Ycm) < -dL[1]/2 || (*mdZtot + *Zcm) > dL[2]/2 || (*mdZtot + *Zcm) < -dL[2]/2)
+        if((*mdXtot+ *XCM) > dL[0]/2 || (*mdXtot+ *XCM) < -dL[0]/2 || (*mdYtot + *YCM) > dL[1]/2 || (*mdYtot + *YCM) < -dL[1]/2 || (*mdZtot + *ZCM) > dL[2]/2 || (*mdZtot + *ZCM) < -dL[2]/2)
         {
 
                     *mdX_tot = *mdXtot;
