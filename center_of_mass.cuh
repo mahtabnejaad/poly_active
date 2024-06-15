@@ -259,18 +259,18 @@ __global__ void intreduceKernel_var(int *input_X, int *output_X, int N){
        
         sum1 += input_X[j];
        
-        __syncthreads();
+        
     }
 
     __shared__ double sssdata_x[blockSize];
+    __syncthreads();
     
 
     sssdata_x[tid] = sum1;
 
     for (int s = blockSize/2; s>0; s/=2)
     {
-        if (tid<s)
-            sssdata_x[tid] += sssdata_x[tid+s];
+        if (tid<s)      sssdata_x[tid] += sssdata_x[tid+s];
 
         __syncthreads();
     }
@@ -639,7 +639,7 @@ __global__ void reduceKernel_outbox_var(double *input_X, double *output_X, doubl
             sum1 += input_X[j];
             sum2 += input_V[j];
         }
-        __syncthreads();
+        
     }
 
     __shared__ double ssdata_x[blockSize];
@@ -647,12 +647,14 @@ __global__ void reduceKernel_outbox_var(double *input_X, double *output_X, doubl
 
     ssdata_x[tid] = sum1;
     ssdata_v[tid] = sum2;
+    __syncthreads();
 
     for (int s = blockSize/2; s>0; s/=2)
     {
-        if (tid<s)
+        if (tid<s){
             ssdata_x[tid] += ssdata_x[tid+s];
             ssdata_v[tid] += ssdata_v[tid+s];
+        }
 
         __syncthreads();
     }
