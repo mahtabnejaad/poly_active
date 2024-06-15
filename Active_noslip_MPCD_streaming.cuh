@@ -63,7 +63,7 @@ __global__ void CM_distance_from_walls(double *x, double *y, double *z, double *
 __global__ void Active_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    printf("---fa_x=%f, fa_y=%f, fa_z=%f\n", *fa_x, *fa_y, *fa_z);
+    //printf("---fa_x=%f, fa_y=%f, fa_z=%f\n", *fa_x, *fa_y, *fa_z);
     if (tid<N){
         
         double mm = (Nmd*mass+mass_fluid*N);
