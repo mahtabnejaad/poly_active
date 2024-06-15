@@ -109,7 +109,7 @@ __global__ void Active_deltaT_min(double *dt_x, double *dt_y, double *dt_z, doub
     if (tid<N){
 
         dt_min[tid] = min(min(dt_x[tid], dt_y[tid]) , dt_z[tid]);
-        //printf("dt_min[%i] = %f", tid, dt_min[tid]);
+        printf("dt_min[%i] = %f", tid, dt_min[tid]);
 
     }
 
@@ -175,7 +175,21 @@ __global__ void Active_mpcd_velocityverlet(double *x, double *y, double *z, doub
         }*/
     }
 }
-__global__ void Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
+
+__global__ void Take_o_to_outerCM_system(double *x_o, double *y_o, double *z_o, double *vx_o, double *vy_o, double *vz_o, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, int N){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N){
+        x_o[tid] = x_o[tid] - *Xcm_out;
+        y_o[tid] = y_o[tid] - *Ycm_out;
+        z_o[tid] = z_o[tid] - *Zcm_out;
+
+        vx_o[tid] = vx_o[tid] - *Vxcm_out;
+        vy_o[tid] = vy_o[tid] - *Vycm_out;
+        vz_o[tid] = vz_o[tid] - *Vzcm_out;
+    }
+}
+__global__ void Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, double *Xcm, double *Ycm, double *Zcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, int Nmd, int mass, int mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
@@ -183,7 +197,7 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_
         double QQ2=-((dt - (dt_min[tid]))*(dt - (dt_min[tid])))/(2*(Nmd*mass+mass_fluid*N));
         double Q2=-(dt - (dt_min[tid]))/(Nmd*mass+mass_fluid*N);
 
-        if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
+        if((x[tid] + *Xcm + *Xcm_out)>L[0]/2 || (x[tid] + *Xcm + *Xcm_out)<-L[0]/2 || (y[tid] + *Ycm + *Ycm_out)>L[1]/2 || (y[tid] + *Ycm + *Ycm_out)<-L[1]/2 || (z[tid] + *Zcm + *Zcm_out)>L[2]/2 || (z[tid] + *Zcm + *Zcm_out)<-L[2]/2){
             //make the position of particle equal to (xo, yo, zo):
             x[tid] = x_o[tid];
             y[tid] = y_o[tid];
@@ -284,10 +298,11 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-
+    //take o point (crossing point) components to the outer particles' CM system:
+    Take_o_to_outerCM_system<<<grid_size,blockSize>>>(x_o, y_o, z_o, vx_o, vy_o, vz_o, Xcm_out, Ycm_out, Zcm_out, Vxcm_out, Vycm_out, Vzcm_out, N)
 
     //put the particles that had traveled outside of the box , on box boundaries.
-    Active_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, fax, fay, faz, Nmd, mass, mass_fluid);
+    Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, fax, fay, faz, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
