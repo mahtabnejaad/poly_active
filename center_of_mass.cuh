@@ -642,24 +642,24 @@ __global__ void reduceKernel_outbox_var(double *input_X, double *output_X, doubl
         __syncthreads();
     }
 
-    __shared__ double sssdata_x[blockSize];
-    __shared__ double sssdata_v[blockSize];
+    __shared__ double ssdata_x[blockSize];
+    __shared__ double ssdata_v[blockSize];
 
-    sssdata_x[tid] = sum1;
-    sssdata_v[tid] = sum2;
+    ssdata_x[tid] = sum1;
+    ssdata_v[tid] = sum2;
 
     for (int s = blockSize/2; s>0; s/=2)
     {
         if (tid<s)
-            sssdata_x[tid] += sssdata_x[tid+s];
-            sssdata_v[tid] += sssdata_v[tid+s];
+            ssdata_x[tid] += sssdata_x[tid+s];
+            ssdata_v[tid] += sssdata_v[tid+s];
 
         __syncthreads();
     }
 
     if (tid == 0) {
-        output_X[blockIdx.x] = sssdata_x[0];
-        output_V[blockIdx.x] = sssdata_v[0];
+        output_X[blockIdx.x] = ssdata_x[0];
+        output_V[blockIdx.x] = ssdata_v[0];
     }
 }
 
