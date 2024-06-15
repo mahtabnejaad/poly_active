@@ -651,8 +651,8 @@ __global__ void reduceKernel_outbox_var(double *input_X, double *output_X, doubl
     for (int s = blockSize/2; s>0; s/=2)
     {
         if (tid<s)
-            ssdata_x[tid] += sssdata_x[tid+s];
-            ssdata_v[tid] += sssdata_v[tid+s];
+            ssdata_x[tid] += ssdata_x[tid+s];
+            ssdata_v[tid] += ssdata_v[tid+s];
 
         __syncthreads();
     }
