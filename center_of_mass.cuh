@@ -766,7 +766,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
 
         if((*mdXtot+ *XCM) > dL[0]/2 || (*mdXtot+ *XCM) < -dL[0]/2 || (*mdYtot + *YCM) > dL[1]/2 || (*mdYtot + *YCM) < -dL[1]/2 || (*mdZtot + *ZCM) > dL[2]/2 || (*mdZtot + *ZCM) < -dL[2]/2)
         {
-
+                    printf("oooo\n");
                     *mdX_tot = *mdXtot;
                     *mdY_tot = *mdYtot;
                     *mdZ_tot = *mdZtot;
@@ -857,22 +857,33 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
     
         int M_tot;
         M_tot = mass * *dn_md_tot+mass_fluid * *dn_mpcd_tot;
-        printf("outerparticles M_tot=%f\n", M_tot);
-        //int M_tot = 1 ;
-
-        XCM_out = ( (mass * *dn_md_tot * *mdX_tot) + (mass_fluid * *dn_mpcd_tot * *dX_tot) )/M_tot;
-        YCM_out = ( (mass * *dn_md_tot * *mdY_tot) + (mass_fluid * *dn_mpcd_tot * *dY_tot) )/M_tot;
-        ZCM_out = ( (mass * *dn_md_tot * *mdZ_tot) + (mass_fluid * *dn_mpcd_tot * *dZ_tot) )/M_tot;
+        printf("outerparticles M_tot=%i\n", M_tot);
+        printf("*dn_mpcd_tot=%i\n", *dn_mpcd_tot);
 
         cudaMemcpy(Xcm_out, &XCM_out, sizeof(double), cudaMemcpyHostToDevice);
         cudaMemcpy(Ycm_out, &YCM_out, sizeof(double), cudaMemcpyHostToDevice);
         cudaMemcpy(Zcm_out, &ZCM_out, sizeof(double), cudaMemcpyHostToDevice);
     
-        //printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM, YCM, ZCM); 
-    
-        VXCM_out = ( (mass*Nmd* *mdVx_tot) + (mass_fluid*N* *dVx_tot) )/M_tot;
-        VYCM_out = ( (mass*Nmd* *mdVy_tot) + (mass_fluid*N* *dVy_tot) )/M_tot;
-        VZCM_out = ( (mass*Nmd* *mdVz_tot) + (mass_fluid*N* *dVz_tot) )/M_tot;
+        printf("Xcm_out = %f, Ycm_out = %f, Zcm_out = %f\n", XCM_out, YCM_out, ZCM_out);
+
+        if(M_tot != 0){
+
+            XCM_out = ( (mass * *dn_md_tot * *mdX_tot) + (mass_fluid * *dn_mpcd_tot * *dX_tot) )/M_tot;
+            YCM_out = ( (mass * *dn_md_tot * *mdY_tot) + (mass_fluid * *dn_mpcd_tot * *dY_tot) )/M_tot;
+            ZCM_out = ( (mass * *dn_md_tot * *mdZ_tot) + (mass_fluid * *dn_mpcd_tot * *dZ_tot) )/M_tot;
+            VXCM_out = ( (mass* *dn_md_tot * *mdVx_tot) + (mass_fluid* *dn_mpcd_tot * *dVx_tot) )/M_tot;
+            VYCM_out = ( (mass* *dn_md_tot * *mdVy_tot) + (mass_fluid* *dn_mpcd_tot * *dVy_tot) )/M_tot;
+            VZCM_out = ( (mass* *dn_md_tot * *mdVz_tot) + (mass_fluid* *dn_mpcd_tot * *dVz_tot) )/M_tot;
+          }
+        else{
+
+            XCM_out = 0.0;
+            YCM_out = 0.0;
+            ZCM_out = 0.0;
+            VXCM_out = 0.0;
+            VYCM_out = 0.0;
+            VZCM_out = 0.0;
+          }
 
         cudaMemcpy(Vxcm_out, &VXCM_out, sizeof(double), cudaMemcpyHostToDevice);
         cudaMemcpy(Vycm_out, &VYCM_out, sizeof(double), cudaMemcpyHostToDevice);
