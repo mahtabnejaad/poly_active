@@ -759,9 +759,9 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
         cudaMemcpy(ZCM, Zcm, sizeof(double), cudaMemcpyDeviceToHost);
 
  
-        printf("dL[0]=%f\n", dL[0]);
-        printf("*mdXtot=%f\n", *mdXtot);
-        printf("*XCM=%f\n", *XCM);
+        //printf("dL[0]=%f\n", dL[0]);
+        //printf("*mdXtot=%f\n", *mdXtot);
+        //printf("*XCM=%f\n", *XCM);
 
 
         if((*mdXtot+ *XCM) > dL[0]/2 || (*mdXtot+ *XCM) < -dL[0]/2 || (*mdYtot + *YCM) > dL[1]/2 || (*mdYtot + *YCM) < -dL[1]/2 || (*mdZtot + *ZCM) > dL[2]/2 || (*mdZtot + *ZCM) < -dL[2]/2)
@@ -857,6 +857,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
     
         int M_tot;
         M_tot = mass * *dn_md_tot+mass_fluid * *dn_mpcd_tot;
+        printf("outerparticles M_tot=%f\n", M_tot);
         //int M_tot = 1 ;
 
         XCM_out = ( (mass * *dn_md_tot * *mdX_tot) + (mass_fluid * *dn_mpcd_tot * *dX_tot) )/M_tot;
