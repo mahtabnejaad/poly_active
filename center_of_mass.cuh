@@ -675,6 +675,8 @@ __global__ void particles_outbox_counter(double *x, double *y, double *z, int N,
         if((x[i]+ *Xcm) > L[0]/2 || (x[i]+ *Xcm) < -L[0]/2 || (y[i] + *Ycm) > L[1]/2 || (y[i] + *Ycm) < -L[1]/2 || (z[i] + *Zcm) > L[2]/2 || (z[i] + *Zcm) < -L[2]/2){
         
             n_outbox[i] = 1;
+            printf("the %i th particle goes out\n", i);
+            printf("***** X[%i]=%f, Y[%i]=%f, Z[%i]=%f\n", i, x[i]+ *Xcm, i, y[i] + *Ycm, i, z[i] + *Zcm);
 
         }
         else n_outbox[i] = 0;
