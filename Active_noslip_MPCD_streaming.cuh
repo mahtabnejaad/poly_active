@@ -54,13 +54,57 @@ __global__ void CM_distance_from_walls(double *x, double *y, double *z, double *
 
 }
 
+//a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
+__global__ void Active_CM_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    //printf("---fa_x=%f, fa_y=%f, fa_z=%f\n", *fa_x, *fa_y, *fa_z);
+    if (tid<N){
+        
+        double mm = (Nmd*mass+mass_fluid*N);
+
+        if(wall_sign_x[tid] == 0 ) dt_x[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        else if(wall_sign_x[tid] == 1 || wall_sign_x[tid] == -1){
+            
+            if(*fa_x/mm == 0.0)   dt_x[tid] = abs(x_wall_dist[tid]/(vx[tid]));
+
+            else if (*fa_x/mm != 0.0)  dt_x[tid] = ((-(vx[tid]) + sqrt(abs(((vx[tid])*(vx[tid]))+(2*x_wall_dist[tid]*(*fa_x/mm)))))/(*fa_x/mm));
+
+        }  
+
+        if(wall_sign_y[tid] == 0 ) dt_y[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
+            
+            if(*fa_y/mm  == 0.0)   dt_y[tid] = abs(y_wall_dist[tid]/(vy[tid]));
+
+            else if (*fa_y/mm != 0.0)  dt_y[tid] = ((-(vy[tid])+sqrt(abs(((vy[tid])*(vy[tid]))+(2*y_wall_dist[tid]*(*fa_y/mm )))))/(*fa_y/mm ));
+
+        }  
+
+        if(wall_sign_z[tid] == 0 ) dt_z[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
+            
+            if(*fa_z/mm == 0.0)   dt_z[tid] = abs(z_wall_dist[tid]/(vz[tid]));
+
+            else if (*fa_z/mm != 0.0)  dt_z[tid] = ((-(vz[tid])+sqrt(abs(((vz[tid])*(vz[tid]))+(2*z_wall_dist[tid]*(*fa_z/mm)))))/(*fa_z/mm));
+
+        }  
+
+        
+
+
+
+    }
+
+
+}
 
 
 
 
 
 //a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
-__global__ void Active_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *Vxcm, double *Vycm, double *Vzcm, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
+__global__ void Active_Lab_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *Vxcm, double *Vycm, double *Vzcm, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     //printf("---fa_x=%f, fa_y=%f, fa_z=%f\n", *fa_x, *fa_y, *fa_z);
@@ -116,7 +160,7 @@ __global__ void Active_deltaT_min(double *dt_x, double *dt_y, double *dt_z, doub
 }
 
 //calculate the crossing location where the particles intersect with one wall:
-__global__ void Active_mpcd_crossing_location(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *x_o, double *y_o, double *z_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
+__global__ void Active_CM_mpcd_crossing_location(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *x_o, double *y_o, double *z_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
 
     double mm = (Nmd*mass+mass_fluid*N);
 
@@ -261,9 +305,14 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_noslip_mpcd_deltaT<<<grid_size,blockSize>>>(d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, wall_sign_x, wall_sign_y, wall_sign_z, x_wall_dist, y_wall_dist, z_wall_dist, dt_x, dt_y, dt_z, N, fax, fay, faz, Nmd, mass, mass_fluid);
+    Active_CM_noslip_mpcd_deltaT<<<grid_size,blockSize>>>(d_vx, d_vy, d_vz, wall_sign_x, wall_sign_y, wall_sign_z, x_wall_dist, y_wall_dist, z_wall_dist, dt_x, dt_y, dt_z, N, fax, fay, faz, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
+
+    /*Active_Lab_noslip_mpcd_deltaT<<<grid_size,blockSize>>>(d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, wall_sign_x, wall_sign_y, wall_sign_z, x_wall_dist, y_wall_dist, z_wall_dist, dt_x, dt_y, dt_z, N, fax, fay, faz, Nmd, mass, mass_fluid);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );*/
+
 
     Active_deltaT_min<<<grid_size,blockSize>>>(dt_x, dt_y, dt_z, dt_min, N);
     gpuErrchk( cudaPeekAtLastError() );
