@@ -91,7 +91,7 @@ __global__ void Active_CM_noslip_mpcd_deltaT(double *vx, double *vy, double *vz,
         }  
 
         
-
+    printf("dt_x[%i]=%f, dt_y[%i]=%f, dt_z[%i]=%f\n", tid, dt_x[tid], tid, dt_y[tid] ,tid, dt_z[tid]);
 
 
     }
