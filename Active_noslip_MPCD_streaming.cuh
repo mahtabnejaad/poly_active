@@ -176,7 +176,7 @@ __global__ void Active_CM_mpcd_crossing_location(double *x, double *y, double *z
 
 
 
-__global__ void Active_mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
+__global__ void Active_CM_mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
 
     double mm = (Nmd*mass+mass_fluid*N);
 
@@ -318,11 +318,11 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_mpcd_crossing_location<<<grid_size,blockSize>>>(d_x , d_y , d_z , d_vx , d_vy , d_vz, x_o, y_o, z_o, dt_min, h_mpcd, L, N, fax, fay, faz, Nmd, mass, mass_fluid);
+    Active_CM_mpcd_crossing_location<<<grid_size,blockSize>>>(d_x , d_y , d_z , d_vx , d_vy , d_vz, x_o, y_o, z_o, dt_min, h_mpcd, L, N, fax, fay, faz, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_mpcd_crossing_velocity<<<grid_size,blockSize>>>(d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, N, fax, fay, faz, Nmd, mass, mass_fluid);
+    Active_CM_mpcd_crossing_velocity<<<grid_size,blockSize>>>(d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, N, fax, fay, faz, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
