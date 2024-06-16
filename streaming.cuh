@@ -42,13 +42,13 @@ __global__ void gotoOUTBOXCMframe(double *X, double *Y, double *Z, double *Xcm, 
     if (tid < size){
         if((X[tid]+ *Xcm) > L[0]/2 || (X[tid]+ *Xcm) < -L[0]/2 || (Y[tid] + *Ycm) > L[1]/2 || (Y[tid] + *Ycm) < -L[1]/2 || (Z[tid] + *Zcm) > L[2]/2 || (Z[tid] + *Zcm) < -L[2]/2){
         
-        X[tid] = X[tid] - *Xcm_out;
-        Y[tid] = Y[tid] - *Ycm_out;
-        Z[tid] = Z[tid] - *Zcm_out;
+            X[tid] = X[tid] - *Xcm_out;
+            Y[tid] = Y[tid] - *Ycm_out;
+            Z[tid] = Z[tid] - *Zcm_out;
 
-        Vx[tid] = Vx[tid] - *Vxcm_out;
-        Vy[tid] = Vy[tid] - *Vycm_out;
-        Vz[tid] = Vz[tid] - *Vzcm_out;
+            Vx[tid] = Vx[tid] - *Vxcm_out;
+            Vy[tid] = Vy[tid] - *Vycm_out;
+            Vz[tid] = Vz[tid] - *Vzcm_out;
 
 
 
@@ -62,13 +62,13 @@ __global__ void gobackOUTBOX_OLDCMframe(double *X, double *Y, double *Z, double 
     if (tid < size){
        if(n_outbox[tid] == 1){
         
-        X[tid] = X[tid] + *Xcm_out;
-        Y[tid] = Y[tid] + *Ycm_out;
-        Z[tid] = Z[tid] + *Zcm_out;
+            X[tid] = X[tid] + *Xcm_out;
+            Y[tid] = Y[tid] + *Ycm_out;
+            Z[tid] = Z[tid] + *Zcm_out;
 
-        Vx[tid] = Vx[tid] + *Vxcm_out;
-        Vy[tid] = Vy[tid] + *Vycm_out;
-        Vz[tid] = Vz[tid] + *Vzcm_out;
+            Vx[tid] = Vx[tid] + *Vxcm_out;
+            Vy[tid] = Vy[tid] + *Vycm_out;
+            Vz[tid] = Vz[tid] + *Vzcm_out;
 
 
 
