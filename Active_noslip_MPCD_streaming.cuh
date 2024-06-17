@@ -220,6 +220,20 @@ __global__ void Active_mpcd_velocityverlet(double *x, double *y, double *z, doub
     }
 }
 
+__global__ void Take_o_to_CM_system(double *x_o, double *y_o, double *z_o, double *vx_o, double *vy_o, double *vz_o, double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, int N){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N){
+        x_o[tid] = x_o[tid] - *Xcm;
+        y_o[tid] = y_o[tid] - *Ycm;
+        z_o[tid] = z_o[tid] - *Zcm;
+
+        vx_o[tid] = vx_o[tid] - *Vxcm;
+        vy_o[tid] = vy_o[tid] - *Vycm;
+        vz_o[tid] = vz_o[tid] - *Vzcm;
+    }
+}
+
 __global__ void Take_o_to_outerCM_system(double *x_o, double *y_o, double *z_o, double *vx_o, double *vy_o, double *vz_o, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, int N){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -440,8 +454,13 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
+    Take_o_to_CM_system<<<grid_size,blockSize>>>(x_o, y_o, z_o, vx_o, vy_o, vz_o, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    
+
     //??with this function call MD particles go to box's center of mass frame:(should I???)
-    gotoCMframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Nmd);
+    //gotoCMframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -449,16 +468,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    //gotoLabFrame for mpcd particles:
-    backtoLabframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, N);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-
-    //gotoLabFrame for md particles:
-    backtoLabframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Nmd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-
+    
     /*
     //CM_outside_particles
     outerParticles_CM_system(d_mdX, d_mdY, d_mdZ, d_x, d_y, d_z,  d_mdVx, d_mdVy, d_mdVz, d_vx, d_vy, d_vz, Nmd, N, n_outbox_md, n_outbox_mpcd,
@@ -482,9 +492,14 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaDeviceSynchronize() );*/
     
     //put the particles that had traveled outside of the box , on box boundaries.
-    Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, fax, fay, faz, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, Nmd, mass, mass_fluid);
+    /*Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, fax, fay, faz, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, Nmd, mass, mass_fluid);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );*/
+
+    particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
+
 
     /*
     //go back to the old CM frame:
@@ -497,6 +512,15 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaDeviceSynchronize() );
     */
 
+    //gotoLabFrame for mpcd particles:
+    backtoLabframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //gotoLabFrame for md particles:
+    //backtoLabframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
 
 
 }
