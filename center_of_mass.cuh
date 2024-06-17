@@ -672,6 +672,9 @@ __global__ void particles_outbox_counter(double *x, double *y, double *z, int N,
 
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if(i < N){
+
+        n_outbox[i] =0; 
+        
         if((x[i]+ *Xcm) > L[0]/2 || (x[i]+ *Xcm) < -L[0]/2 || (y[i] + *Ycm) > L[1]/2 || (y[i] + *Ycm) < -L[1]/2 || (z[i] + *Zcm) > L[2]/2 || (z[i] + *Zcm) < -L[2]/2){
         
             n_outbox[i] = 1;
