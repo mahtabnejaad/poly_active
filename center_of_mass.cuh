@@ -862,11 +862,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
         printf("outerparticles M_tot=%i\n", M_tot);
         printf("*dn_mpcd_tot=%i\n", *dn_mpcd_tot);
 
-        cudaMemcpy(Xcm_out, &XCM_out, sizeof(double), cudaMemcpyHostToDevice);
-        cudaMemcpy(Ycm_out, &YCM_out, sizeof(double), cudaMemcpyHostToDevice);
-        cudaMemcpy(Zcm_out, &ZCM_out, sizeof(double), cudaMemcpyHostToDevice);
-    
-        printf("Xcm_out = %f, Ycm_out = %f, Zcm_out = %f\n", XCM_out, YCM_out, ZCM_out);
+
 
         if(M_tot != 0){
 
@@ -886,6 +882,12 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
             VYCM_out = 0.0;
             VZCM_out = 0.0;
           }
+
+        printf("Xcm_out = %f, Ycm_out = %f, Zcm_out = %f\n", XCM_out, YCM_out, ZCM_out);
+        
+        cudaMemcpy(Xcm_out, &XCM_out, sizeof(double), cudaMemcpyHostToDevice);
+        cudaMemcpy(Ycm_out, &YCM_out, sizeof(double), cudaMemcpyHostToDevice);
+        cudaMemcpy(Zcm_out, &ZCM_out, sizeof(double), cudaMemcpyHostToDevice);  
 
         cudaMemcpy(Vxcm_out, &VXCM_out, sizeof(double), cudaMemcpyHostToDevice);
         cudaMemcpy(Vycm_out, &VYCM_out, sizeof(double), cudaMemcpyHostToDevice);
