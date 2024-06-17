@@ -414,7 +414,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaDeviceSynchronize() );
 
     //calculate particle's distance from walls if the particle is inside the box:
-    distance_from_walls<<<grid_size,blockSize>>>(d_x , d_y , d_z, wall_sign_x, wall_sign_y, wall_sign_z, x_wall_dist, y_wall_dist, z_wall_dist, L, N)
+    distance_from_walls<<<grid_size,blockSize>>>(d_x , d_y , d_z, wall_sign_x, wall_sign_y, wall_sign_z, x_wall_dist, y_wall_dist, z_wall_dist, L, N);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
