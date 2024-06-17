@@ -1009,8 +1009,8 @@ int main(int argc, const char* argv[])
         cudaFree(h_Xcm_out); cudaFree(h_Ycm_out); cudaFree(h_Zcm_out);
         cudaFree(CMsumblock_x); cudaFree(CMsumblock_y); cudaFree(CMsumblock_z);
         cudaFree(CMsumblock_mdx); cudaFree(CMsumblock_mdy); cudaFree(CMsumblock_mdz);
-        cudaFree(d_n_outbox_mpcd); cudaFree(d_n_outbox_md); cudaFree(h_dn_mpcd_tot); 
-        cudaFree(h_dn_md_tot); cudaFree(CMsumblock_n_outbox_mpcd); cudaFree(CMsumblock_n_outbox_md);
+        cudaFree(d_n_outbox_mpcd); cudaFree(d_n_outbox_md);
+        cudaFree(CMsumblock_n_outbox_mpcd); cudaFree(CMsumblock_n_outbox_md);
 
         //cudaFree(gama_T);
         cudaFree(d_flag_array);
@@ -1070,6 +1070,12 @@ int main(int argc, const char* argv[])
 
         cudaFree(a_x); cudaFree(a_y); cudaFree(a_z);
         cudaFree(d_variance); cudaFree(d_States); 
+
+        free(dX_tot); free(dY_tot); free(dZ_tot); 
+        free(mdX_tot); free(mdY_tot); free(mdZ_tot);
+        free(dVx_tot); free(dVy_tot); free(dVz_tot); 
+        free(mdVx_tot); free(mdVy_tot); free(mdVz_tot);
+        free(h_dn_mpcd_tot); free(h_dn_md_tot);
 
 
 
