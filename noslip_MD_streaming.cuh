@@ -199,8 +199,8 @@ __global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx
     int ID = blockIdx.x * blockDim.x + threadIdx.x;
     if (ID<Nmd){
 
-        printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f \n", ID, mdvx[ID], ID, mdvy[ID], ID, mdvz[ID]);
-        printf("mdAx[%i]=%f, mdAy[%i]=%f, mdAz[%i]=%f \n", ID, mdAx[ID], ID, mdAy[ID], ID, mdAz[ID]);
+        //printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f \n", ID, mdvx[ID], ID, mdvy[ID], ID, mdvz[ID]);
+        //printf("mdAx[%i]=%f, mdAy[%i]=%f, mdAz[%i]=%f \n", ID, mdAx[ID], ID, mdAy[ID], ID, mdAz[ID]);
 
         (isnan(md_dt_x[ID])|| isnan(md_dt_y[ID]) || isnan(md_dt_z[ID])) ? printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f \n", ID, md_dt_x[ID], ID, md_dt_y[ID], ID, md_dt_z[ID])
                                                             : printf("");
