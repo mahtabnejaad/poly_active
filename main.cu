@@ -905,7 +905,7 @@ int main(int argc, const char* argv[])
                 d_n_outbox_mpcd, d_n_outbox_md, h_dn_mpcd_tot, h_dn_md_tot, CMsumblock_n_outbox_mpcd, CMsumblock_n_outbox_md);
             
 
-                Active_noslip_MD_streaming(d_mdX, d_mdY, d_mdZ, d_x , d_y , d_z, d_mdVx , d_mdVy , d_mdVz, d_vx , d_vy , d_vz,
+                Active_noslip_MD_streaming2(d_mdX, d_mdY, d_mdZ, d_x , d_y , d_z, d_mdVx , d_mdVy , d_mdVz, d_vx , d_vy , d_vz,
                     d_mdAx, d_mdAy, d_mdAz, mdX_tot, mdY_tot, mdZ_tot, dX_tot, dY_tot, dZ_tot, mdVx_tot, mdVy_tot, mdVz_tot, dVx_tot, dVy_tot, dVz_tot, h_dn_md_tot, h_dn_mpcd_tot,
                     CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_x, CMsumblock_y, CMsumblock_z,
                     CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_n_outbox_md, CMsumblock_n_outbox_mpcd, d_n_outbox_md, d_n_outbox_mpcd,
