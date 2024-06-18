@@ -434,7 +434,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaDeviceSynchronize() );
     
     //put the particles that had traveled outside of the box , on box boundaries.
-    Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, fax, fay, faz, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, Nmd, mass, mass_fluid);
+    Active_outboxCM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, fax, fay, faz, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
