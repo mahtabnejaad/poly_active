@@ -70,6 +70,8 @@ __global__ void SpecificOrientedForce(double *mdX, double *mdY, double *mdZ, dou
         Ab_ky[tid]=fb_ky[tid]/mass;
         Ab_kz[tid]=fb_kz[tid]/mass;
 
+        printf("\n *******Aa_kx[%i]=%f\n",tid, Aa_kx[tid]);
+
     }
 
     
@@ -129,6 +131,8 @@ double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double
         Aa_ky[tid]=fa_ky[tid]/mass;
         Aa_kz[tid]=fa_kz[tid]/mass;
 
+        
+
         //calculating backflow forces in each axis for each particle: k is the index for each particle. 
         fb_kx[tid]=fa_kx[tid]*Q;
         fb_ky[tid]=fa_ky[tid]*Q;
@@ -136,6 +140,7 @@ double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double
         Ab_kx[tid]=fb_kx[tid]/mass;
         Ab_ky[tid]=fb_ky[tid]/mass;
         Ab_kz[tid]=fb_kz[tid]/mass;
+        
     }
 
     //printf("gama_T=%f\n",*gama_T);
@@ -222,6 +227,12 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
         SpecificOrientedForce<<<grid_size,blockSize>>>(mdX, mdY, mdZ, real_time, u_scale, size, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, gamaTT, Q, mass, u_scale);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
+
+        //calling the totalActive_calc_acceleration kernel:
+        totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, flag_array, Ax_tot, Ay_tot, Az_tot, 1, topology);
+        gpuErrchk( cudaPeekAtLastError() );
+        gpuErrchk( cudaDeviceSynchronize() );
+    
 
         double fax, fay, faz;
         cudaMemcpy(&fax ,fa_kx, sizeof(double), cudaMemcpyDeviceToHost);
