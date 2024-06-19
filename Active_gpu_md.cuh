@@ -137,7 +137,7 @@ double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double
 
 
 
-__global__ void totalActive_calc_acceleration(double *Ax, double *Ay, double *Az, double *Aa_kx, double *Aa_ky, double *Aa_kz, double *Ab_kx, double *Ab_ky, double *Ab_kz, int *random_array, double *Ax_tot, double *Ay_tot, double *Az_tot, int size){
+__global__ void totalActive_calc_acceleration(double *Ax, double *Ay, double *Az, double *Aa_kx, double *Aa_ky, double *Aa_kz, double *Ab_kx, double *Ab_ky, double *Ab_kz, int *random_array, double *Ax_tot, double *Ay_tot, double *Az_tot, int size, int topology){
 
     int tid=blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -146,10 +146,19 @@ __global__ void totalActive_calc_acceleration(double *Ax, double *Ay, double *Az
     
     if(tid< size){
 
-    
-        Ax_tot[tid]=Ax[tid]+(Aa_kx[tid]+Ab_kx[tid])*random_array[tid]; 
-        Ay_tot[tid]=Ay[tid]+(Aa_ky[tid]+Ab_ky[tid])*random_array[tid];
-        Az_tot[tid]=Az[tid]+(Aa_kz[tid]+Ab_kz[tid])*random_array[tid];
+        if(topology == 4){
+            
+            Ax_tot[tid]=Ax[tid]+(Aa_kx[tid]+Ab_kx[tid]); 
+            Ay_tot[tid]=Ay[tid]+(Aa_ky[tid]+Ab_ky[tid]);
+            Az_tot[tid]=Az[tid]+(Aa_kz[tid]+Ab_kz[tid]);
+
+        }
+        else{
+
+            Ax_tot[tid]=Ax[tid]+(Aa_kx[tid]+Ab_kx[tid])*random_array[tid]; 
+            Ay_tot[tid]=Ay[tid]+(Aa_ky[tid]+Ab_ky[tid])*random_array[tid];
+            Az_tot[tid]=Az[tid]+(Aa_kz[tid]+Ab_kz[tid])*random_array[tid];
+        }
     }
    
 
@@ -256,7 +265,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             gpuErrchk( cudaDeviceSynchronize() );
 
             //calling the totalActive_calc_acceleration kernel:
-            totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, random_array, Ax_tot, Ay_tot, Az_tot, size);
+            totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, random_array, Ax_tot, Ay_tot, Az_tot, size, topology);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
     
@@ -348,7 +357,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             gpuErrchk( cudaDeviceSynchronize() );
    
 
-            totalActive_calc_acceleration<<<grid_size,blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, flag_array, Ax_tot, Ay_tot, Az_tot, size);
+            totalActive_calc_acceleration<<<grid_size,blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, flag_array, Ax_tot, Ay_tot, Az_tot, size, topology);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
