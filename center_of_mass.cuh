@@ -341,7 +341,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         block_sum_dX = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dY = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dZ = (double*)malloc(sizeof(double) * grid_size_);
         block_sum_dVx = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVy = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVz = (double*)malloc(sizeof(double) * grid_size_);
        
-        print_kernel<<<grid_size,blockSize>>>(dX, dY, dZ, N);
+        //print_kernel<<<grid_size,blockSize>>>(dX, dY, dZ, N);
 
         reduce_kernel_var<<<grid_size,blockSize>>>(dX, dY, dZ, CMsumblock_x, CMsumblock_y, CMsumblock_z,  N);
 
