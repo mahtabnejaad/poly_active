@@ -155,9 +155,15 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
                 fprintf(stderr, "Kernel launch error: %s\n", cudaGetErrorString(cudaStatus));
     
             }
-            double sumx[grid_size];
-            double sumy[grid_size];
-            double sumz[grid_size];
+
+            double *sumx;
+            double *sumy;
+            double *sumz;
+            sumx = (double *)malloc(sizeof(double) * grid_size);
+            sumy = (double *)malloc(sizeof(double) * grid_size);
+            sumz = (double *)malloc(sizeof(double) * grid_size);
+
+            
             cudaMemcpy(sumx ,block_sum_ex, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
             cudaMemcpy(sumy ,block_sum_ey, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
             cudaMemcpy(sumz ,block_sum_ez, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
@@ -178,16 +184,15 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             }
             //printf("fa_x=%lf", *fa_x);
            
-    
-            //*fa_x=*fa_x* *gama_T*u_scale;
-            //*fa_y=*fa_y* *gama_T*u_scale;
-            //*fa_z=*fa_z* *gama_T*u_scale;
+
             *fb_x=*fa_x*Q;
             *fb_y=*fa_y*Q;
             *fb_z=*fa_z*Q;
 
             
             cudaFree(gamaT);
+            free(sumx);  free(sumy);  free(sumz);
+
         }
         if(random_flag == 0)
         { //if(random_flag == 0){
@@ -238,14 +243,22 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
 
             cudaDeviceSynchronize();
 
-
-            double sumx[grid_size];
-            double sumy[grid_size];
-            double sumz[grid_size];
+            double *sumx;
+            double *sumy;
+            double *sumz;
+            sumx = (double *)malloc(sizeof(double) * grid_size);
+            sumy = (double *)malloc(sizeof(double) * grid_size);
+            sumz = (double *)malloc(sizeof(double) * grid_size);
+            
             cudaMemcpy(sumx ,block_sum_ex, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
             cudaMemcpy(sumy ,block_sum_ey, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
             cudaMemcpy(sumz ,block_sum_ez, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
             //printf("%lf",sumx[0]);
+
+            *fa_x = 0.0; 
+            *fa_y = 0.0;
+            *fa_z = 0.0;
+            
 
             //Perform the reduction on the host side to obtain the final sum.
             for (int i = 0; i < grid_size; i++)
@@ -267,6 +280,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             *fb_z=*fa_z*Q;
 
             cudaFree(gamaT);
+            free(sumx);  free(sumy);  free(sumz);
      
         }
   
