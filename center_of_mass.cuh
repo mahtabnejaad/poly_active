@@ -437,6 +437,8 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
     else
     {
 
+        grid_size_=grid_size;
+
         double *block_sum_mdX, *block_sum_mdY, *block_sum_mdZ, *block_sum_mdVx, *block_sum_mdVy, *block_sum_mdVz;
         //host allocation:
         block_sum_mdX = (double*)malloc(sizeof(double) * grid_size);  block_sum_mdY = (double*)malloc(sizeof(double) * grid_size);  block_sum_mdZ = (double*)malloc(sizeof(double) * grid_size);
@@ -1018,14 +1020,25 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
         int M_tot = mass * *dn_md_tot + mass_fluid * *dn_mpcd_tot;
         
 
-   
-        XCM_out = ( (mass * *dn_md_tot * *mdX_tot) + (mass_fluid * *dn_mpcd_tot * *dX_tot) )/M_tot;
-        YCM_out = ( (mass * *dn_md_tot * *mdY_tot) + (mass_fluid * *dn_mpcd_tot * *dY_tot) )/M_tot;
-        ZCM_out = ( (mass * *dn_md_tot * *mdZ_tot) + (mass_fluid * *dn_mpcd_tot * *dZ_tot) )/M_tot;
+        if( M_tot !=0 ){
+            XCM_out = ( (mass * *dn_md_tot * *mdX_tot) + (mass_fluid * *dn_mpcd_tot * *dX_tot) )/M_tot;
+            YCM_out = ( (mass * *dn_md_tot * *mdY_tot) + (mass_fluid * *dn_mpcd_tot * *dY_tot) )/M_tot;
+            ZCM_out = ( (mass * *dn_md_tot * *mdZ_tot) + (mass_fluid * *dn_mpcd_tot * *dZ_tot) )/M_tot;
 
-        VXCM_out = ( (mass * *dn_md_tot * *mdX_tot) + (mass_fluid * *dn_mpcd_tot * *dVx_tot) )/M_tot;
-        VYCM_out = ( (mass * *dn_md_tot * *mdY_tot) + (mass_fluid * *dn_mpcd_tot * *dVy_tot) )/M_tot;
-        VZCM_out = ( (mass * *dn_md_tot * *mdZ_tot) + (mass_fluid * *dn_mpcd_tot * *dVz_tot) )/M_tot;
+            VXCM_out = ( (mass * *dn_md_tot * *mdX_tot) + (mass_fluid * *dn_mpcd_tot * *dVx_tot) )/M_tot;
+            VYCM_out = ( (mass * *dn_md_tot * *mdY_tot) + (mass_fluid * *dn_mpcd_tot * *dVy_tot) )/M_tot;
+            VZCM_out = ( (mass * *dn_md_tot * *mdZ_tot) + (mass_fluid * *dn_mpcd_tot * *dVz_tot) )/M_tot;
+        }
+        else if ( M_tot == 0){
+            XCM_out = 0.0;
+            YCM_out = 0.0;
+            ZCM_out = 0.0;
+
+            VXCM_out = 0.0;
+            VYCM_out = 0.0;
+            VZCM_out = 0.0;
+
+        }
 
 
         cudaMemcpy(Xcm_out, &XCM_out, sizeof(double), cudaMemcpyHostToDevice);
