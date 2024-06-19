@@ -503,7 +503,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
 
         }  
 
-
+    printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
 
     }
 
