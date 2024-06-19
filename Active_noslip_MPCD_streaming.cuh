@@ -184,7 +184,7 @@ __global__ void Active_deltaT_min(double *dt_x, double *dt_y, double *dt_z, doub
     if (tid<N){
 
         dt_min[tid] = min(min(dt_x[tid], dt_y[tid]) , dt_z[tid]);
-        printf("dt_min[%i] = %f", tid, dt_min[tid]);
+        //printf("dt_min[%i] = %f", tid, dt_min[tid]);
 
     }
 
