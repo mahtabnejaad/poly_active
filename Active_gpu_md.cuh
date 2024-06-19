@@ -35,14 +35,17 @@ double *L, int size, double ux, int mass, double real_time, int m, int topology)
         double a_sqr=a[0]*a[0]+a[1]*a[1]+a[2]*a[2];
         double a_root=sqrt(a_sqr);//length of the vector between two adjacent monomers. 
 
-        //tangential unit vector components :
-        ex[tid] = a[0]/a_root;
-        ey[tid] = a[1]/a_root;
-        ez[tid] = a[2]/a_root;
-       
-        //printf("ex=%f\n",ex[tid]);
-       // printf("ey=%f\n",ey[tid]);
-        //printf("ez=%f\n",ez[tid]);
+         //tangential unit vector components :
+        if (a_root != 0.0){
+            ex[tid] = a[0]/a_root;
+            ey[tid] = a[1]/a_root;
+            ez[tid] = a[2]/a_root;
+        }
+        else{
+            ex[tid] = a[0];
+            ey[tid] = a[1];
+            ez[tid] = a[2];
+        }
     
 
 
@@ -140,6 +143,8 @@ double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double
         Ab_kx[tid]=fb_kx[tid]/mass;
         Ab_ky[tid]=fb_ky[tid]/mass;
         Ab_kz[tid]=fb_kz[tid]/mass;
+
+        printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Aa_kx[tid], tid, Aa_ky[tid], tid, Aa_kz[tid]);
         
     }
 
@@ -171,6 +176,7 @@ __global__ void totalActive_calc_acceleration(double *Ax, double *Ay, double *Az
             Ax_tot[tid]=Ax[tid]+(Aa_kx[tid]+Ab_kx[tid])*random_array[tid]; 
             Ay_tot[tid]=Ay[tid]+(Aa_ky[tid]+Ab_ky[tid])*random_array[tid];
             Az_tot[tid]=Az[tid]+(Aa_kz[tid]+Ab_kz[tid])*random_array[tid];
+            printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Aa_kx[tid], tid, Aa_ky[tid], tid, Aa_kz[tid]);
         }
     }
    
