@@ -444,13 +444,14 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         block_sum_mdX = (double*)malloc(sizeof(double) * grid_size);  block_sum_mdY = (double*)malloc(sizeof(double) * grid_size);  block_sum_mdZ = (double*)malloc(sizeof(double) * grid_size);
         block_sum_mdVx = (double*)malloc(sizeof(double) * grid_size); block_sum_mdVy = (double*)malloc(sizeof(double) * grid_size); block_sum_mdVz = (double*)malloc(sizeof(double) * grid_size);
        
+        print_kernel<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Nmd);
 
-        reduce_kernel_var<<<grid_size,blockSize, shared_mem_size>>>(mdX, mdY, mdZ, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Nmd);
+        reduce_kernel_var<<<grid_size,blockSize>>>(mdX, mdY, mdZ, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
         
-        reduce_kernel_var<<<grid_size,blockSize, shared_mem_size>>>(mdVx, mdVy, mdVz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, Nmd);
+        reduce_kernel_var<<<grid_size,blockSize>>>(mdVx, mdVy, mdVz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
@@ -495,6 +496,8 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         block_sum_dX = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dY = (double*)malloc(sizeof(double) * grid_size_);  block_sum_dZ = (double*)malloc(sizeof(double) * grid_size_);
         block_sum_dVx = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVy = (double*)malloc(sizeof(double) * grid_size_); block_sum_dVz = (double*)malloc(sizeof(double) * grid_size_);
        
+        print_kernel<<<grid_size,blockSize>>>(dX, dY, dZ, N);
+        
         reduce_kernel_var<<<grid_size,blockSize>>>(dX, dY, dZ, CMsumblock_x, CMsumblock_y, CMsumblock_z,  N);
 
         //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, CMsumblock_x, N);
