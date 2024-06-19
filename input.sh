@@ -19,7 +19,7 @@ d=10
 #number of rings:
 n=1
 #number of monomer in each ring 
-m=1
+m=5
 
 # shear rate
 s=0.0
@@ -40,7 +40,7 @@ Tsim=100
 t=0
 
 #topology 0 for ring 1 for poltycatenane 2 for linked ring , 3 for ... and 4 for one active particle in a fluid.
-topology=4
+topology=1
 
 #Activity on or off (0 o1 1):
 Activity=1
