@@ -49,19 +49,26 @@ double *L, int size, double ux, int mass, double real_time, int m, int topology)
     }
 }
 // a kernel to put active forces on the polymer in an specific way that can be changes as you wish
-__global__ void SpecificOrientedForce(double *mdX, double *mdY, double *mdZ, double real_time,double u0, int size, double *fa_kx, double *fa_ky, double *fa_kz,double *fb_kx, double *fb_ky, double *fb_kz, double *gama_T, double Q, double u_scale)
+__global__ void SpecificOrientedForce(double *mdX, double *mdY, double *mdZ, double real_time,double u0, int size, double *fa_kx, double *fa_ky, double *fa_kz,double *fb_kx, double *fb_ky, double *fb_kz, double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *gama_T, double Q, int mass, double u_scale)
 {
  
     int tid = blockIdx.x*blockDim.x+threadIdx.x;//index of the particle in the system
     if (tid < size)
     {
         //printf("gama-T=%f\n", *gama_T);
-        fa_kx[tid] = 1;
+        fa_kx[tid] = 1.0;
         fa_ky[tid] = 0.0;  //u_scale * sin(real_time) * *gama_T;
         fa_kz[tid] = 0.0;
         fb_kx[tid] = fa_kx[tid] * Q;
         fb_ky[tid] = fa_ky[tid] * Q;
         fb_kz[tid] = fa_kz[tid] * Q;
+
+        Aa_kx[tid]=fa_kx[tid]/mass;
+        Aa_ky[tid]=fa_ky[tid]/mass;
+        Aa_kz[tid]=fa_kz[tid]/mass;
+        Ab_kx[tid]=fb_kx[tid]/mass;
+        Ab_ky[tid]=fb_ky[tid]/mass;
+        Ab_kz[tid]=fb_kz[tid]/mass;
 
     }
 
@@ -105,7 +112,7 @@ __global__ void choiceArray(int *flag, int size)
 
 }   
 __global__ void Active_calc_forces(double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
-double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass,double mass_fluid, int size, int N, double *gama_T,double u_scale){
+double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, int mass, int mass_fluid, int size, int N, double *gama_T,double u_scale){
 
     int tid = blockIdx.x *blockDim.x + threadIdx.x;
     //calculating (-M/mN+MN(m))
@@ -151,6 +158,7 @@ __global__ void totalActive_calc_acceleration(double *Ax, double *Ay, double *Az
             Ax_tot[tid]=Ax[tid]+(Aa_kx[tid]+Ab_kx[tid]); 
             Ay_tot[tid]=Ay[tid]+(Aa_ky[tid]+Ab_ky[tid]);
             Az_tot[tid]=Az[tid]+(Aa_kz[tid]+Ab_kz[tid]);
+            printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Ax[tid], tid, Ay[tid], tid, Az[tid]);
 
         }
         else{
@@ -195,8 +203,8 @@ __global__ void choice_tangential(double *ex, double *ey, double *ez, int *flag_
 
 __host__ void monomer_active_backward_forces(double *mdX, double *mdY , double *mdZ ,
 double *Ax, double *Ay, double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
-double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T,
-double *L, int size, double mass_fluid, double real_time, int m, int topology, int grid_size, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot,
+double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, int mass, double *gama_T,
+double *L, int size, int mass_fluid, double real_time, int m, int topology, int grid_size, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot,
 double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array,double u_scale)
 {
     double Q = -mass/(size*mass+mass_fluid*N);
@@ -211,7 +219,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
         cudaMemcpy(gamaTT, gama_T, sizeof(double) , cudaMemcpyHostToDevice);
 
 
-        SpecificOrientedForce<<<grid_size,blockSize>>>(mdX, mdY, mdZ, real_time, u_scale, size, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, gamaTT, Q, u_scale);
+        SpecificOrientedForce<<<grid_size,blockSize>>>(mdX, mdY, mdZ, real_time, u_scale, size, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, gamaTT, Q, mass, u_scale);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
@@ -517,8 +525,8 @@ double *L,int size , double ux, int mass, double real_time, int m , int topology
 __host__ void Active_calc_acceleration( double *x ,double *y , double *z , 
 double *Fx , double *Fy , double *Fz, 
 double *Ax , double *Ay , double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
-double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T, 
-double *L, int size, int m, int topology, double real_time, int grid_size, double mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale)
+double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, int mass, double *gama_T, 
+double *L, int size, int m, int topology, double real_time, int grid_size, int mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale)
 
 {
   
@@ -599,7 +607,7 @@ __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
     double *h_fb_x, double *h_fb_y, double *h_fb_z,
     double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
     double h_md , int Nmd, int density, double *d_L , double ux, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, int delta, 
-    double real_time, int m, int N, double mass, double mass_fluid, double *gama_T, int *random_array, unsigned int seed, int topology, 
+    double real_time, int m, int N, int mass, int mass_fluid, double *gama_T, int *random_array, unsigned int seed, int topology, 
     double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, int *flag_array, double u_scale)
 {
     for (int tt = 0 ; tt < delta ; tt++)
