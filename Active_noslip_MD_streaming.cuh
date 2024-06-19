@@ -36,14 +36,18 @@ double *L, int size, double ux, int mass, double real_time, int m, int topology)
         double a_root=sqrt(a_sqr);//length of the vector between two adjacent monomers. 
 
         //tangential unit vector components :
-        ex[tid] = a[0]/a_root;
-        ey[tid] = a[1]/a_root;
-        ez[tid] = a[2]/a_root;
+        if (a_root != 0.0){
+            ex[tid] = a[0]/a_root;
+            ey[tid] = a[1]/a_root;
+            ez[tid] = a[2]/a_root;
+        }
+        else{
+            ex[tid] = a[0];
+            ey[tid] = a[1];
+            ez[tid] = a[2];
+        }
        
-        //printf("ex=%f\n",ex[tid]);
-       // printf("ey=%f\n",ey[tid]);
-        //printf("ez=%f\n",ez[tid]);
-    
+        printf("ex[%i]=%f, ey[%i]=%f, ez[%i]=%f\n", tid, ex[tid], tid, ey[tid], tid, ez[tid]);
 
 
     }
@@ -194,8 +198,8 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             free(sumx);  free(sumy);  free(sumz);
 
         }
-        if(random_flag == 0)
-        { //if(random_flag == 0){
+        else if(random_flag == 0)
+        { 
             
             //int shared_mem_size = 3 * blockSize * sizeof(double); // allocate shared memory for the intermediate reduction results.
             //printf("ex[0]%f\n",ex[0]);
@@ -533,7 +537,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
 
         }  
 
-    printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
+    //printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
 
     }
 
@@ -594,7 +598,7 @@ double *mdAx_tot , double *mdAy_tot , double *mdAz_tot,
         mdZ[particleID] = mdZ[particleID] + h * mdVz[particleID] ;
 
 
-        printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", particleID, mdAx_tot[particleID], particleID, mdAy_tot[particleID], particleID, mdAz_tot[particleID]);
+        //printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", particleID, mdAx_tot[particleID], particleID, mdAy_tot[particleID], particleID, mdAz_tot[particleID]);
 
 
 
