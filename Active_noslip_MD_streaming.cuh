@@ -87,6 +87,10 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
         *fb_y= fax * Q;
         *fb_z= fax * Q;
 
+        totalActive_calc_acceleration<<<grid_size,blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, flag_array, Ax_tot, Ay_tot, Az_tot, 1, topology);
+        gpuErrchk( cudaPeekAtLastError() );
+        gpuErrchk( cudaDeviceSynchronize() );
+
      
     cudaFree(gamaTT);
     }
@@ -125,7 +129,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             gpuErrchk( cudaDeviceSynchronize() );
 
             //calling the totalActive_calc_acceleration kernel:
-            totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, random_array, Ax_tot, Ay_tot, Az_tot, size);
+            totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, random_array, Ax_tot, Ay_tot, Az_tot, size, topology);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
     
@@ -217,7 +221,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             gpuErrchk( cudaDeviceSynchronize() );
    
 
-            totalActive_calc_acceleration<<<grid_size,blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, flag_array, Ax_tot, Ay_tot, Az_tot, size);
+            totalActive_calc_acceleration<<<grid_size,blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, flag_array, Ax_tot, Ay_tot, Az_tot, size, topology);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
@@ -562,6 +566,11 @@ double *mdAx_tot , double *mdAy_tot , double *mdAz_tot,
         mdX[particleID] = mdX[particleID] + h * mdVx[particleID] ;
         mdY[particleID] = mdY[particleID] + h * mdVy[particleID] ;
         mdZ[particleID] = mdZ[particleID] + h * mdVz[particleID] ;
+
+
+        printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", particleID, mdAx_tot[particleID], particleID, mdAy_tot[particleID], particleID, mdAz_tot[particleID]);
+
+
 
 
     }
