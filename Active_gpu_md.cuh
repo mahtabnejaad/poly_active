@@ -52,7 +52,7 @@ double *L, int size, double ux, int mass, double real_time, int m, int topology)
     }
 }
 // a kernel to put active forces on the polymer in an specific way that can be changes as you wish
-__global__ void SpecificOrientedForce(double *mdX, double *mdY, double *mdZ, double real_time,double u0, int size, double *fa_kx, double *fa_ky, double *fa_kz,double *fb_kx, double *fb_ky, double *fb_kz, double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *gama_T, double Q, int mass, double u_scale)
+__global__ void SpecificOrientedForce(double *mdX, double *mdY, double *mdZ, double real_time,double u0, int size, double *fa_kx, double *fa_ky, double *fa_kz,double *fb_kx, double *fb_ky, double *fb_kz, double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *gama_T, double *Q, int mass, double u_scale)
 {
  
     int tid = blockIdx.x*blockDim.x+threadIdx.x;//index of the particle in the system
@@ -226,6 +226,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
 {
     double Q;
     Q = -mass/(size*mass+mass_fluid*N);
+    printf("Q=%f\n", Q);
 
     double *d_Q;
     cudaMalloc((void**)&d_Q, sizeof(double));
