@@ -395,7 +395,7 @@ double *L,int size , double ux, int mass, double real_time, int m , int topology
             fy[tid] = f * r[1] ;
             fz[tid] = f * r[2] ;
 
-            printf("fx[%i]=%f, fy[%i]=%f, fz[%i]=%f\n", tid, fx[tid], tid, fy[tid], tid, fz[tid]);
+            //printf("fx[%i]=%f, fy[%i]=%f, fz[%i]=%f\n", tid, fx[tid], tid, fy[tid], tid, fz[tid]);
             }
     
             /*else
