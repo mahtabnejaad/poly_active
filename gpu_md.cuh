@@ -5,7 +5,7 @@
 //The ux parameter represents a velocity scaling factor used in generating initial velocities.
 
 __host__ void initMD(double *d_mdX, double *d_mdY , double *d_mdZ ,
- double *d_mdVx , double *d_mdVy , double d_mdVz, 
+ double *d_mdVx , double *d_mdVy , double *d_mdVz, 
  double *d_mdAx , double *d_mdAy , double *d_mdAz,
 double *d_Fx_holder , double *d_Fy_holder, double *d_Fz_holder,
  double *d_L, double ux, double xx[3], int n, int m, int topology, int mass)
