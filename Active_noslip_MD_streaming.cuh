@@ -304,6 +304,7 @@ double *L,int size , double ux, int mass, double real_time, int m , int topology
 {
     int size2 = size*(size); //size2 calculates the total number of particle pairs for the interaction.
 
+    printf("noslip BC\n");
 
     //In the context of the nb_b_interaction kernel, each thread is responsible for calculating the interaction between a pair of particles. The goal is to calculate the interaction forces between all possible pairs of particles in the simulation. To achieve this, the thread ID is mapped to particle indices.
     int tid = blockIdx.x * blockDim.x + threadIdx.x ;
@@ -359,7 +360,9 @@ double *L,int size , double ux, int mass, double real_time, int m , int topology
                     {
                         f -= 30/(1 - r_sqr/2.25);
                     }
-                }   
+                } 
+            printf("f=%f\n", f); 
+            printf("r_sqr=%f\n", r_sqr);   
             }
         
             //FENE:
