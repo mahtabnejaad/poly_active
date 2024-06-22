@@ -62,9 +62,9 @@ __global__ void SpecificOrientedForce(double *mdX, double *mdY, double *mdZ, dou
         fa_kx[tid] = 1.0;
         fa_ky[tid] = 0.0;  //u_scale * sin(real_time) * *gama_T;
         fa_kz[tid] = 0.0;
-        fb_kx[tid] = fa_kx[tid] * Q;
-        fb_ky[tid] = fa_ky[tid] * Q;
-        fb_kz[tid] = fa_kz[tid] * Q;
+        fb_kx[tid] = fa_kx[tid] * *Q;
+        fb_ky[tid] = fa_ky[tid] * *Q;
+        fb_kz[tid] = fa_kz[tid] * *Q;
 
         Aa_kx[tid]=fa_kx[tid]/mass;
         Aa_ky[tid]=fa_ky[tid]/mass;
@@ -122,8 +122,10 @@ double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double
     int tid = blockIdx.x *blockDim.x + threadIdx.x;
     //calculating (-M/mN+MN(m))
     //***
-    double Q= -mass/(size*mass+mass_fluid*N);
-    //double Q = 1.0;
+   double Q;
+    Q = -mass/(size*mass+mass_fluid*N);
+
+    
     if(tid<size){
         //printf("gama_T=%f\n",*fgama_T);
         //calculating active forces in each axis for each particle:
@@ -222,7 +224,12 @@ double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double
 double *L, int size, int mass_fluid, double real_time, int m, int topology, int grid_size, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot,
 double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array,double u_scale)
 {
-    double Q = -mass/(size*mass+mass_fluid*N);
+    double Q;
+    Q = -mass/(size*mass+mass_fluid*N);
+
+    double *d_Q;
+    cudaMalloc((void**)&d_Q, sizeof(double));
+    cudaMemcpy(d_Q, &Q, sizeof(double), cudaMemcpyHostToDevice);
     //shared_mem_size: The amount of shared memory allocated per block for the reduction operation.
     int shared_mem_size = 3 * blockSize * sizeof(double);
     
@@ -234,7 +241,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
         cudaMemcpy(gamaTT, gama_T, sizeof(double) , cudaMemcpyHostToDevice);
 
 
-        SpecificOrientedForce<<<grid_size,blockSize>>>(mdX, mdY, mdZ, real_time, u_scale, size, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, gamaTT, Q, mass, u_scale);
+        SpecificOrientedForce<<<grid_size,blockSize>>>(mdX, mdY, mdZ, real_time, u_scale, size, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, gamaTT, d_Q, mass, u_scale);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
