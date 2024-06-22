@@ -20,6 +20,7 @@ double *d_Fx_holder , double *d_Fy_holder, double *d_Fz_holder,
     std::normal_distribution<double> normaldistribution(0, 0.44);//normaldistribution is an instance of the normal distribution with a mean of 0 and a standard deviation of 0.44. It will be used to generate random initial velocities.
     double theta = 4 * M_PI_2 / m;  //theta is the angle increment between particles in a ring.
     double r=m/(4 * M_PI_2);    //r is a scaling factor used to set the initial position of particles based on the chosen topology.
+    printf("r=%f\n", r);
     if (topology == 4) //one particle
     {
         
