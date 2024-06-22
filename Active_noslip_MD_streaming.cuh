@@ -189,9 +189,9 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             //printf("fa_x=%lf", *fa_x);
            
 
-            *fb_x=*fa_x*Q;
-            *fb_y=*fa_y*Q;
-            *fb_z=*fa_z*Q;
+            *fb_x = *fa_x * Q;
+            *fb_y = *fa_y * Q;
+            *fb_z = *fa_z * Q;
 
             
             cudaFree(gamaT);
@@ -441,6 +441,7 @@ double *L, int size, int m, int topology, double real_time, int grid_size, int m
     Ax , Ay, Az, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, ex, ey, ez, ux, mass, gama_T, 
     L, size , mass_fluid, real_time, m, topology, grid_size, N , random_array, seed , Ax_tot, Ay_tot, Az_tot, fa_x, fa_y, fa_z, fb_x, fb_y, fb_z, block_sum_ex, block_sum_ey, block_sum_ez, flag_array, u_scale);
     
+
 
     
 }
