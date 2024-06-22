@@ -67,6 +67,9 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
     //shared_mem_size: The amount of shared memory allocated per block for the reduction operation.
     int shared_mem_size = 3 * blockSize * sizeof(double);
     
+    double *d_Q;
+    cudaMalloc((void**)&d_Q, sizeof(double));
+    cudaMemcpy(d_Q, &Q, sizeof(double), cudaMemcpyHostToDevice); 
 
     if (topology == 4) //size= 1 (Nmd = 1) only one particle exists.
     {
@@ -75,7 +78,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
         cudaMemcpy(gamaTT, gama_T, sizeof(double) , cudaMemcpyHostToDevice);
 
 
-        SpecificOrientedForce<<<grid_size,blockSize>>>(mdX, mdY, mdZ, real_time, u_scale, size, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, gamaTT, Q, mass, u_scale);
+        SpecificOrientedForce<<<grid_size,blockSize>>>(mdX, mdY, mdZ, real_time, u_scale, size, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, gamaTT, d_Q, mass, u_scale);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
