@@ -180,7 +180,7 @@ __host__ void Active_start_simulation(std::string file_name, int simulationtime 
 double *d_mdX , double *d_mdY , double *d_mdZ,
 double *d_mdVx , double *d_mdVy , double *d_mdVz,
 double *d_mdAx , double *d_mdAy , double *d_mdAz,
-double *_holder , double *d_Fy_holder, double *d_Fz_holder,
+double *d_Fx_holder , double *d_Fy_holder, double *d_Fz_holder,
 double *d_x , double *d_y , double *d_z ,
 double *d_vx , double *d_vy , double *d_vz,
 double *d_fa_kx, double *d_fa_ky, double *d_fa_kz, 
@@ -274,16 +274,32 @@ curandGenerator_t gen, int grid_size, double real_time, double *gama_T, int *d_r
    
     
     //initMD:
-    initMD(d_mdX, d_mdY , d_mdZ , d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , _holder , d_Fy_holder , d_Fz_holder , d_L , ux ,pos , n_md , m_md , topology , density);
+    initMD(d_mdX, d_mdY , d_mdZ , d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , d_Fx_holder , d_Fy_holder , d_Fz_holder , d_L , ux ,pos , n_md , m_md , topology , density);
     
     print_kernel<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Nmd);
+    print_kernel<<<grid_size,blockSize>>>(d_mdVx, d_mdVy, d_mdVz, Nmd);
+    print_kernel<<<grid_size,blockSize>>>(d_mdAx, d_mdAy, d_mdAz, Nmd);
     printf("***the initial values***\n");
    
-    Active_calc_acceleration(d_mdX , d_mdY, d_mdZ , _holder , d_Fy_holder , d_Fz_holder , d_mdAx , d_mdAy , d_mdAz ,d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_ex, d_ey, d_ez, ux, density, gama_T, d_L , Nmd , m_md ,topology , real_time, grid_size,1 ,
-     N, d_random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale);
+    if(BC == 1){
+        Active_calc_acceleration(d_mdX , d_mdY, d_mdZ , d_Fx_holder , d_Fy_holder , d_Fz_holder , d_mdAx , d_mdAy , d_mdAz ,d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_ex, d_ey, d_ez, ux, density, gama_T, d_L , Nmd , m_md ,topology , real_time, grid_size,1 ,
+        N, d_random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale);
+    }
+    else if(BC==2){
+        Active_noslip_calc_acceleration(d_mdX , d_mdY, d_mdZ , d_Fx_holder , d_Fy_holder , d_Fz_holder , d_mdAx , d_mdAy , d_mdAz ,d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_ex, d_ey, d_ez, ux, density, gama_T, d_L , Nmd , m_md ,topology , real_time, grid_size,1 ,
+        N, d_random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale);
+    }
     
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
+
+    printf("************\n");
+    print_kernel<<<grid_size,blockSize>>>(d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
+    print_kernel<<<grid_size,blockSize>>>(d_Aa_kx, d_Aa_ky, d_Aa_kz, Nmd);
+    print_kernel<<<grid_size,blockSize>>>(d_Ab_kx, d_Ab_ky, d_Ab_kz, Nmd);
+    print_kernel<<<grid_size,blockSize>>>(d_Fx_holder, d_Fy_holder, d_Fz_holder, Nmd);
+    print_kernel<<<grid_size,blockSize>>>(d_mdAx, d_mdAy, d_mdAz, Nmd);
+
     printf("Im in beginning\n");
     cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess) {
