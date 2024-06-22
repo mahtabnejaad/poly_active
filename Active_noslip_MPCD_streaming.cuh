@@ -69,12 +69,12 @@ __global__ void Active_CM_noslip_mpcd_deltaT(double *vx, double *vy, double *vz,
             if(*fa_x/mm == 0.0)   dt_x[tid] = abs(x_wall_dist[tid]/(vx[tid]));
 
             else if (*fa_x/mm != 0.0){
-              if(*fa_x > 0.0){
-                if(vx[tid]>=0.0)        dt_x[tid] = ((-(vx[tid]) + sqrt(abs(((vx[tid])*(vx[tid]))+(2*x_wall_dist[tid]*(*fa_x/mm)))))/(*fa_x/mm));
-                else if(vx[tid]<0.0)    dt_x[tid] = ((-(vx[tid]) + sqrt(abs(((vx[tid])*(vx[tid]))+(2*x_wall_dist[tid]*(*fa_x/mm)))))/(*fa_x/mm));
+              if(*fa_x < 0.0){
+                if(vx[tid]>=0.0)        dt_x[tid] = ((-(vx[tid]) + sqrt(abs(((vx[tid])*(vx[tid]))+(2*x_wall_dist[tid]*(-*fa_x/mm)))))/(-*fa_x/mm));
+                else if(vx[tid]<0.0)    dt_x[tid] = ((-(vx[tid]) + sqrt(abs(((vx[tid])*(vx[tid]))+(2*x_wall_dist[tid]*(-*fa_x/mm)))))/(-*fa_x/mm));
                 }
-              else if(*fa_x < 0.0){
-                if(vx[tid]>=0.0)        dt_x[tid] = ((-(vx[tid]) + sqrt(abs(((vx[tid])*(vx[tid]))+(2*x_wall_dist[tid]*(*fa_x/mm)))))/(*fa_x/mm));
+              else if(*fa_x > 0.0){
+                if(vx[tid]>=0.0)        dt_x[tid] = ((-(vx[tid]) + sqrt(abs(((vx[tid])*(vx[tid]))+(2*x_wall_dist[tid]*(-*fa_x/mm)))))/(-*fa_x/mm));
                 else if(vx[tid]<0.0)    dt_x[tid] == 10000;
               }
             }
