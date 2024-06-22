@@ -3,13 +3,14 @@
 //This function initializes the position and velocity of MD (Molecular Dynamics) particles. The positions and velocities are stored in arrays d_mdX, d_mdY, d_mdZ, d_mdVx, d_mdVy, and d_mdVz.
 // It also takes in various parameters like ux (velocity scaling factor), xx (initial position), m (number of particles in each ring), n (number of rings), topology (an integer representing the type of particle arrangement), and mass (mass of the particles).
 //The ux parameter represents a velocity scaling factor used in generating initial velocities.
-__host__ void initMD(double *Id_mdX, double *Id_mdY , double *Id_mdZ ,
- double *Id_mdVx , double *Id_mdVy , double *Id_mdVz, 
- double *Id_mdAx , double *Id_mdAy , double *Id_mdAz,
-double *Id_Fx_holder , double *Id_Fy_holder, double *Id_Fz_holder,
- double *Id_L, double Iux, double Ixx[3], int In, int Im, int Itopology, int Imass)
+
+__host__ void initMD(double *d_mdX, double *d_mdY , double *d_mdZ ,
+ double *d_mdVx , double *d_mdVy , double d_mdVz, 
+ double *d_mdAx , double *d_mdAy , double *d_mdAz,
+double *d_Fx_holder , double *d_Fy_holder, double *d_Fz_holder,
+ double *d_L, double ux, double xx[3], int n, int m, int topology, int mass)
 {
-    int Nmd = In * Im;//Nmd is the total number of MD particles, calculated as the product of n and m.
+    int Nmd = n * m;//Nmd is the total number of MD particles, calculated as the product of n and m.
     //mdX, mdY, etc., are temporary arrays used for host-side initialization before transferring data to the GPU.
     double *mdX, *mdY, *mdZ, *mdVx, *mdVy , *mdVz, *mdAx , *mdAy, *mdAz;
     //host allocation:
@@ -17,8 +18,8 @@ double *Id_Fx_holder , double *Id_Fy_holder, double *Id_Fz_holder,
     mdVx = (double*)malloc(sizeof(double) * Nmd); mdVy = (double*)malloc(sizeof(double) * Nmd); mdVz = (double*)malloc(sizeof(double) * Nmd);
     mdAx = (double*)malloc(sizeof(double) * Nmd); mdAy = (double*)malloc(sizeof(double) * Nmd); mdAz = (double*)malloc(sizeof(double) * Nmd);
     std::normal_distribution<double> normaldistribution(0, 0.44);//normaldistribution is an instance of the normal distribution with a mean of 0 and a standard deviation of 0.44. It will be used to generate random initial velocities.
-    double theta = 4 * M_PI_2 / Im;  //theta is the angle increment between particles in a ring.
-    double r=Im/(4 * M_PI_2);    //r is a scaling factor used to set the initial position of particles based on the chosen topology.
+    double theta = 4 * M_PI_2 / m;  //theta is the angle increment between particles in a ring.
+    double r=m/(4 * M_PI_2);    //r is a scaling factor used to set the initial position of particles based on the chosen topology.
     if (topology == 4) //one particle
     {
         
@@ -36,110 +37,110 @@ double *Id_Fx_holder , double *Id_Fy_holder, double *Id_Fz_holder,
             mdVz[0] = 0; 
 
             //monomer[i].x[0]  = xx[0] //+ r * sin(i *theta);
-            mdX[0]  = Ixx[0]; // + r * sin(i *theta);
+            mdX[0]  = xx[0]; // + r * sin(i *theta);
             //monomer[i].x[1]  = xx[1] //+ r * cos(i *theta);
-            mdY[0]  = Ixx[1]; // + r * cos(i *theta);
+            mdY[0]  = xx[1]; // + r * cos(i *theta);
             //monomer[i].x[2]  = xx[2];
-            mdZ[0]  = Ixx[2]; //pos is equal to {0,0,0} which is the origin of cartesian coordinates. this is the initial location of the MD single particle.
+            mdZ[0]  = xx[2]; //pos is equal to {0,0,0} which is the origin of cartesian coordinates. this is the initial location of the MD single particle.
         }
     }
-    if (Itopology == 1)  //poly [2] catenane
+    if (topology == 1)  //poly [2] catenane
     {
-        for (unsigned int j = 0 ; j< In ; j++) 
+        for (unsigned int j = 0 ; j< n ; j++) 
         //For each value of j (ring index), and for each value of i (particle index within the ring), properties like mdAx, mdAy, mdAz, mdVx, mdVy, and mdVz are initialized to zero.
         //The velocity components mdVx, mdVy, and mdVz are initialized with random values from the normal distribution using normaldistribution(generator)
         {
             
-            for (unsigned int i =0 ; i<Im ; i++)
+            for (unsigned int i =0 ; i<m ; i++)
             {
                 
-                mdAx[i+j*Im]=0;
-                mdAy[i+j*Im]=0;
-                mdAz[i+j*Im]=0;
+                mdAx[i+j*m]=0;
+                mdAy[i+j*m]=0;
+                mdAz[i+j*m]=0;
                 //monomer[i].init(kT ,box, mass);
-                mdVx[i+j*Im] = normaldistribution(generator);
-                mdVy[i+j*Im] = normaldistribution(generator);
-                mdVz[i+j*Im] = normaldistribution(generator);
+                mdVx[i+j*m] = normaldistribution(generator);
+                mdVy[i+j*m] = normaldistribution(generator);
+                mdVz[i+j*m] = normaldistribution(generator);
                 //monomer[i].x[0]  = xx[0] + r * sin(i *theta);
-                mdX[i+j*Im]  = Ixx[0] + r * sin(i *theta);
+                mdX[i+j*m]  = xx[0] + r * sin(i *theta);
                 //monomer[i].x[1]  = xx[1] + r * cos(i *theta);
                 if ( j%2 == 0 )
                 {
-                    mdY[i+j*Im]  = Ixx[1] + r * cos(i *theta);
+                    mdY[i+j*m]  = xx[1] + r * cos(i *theta);
                     //monomer[i].x[2]  = xx[2];
-                    mdZ[i+j*Im]  = Ixx[2];
+                    mdZ[i+j*m]  = xx[2];
                 }
                 if(j%2==1)
                 {
-                    mdZ[i+j*Im]  = Ixx[2] + r * cos(i *theta);
+                    mdZ[i+j*m]  = xx[2] + r * cos(i *theta);
                     //monomer[i].x[2]  = xx[2];
-                    mdY[i+j*Im]  = Ixx[1];
+                    mdY[i+j*m]  = xx[1];
 
                 }
 
             
             }   
             //The variable xx is incremented by 1.2 * r after each complete ring to adjust the position of the rings.
-            Ixx[0]+=1.2*r;
+            xx[0]+=1.2*r;
         }
     }
-    if (Itopology == 2)  //linked rings
+    if (topology == 2)  //linked rings
     {
-        for (unsigned int j = 0 ; j< In ; j++)
+        for (unsigned int j = 0 ; j< n ; j++)
         {
             
-            for (unsigned int i =0 ; i<Im ; i++)
+            for (unsigned int i =0 ; i<m ; i++)
             {
                 
-                mdAx[i+j*Im]=0;
-                mdAy[i+j*Im]=0;
-                mdAz[i+j*Im]=0;
+                mdAx[i+j*m]=0;
+                mdAy[i+j*m]=0;
+                mdAz[i+j*m]=0;
                 //monomer[i].init(kT ,box, mass);
-                mdVx[i+j*Im] = normaldistribution(generator);
-                mdVy[i+j*Im] = normaldistribution(generator);
-                mdVz[i+j*Im] = normaldistribution(generator);
+                mdVx[i+j*m] = normaldistribution(generator);
+                mdVy[i+j*m] = normaldistribution(generator);
+                mdVz[i+j*m] = normaldistribution(generator);
                 //monomer[i].x[0]  = xx[0] + r * sin(i *theta);
-                mdX[i+j*Im]  = Ixx[0] + r * sin(i *theta);
+                mdX[i+j*m]  = xx[0] + r * sin(i *theta);
                 //monomer[i].x[1]  = xx[1] + r * cos(i *theta);
 
-                mdY[i+j*Im]  = Ixx[1] + r * cos(i *theta);
+                mdY[i+j*m]  = xx[1] + r * cos(i *theta);
                 //monomer[i].x[2]  = xx[2];
-                mdZ[i+j*Im]  = Ixx[2];
+                mdZ[i+j*m]  = xx[2];
 
             
             }
             
-            Ixx[0]+=(2*r+1) ;
+            xx[0]+=(2*r+1) ;
         }
     }   
    
-    if (Itopology == 3)
+    if (topology == 3)
     {
-        for (unsigned int j = 0 ; j< In ; j++)
+        for (unsigned int j = 0 ; j< n ; j++)
         {
             
-            for (unsigned int i =0 ; i<Im ; i++)
+            for (unsigned int i =0 ; i<m ; i++)
             {
                 
-                mdAx[i+j*Im]=0;
-                mdAy[i+j*Im]=0;
-                mdAz[i+j*Im]=0;
+                mdAx[i+j*m]=0;
+                mdAy[i+j*m]=0;
+                mdAz[i+j*m]=0;
                 //monomer[i].init(kT ,box, mass);
-                mdVx[i+j*Im] = normaldistribution(generator);
-                mdVy[i+j*Im] = normaldistribution(generator);
-                mdVz[i+j*Im] = normaldistribution(generator);
+                mdVx[i+j*m] = normaldistribution(generator);
+                mdVy[i+j*m] = normaldistribution(generator);
+                mdVz[i+j*m] = normaldistribution(generator);
                 //monomer[i].x[0]  = xx[0] + r * sin(i *theta);
-                mdX[i+j*Im]  = Ixx[0] + r * sin(i *theta);
+                mdX[i+j*m]  = xx[0] + r * sin(i *theta);
                 //monomer[i].x[1]  = xx[1] + r * cos(i *theta);
 
-                mdY[i+j*Im]  = Ixx[1] + r * cos(i *theta);
+                mdY[i+j*m]  = xx[1] + r * cos(i *theta);
                 //monomer[i].x[2]  = xx[2];
-                mdZ[i+j*Im]  = Ixx[2];
+                mdZ[i+j*m]  = xx[2];
 
             
             }
             
-            Ixx[0]+=(2.5*r+1) ;
+            xx[0]+=(2.5*r+1) ;
         } 
                 
     }
@@ -170,7 +171,6 @@ double *Id_Fx_holder , double *Id_Fy_holder, double *Id_Fz_holder,
     free(mdAx);   free(mdAy);   free(mdAz);
 
 }
-
 
 // a tool for resetting a vector to zero!
 //This is a simple kernel that resets the values of three arrays F1, F2, and F3 to zero. It uses the thread ID to determine the array index and sets the values to zero.
