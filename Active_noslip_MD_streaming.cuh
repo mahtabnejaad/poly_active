@@ -517,7 +517,13 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
             
             if(mdAx_tot[tid] == 0.0)   md_dt_x[tid] = abs(x_wall_dist[tid]/mdvx[tid]);
 
-            else if (mdAx_tot[tid] != 0.0)  md_dt_x[tid] = ((-mdvx[tid]+sqrt(abs((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])))))/(mdAx_tot[tid]));
+            else if (mdAx_tot[tid] != 0.0){
+                if(mdAx_tot[tid] > 0.0)  md_dt_x[tid] = ((-mdvx[tid]+sqrt(abs((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])))))/(mdAx_tot[tid]));
+                else if(mdAx_tot[tid] < 0.0){
+                    if(mdvx[tid]>=0.0)     md_dt_x[tid] = ((-mdvx[tid]+sqrt(abs((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])))))/(mdAx_tot[tid]));
+                    else if(mdvx[tid]<0.0)    md_dt_x[tid] == 10000;
+                }
+            }
 
         }  
 
@@ -526,24 +532,33 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
             
             if(mdAy_tot[tid]  == 0.0)   md_dt_y[tid] = abs(y_wall_dist[tid]/mdvy[tid]);
 
-            else if (mdAy_tot[tid] != 0.0)  md_dt_y[tid] = ((-mdvy[tid]+sqrt(abs((mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid])))))/(mdAy_tot[tid]));
-
-        }  
+            else if (mdAy_tot[tid] != 0.0){
+                if(mdAy_tot[tid] > 0.0)     md_dt_y[tid] = ((-mdvy[tid]+sqrt(abs((mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid])))))/(mdAy_tot[tid]));
+                else if (mdAy_tot[tid] < 0.0){
+                    if(mdvy[tid]>=0.0)          md_dt_y[tid] = ((-mdvy[tid]+sqrt(abs((mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid])))))/(mdAy_tot[tid]));
+                    else if (mdvy[tid]<0.0)    md_dt_y[tid] = 10000;
+                }
+            }
+        }
+  
 
         if(wall_sign_z[tid] == 0 ) md_dt_z[tid] = 10000;//a big number because next step is to consider the minimum of dt .
         else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
             
             if(mdAz_tot[tid] == 0.0)   md_dt_z[tid] = abs(z_wall_dist[tid]/mdvz[tid]);
 
-            else if (mdAz_tot[tid] != 0.0)  md_dt_z[tid] = ((-mdvz[tid]+sqrt(abs((mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid])))))/(mdAz_tot[tid]));
+            else if (mdAz_tot[tid] != 0.0){
+                if(mdAz_tot[tid] > 0.0)     md_dt_z[tid] = ((-mdvz[tid]+sqrt(abs((mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid])))))/(mdAz_tot[tid]));
+                else if(mdAz_tot[tid] < 0.0){
+                    if(mdvz[tid]>=0.0)     md_dt_z[tid] = ((-mdvz[tid]+sqrt(abs((mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid])))))/(mdAz_tot[tid]));
+                    else if(mdvz[tid]<0.0) md_dt_z[tid] = 10000;
+                }
+            }
 
-        }  
+        //printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
 
-    //printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
-
+        }
     }
-
-
 }
 
 //Active_md_crossing_location
