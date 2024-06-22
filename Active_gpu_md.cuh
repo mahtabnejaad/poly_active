@@ -106,9 +106,9 @@ __global__ void choiceArray(int *flag, int size)
    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
    if (tid<size)
    {
-        if (tid%2 ==0) flag[tid] = 1;
-        else flag[tid] = 0;
-
+        //if (tid%2 ==0) flag[tid] = 1;
+        //else flag[tid] = 0;
+        flag[tid] = 1;
 
 
    } 
