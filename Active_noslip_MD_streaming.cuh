@@ -554,10 +554,8 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
                     else if(mdvz[tid]<0.0) md_dt_z[tid] = 10000;
                 }
             }
-
-        //printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
-
         }
+    printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
     }
 }
 
