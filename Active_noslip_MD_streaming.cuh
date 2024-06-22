@@ -47,7 +47,7 @@ double *L, int size, double ux, int mass, double real_time, int m, int topology)
             ez[tid] = a[2];
         }
        
-        printf("ex[%i]=%f, ey[%i]=%f, ez[%i]=%f\n", tid, ex[tid], tid, ey[tid], tid, ez[tid]);
+        //printf("ex[%i]=%f, ey[%i]=%f, ez[%i]=%f\n", tid, ex[tid], tid, ey[tid], tid, ez[tid]);
 
 
     }
