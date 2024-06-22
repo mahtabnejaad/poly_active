@@ -160,9 +160,9 @@ double *d_Fx_holder , double *d_Fy_holder, double *d_Fz_holder,
         mdVz[i]-=pz/Nmd ;
     }
     //the arrays mdX, mdY, etc., containing particle properties are transferred from the host to the GPU  using cudaMemcpy.
-    cudaMemcpy(Id_mdX ,mdX, Nmd*sizeof(double), cudaMemcpyHostToDevice);   cudaMemcpy(Id_mdY ,mdY, Nmd*sizeof(double), cudaMemcpyHostToDevice);   cudaMemcpy(Id_mdZ ,mdZ, Nmd*sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(Id_mdVx ,mdVx, Nmd*sizeof(double), cudaMemcpyHostToDevice); cudaMemcpy(Id_mdVy ,mdVy, Nmd*sizeof(double), cudaMemcpyHostToDevice); cudaMemcpy(Id_mdVz ,mdVz, Nmd*sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(Id_mdAx ,mdAx, Nmd*sizeof(double), cudaMemcpyHostToDevice); cudaMemcpy(Id_mdAy ,mdAy, Nmd*sizeof(double), cudaMemcpyHostToDevice); cudaMemcpy(Id_mdAz ,mdAz, Nmd*sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_mdX ,mdX, Nmd*sizeof(double), cudaMemcpyHostToDevice);   cudaMemcpy(d_mdY ,mdY, Nmd*sizeof(double), cudaMemcpyHostToDevice);   cudaMemcpy(Id_mdZ ,mdZ, Nmd*sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_mdVx ,mdVx, Nmd*sizeof(double), cudaMemcpyHostToDevice); cudaMemcpy(d_mdVy ,mdVy, Nmd*sizeof(double), cudaMemcpyHostToDevice); cudaMemcpy(Id_mdVz ,mdVz, Nmd*sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_mdAx ,mdAx, Nmd*sizeof(double), cudaMemcpyHostToDevice); cudaMemcpy(d_mdAy ,mdAy, Nmd*sizeof(double), cudaMemcpyHostToDevice); cudaMemcpy(Id_mdAz ,mdAz, Nmd*sizeof(double), cudaMemcpyHostToDevice);
 
 
     //the dynamically allocated host memory is freed to avoid memory leaks.
