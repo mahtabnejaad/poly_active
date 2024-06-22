@@ -144,7 +144,9 @@ double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double
         Ab_ky[tid]=fb_ky[tid]/mass;
         Ab_kz[tid]=fb_kz[tid]/mass;
 
-        //printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Aa_kx[tid], tid, Aa_ky[tid], tid, Aa_kz[tid]);
+        printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Aa_kx[tid], tid, Aa_ky[tid], tid, Aa_kz[tid]);
+        printf("fa_kx[%i]=%f, fa_ky[%i]=%f, fa_kz[%i]=%f\n", tid, fa_kx[tid], tid, fa_ky[tid], tid, fa_kz[tid]);
+        printf("fb_kx[%i]=%f, fb_ky[%i]=%f, fb_kz[%i]=%f\n", tid, fb_kx[tid], tid, fb_ky[tid], tid, fb_kz[tid]);
         
     }
 
