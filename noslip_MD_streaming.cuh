@@ -263,21 +263,21 @@ int ID = blockIdx.x * blockDim.x + threadIdx.x;
         }
   
 
-        if(wall_sign_z[ID] == 0 ){
-            if(mdAz_tot[ID] == 0)        md_dt_z[ID] = 10000;//a big number because next step is to consider the minimum of dt .
-            else if(mdAz_tot[ID] > 0.0)  md_dt_z[ID] = sqrt(2*z_wall_dist[ID]/mdAz_tot[ID]);
-            else if(mdAz_tot[ID] < 0.0)  md_dt_z[ID] = sqrt(2*(z_wall_dist[ID]-L[2]/2)/mdAz_tot[ID]);
+        if(wall_sign_mdZ[ID] == 0 ){
+            if(mdAz[ID] == 0)        md_dt_z[ID] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(mdAz[ID] > 0.0)  md_dt_z[ID] = sqrt(2*mdZ_wall_dist[ID]/mdAz[ID]);
+            else if(mdAz[ID] < 0.0)  md_dt_z[ID] = sqrt(2*(mdZ_wall_dist[ID]-L[2]/2)/mdAz[ID]);
         }
-        else if(wall_sign_z[ID] == 1 || wall_sign_z[ID] == -1){
+        else if(wall_sign_mdZ[ID] == 1 || wall_sign_mdZ[ID] == -1){
             
-            if(mdAz_tot[ID] == 0.0)   md_dt_z[ID] = abs(z_wall_dist[ID]/mdvz[ID]);
+            if(mdAz[ID] == 0.0)   md_dt_z[ID] = abs(mdZ_wall_dist[ID]/mdvz[ID]);
 
-            else if (mdAz_tot[ID] != 0.0){
-                delta_z = (mdvz[ID]*mdvz[ID])+(2*z_wall_dist[ID]*(mdAz_tot[ID]));
+            else if (mdAz[ID] != 0.0){
+                delta_z = (mdvz[ID]*mdvz[ID])+(2*mdZ_wall_dist[ID]*(mdAz[ID]));
                 if (delta_z < 0.0)              md_dt_z[ID] = 10000;
                 else if (delta_z >= 0.0){
-                    if(mdvz[ID] > 0.0)             md_dt_z[ID] = ((-mdvz[ID] + sqrt(delta_z))/(mdAz_tot[ID]));
-                    else if(mdvz[ID] < 0.0)        md_dt_z[ID] = ((-mdvz[ID] - sqrt(delta_z))/(mdAz_tot[ID]));  
+                    if(mdvz[ID] > 0.0)             md_dt_z[ID] = ((-mdvz[ID] + sqrt(delta_z))/(mdAz[ID]));
+                    else if(mdvz[ID] < 0.0)        md_dt_z[ID] = ((-mdvz[ID] - sqrt(delta_z))/(mdAz[ID]));  
                 }
             }
         }
