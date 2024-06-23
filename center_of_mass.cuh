@@ -569,8 +569,8 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         cudaMemcpy(Vzcm, &VZCM, sizeof(double), cudaMemcpyHostToDevice);
     
     
-        printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM, YCM, ZCM);
-        printf("Vxcm = %lf, Vycm = %lf, Vzcm = %lf\n", VXCM, VYCM, VZCM); 
+        //printf("Xcm = %lf, Ycm = %lf, Zcm = %lf\n", XCM, YCM, ZCM);
+        //printf("Vxcm = %lf, Vycm = %lf, Vzcm = %lf\n", VXCM, VYCM, VZCM); 
 
 
         free(block_sum_mdX); free(block_sum_mdY); free(block_sum_mdZ); free(block_sum_mdVx); free(block_sum_mdVy); free(block_sum_mdVz);
