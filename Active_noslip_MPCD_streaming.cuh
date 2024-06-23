@@ -55,7 +55,7 @@ __global__ void CM_distance_from_walls(double *x, double *y, double *z, double *
 }
 
 //a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
-__global__ void Active_CM_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
+__global__ void Active_CM_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     //printf("---fa_x=%f, fa_y=%f, fa_z=%f\n", *fa_x, *fa_y, *fa_z);
@@ -135,7 +135,7 @@ __global__ void Active_CM_noslip_mpcd_deltaT(double *vx, double *vy, double *vz,
 
 
 //a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
-__global__ void Active_Lab_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *Vxcm, double *Vycm, double *Vzcm, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
+__global__ void Active_Lab_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *Vxcm, double *Vycm, double *Vzcm, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     //printf("---fa_x=%f, fa_y=%f, fa_z=%f\n", *fa_x, *fa_y, *fa_z);
@@ -191,7 +191,7 @@ __global__ void Active_deltaT_min(double *dt_x, double *dt_y, double *dt_z, doub
 }
 
 //calculate the crossing location where the particles intersect with one wall:
-__global__ void Active_CM_mpcd_crossing_location(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *x_o, double *y_o, double *z_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
+__global__ void Active_CM_mpcd_crossing_location(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *x_o, double *y_o, double *z_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid){
 
     double mm = (Nmd*mass+mass_fluid*N);
 
@@ -207,7 +207,7 @@ __global__ void Active_CM_mpcd_crossing_location(double *x, double *y, double *z
 
 
 
-__global__ void Active_CM_mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
+__global__ void Active_CM_mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid){
 
     double mm = (Nmd*mass+mass_fluid*N);
 
@@ -228,7 +228,7 @@ __global__ void Active_CM_mpcd_crossing_velocity(double *vx, double *vy, double 
 
 
 
-__global__ void Active_mpcd_velocityverlet(double *x, double *y, double *z, double *vx, double *vy, double *vz, double dt, int N, double *L, double *T, double *fa_x, double *fa_y, double *fa_z, int Nmd, int mass, int mass_fluid){
+__global__ void Active_mpcd_velocityverlet(double *x, double *y, double *z, double *vx, double *vy, double *vz, double dt, int N, double *L, double *T, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
@@ -279,7 +279,7 @@ __global__ void Take_o_to_outerCM_system(double *x_o, double *y_o, double *z_o, 
     }
 }
 
-__global__ void Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, double *Xcm, double *Ycm, double *Zcm, int Nmd, int mass, int mass_fluid){
+__global__ void Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, double *Xcm, double *Ycm, double *Zcm, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
@@ -314,7 +314,7 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceba
 }
 
 
-__global__ void Active_outboxCM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, double *Xcm, double *Ycm, double *Zcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, int Nmd, int mass, int mass_fluid){
+__global__ void Active_outboxCM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, double *Xcm, double *Ycm, double *Zcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
@@ -352,7 +352,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
 double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz,
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, double h_mpcd, int N, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_,
 double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z ,double *ex, double *ey, double *ez,double *block_sum_ex, double *block_sum_ey, double *block_sum_ez,
-double *L, int Nmd , double ux, int mass, int mass_fluid, double real_time, int m, int topology, double *dt_x, double *dt_y, double *dt_z, double *dt_min, 
+double *L, int Nmd , double ux, double mass, double mass_fluid, double real_time, int m, int topology, double *dt_x, double *dt_y, double *dt_z, double *dt_min, 
 double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_tot, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md)
 
 {
@@ -474,7 +474,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
 double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz,
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, double h_mpcd, int N, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_,
 double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z ,double *ex, double *ey, double *ez,double *block_sum_ex, double *block_sum_ey, double *block_sum_ez,
-double *L, int Nmd , double ux, int mass, int mass_fluid, double real_time, int m, int topology, double *dt_x, double *dt_y, double *dt_z, double *dt_min, 
+double *L, int Nmd , double ux, double mass, double mass_fluid, double real_time, int m, int topology, double *dt_x, double *dt_y, double *dt_z, double *dt_min, 
 double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_tot, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md)
 
 {
@@ -600,7 +600,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
 double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz,
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, double h_mpcd, int N, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_,
 double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z ,double *ex, double *ey, double *ez,double *block_sum_ex, double *block_sum_ey, double *block_sum_ez,
-double *L, int Nmd , double ux, int mass, int mass_fluid, double real_time, int m, int topology, double *dt_x, double *dt_y, double *dt_z, double *dt_min, 
+double *L, int Nmd , double ux, double mass, double mass_fluid, double real_time, int m, int topology, double *dt_x, double *dt_y, double *dt_z, double *dt_min, 
 double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_tot, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md)
 
 {
