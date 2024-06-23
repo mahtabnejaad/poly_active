@@ -537,8 +537,10 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
 
             else if (mdAx_tot[tid] != 0.0){
                 delta_x = ((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])));
-                if (delta_x < 0.0)       md_dt_x[tid] = 20000;
-
+                if (delta_x < 0.0){
+                        md_dt_x[tid] = 20000;
+                        printf("delta_x=%f\n", delta_x);
+                }
                 else if(delta_x >= 0.0){
                         if(mdvx[tid] > 0.0)         md_dt_x[tid] = ((-mdvx[tid] + sqrt(delta_x))/(mdAx_tot[tid]));
                         else if(mdvx[tid] < 0.0)    md_dt_x[tid] = ((-mdvx[tid] - sqrt(delta_x))/(mdAx_tot[tid]));
@@ -559,8 +561,11 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
             
             else if (mdAy_tot[tid] != 0.0){
                 delta_y = (mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid]));
-                if(delta_y < 0)                 md_dt_y[tid] = 10000;
+                if(delta_y < 0){
 
+                    md_dt_y[tid] = 20000;
+                    printf("delta_y=%f\n", delta_y);
+                }
                 else if (delta_y >= 0){
                     if(mdvy[tid] > 0.0)              md_dt_y[tid] = ((-mdvy[tid] + sqrt(delta_y))/(mdAy_tot[tid]));
                     else if (mdvy[tid] < 0.0)        md_dt_y[tid] = ((-mdvy[tid] - sqrt(delta_y))/(mdAy_tot[tid]));
@@ -580,7 +585,10 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
 
             else if (mdAz_tot[tid] != 0.0){
                 delta_z = (mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid]));
-                if (delta_z < 0.0)              md_dt_z[tid] = 10000;
+                if (delta_z < 0.0){
+                    md_dt_z[tid] = 20000;
+                    printf("delta_z=%f\n", delta_z);
+                }
                 else if (delta_z >= 0.0){
                     if(mdvz[tid] > 0.0)             md_dt_z[tid] = ((-mdvz[tid] + sqrt(delta_z))/(mdAz_tot[tid]));
                     else if(mdvz[tid] < 0.0)        md_dt_z[tid] = ((-mdvz[tid] - sqrt(delta_z))/(mdAz_tot[tid]));  
@@ -705,12 +713,12 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback
             mdvy[tid] = -mdvy_o[tid];
             mdvz[tid] = -mdvz_o[tid];
             //let the particle move during dt-dt1 with the reversed velocity:
-            mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
-            mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
-            mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid];
             mdvx[tid]=mdvx[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];
             mdvy[tid]=mdvy[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];
             mdvz[tid]=mdvz[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];
+            mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
+            mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
+            mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid];
 
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
