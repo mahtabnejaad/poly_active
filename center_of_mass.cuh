@@ -444,7 +444,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         block_sum_mdX = (double*)malloc(sizeof(double) * grid_size);  block_sum_mdY = (double*)malloc(sizeof(double) * grid_size);  block_sum_mdZ = (double*)malloc(sizeof(double) * grid_size);
         block_sum_mdVx = (double*)malloc(sizeof(double) * grid_size); block_sum_mdVy = (double*)malloc(sizeof(double) * grid_size); block_sum_mdVz = (double*)malloc(sizeof(double) * grid_size);
        
-        //print_kernel<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Nmd);
+        print_kernel<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Nmd);
 
         reduce_kernel_var<<<grid_size,blockSize>>>(mdX, mdY, mdZ, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
