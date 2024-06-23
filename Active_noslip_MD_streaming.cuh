@@ -539,7 +539,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
                 delta_x = ((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])));
                 if (delta_x < 0.0){
                         md_dt_x[tid] = 20000;
-                        printf("delta_x=%f\n", delta_x);
+                        printf("delta_x=%f, %i\n", delta_x, tid);
                 }
                 else if(delta_x >= 0.0){
                         if(mdvx[tid] > 0.0)         md_dt_x[tid] = ((-mdvx[tid] + sqrt(delta_x))/(mdAx_tot[tid]));
@@ -564,7 +564,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
                 if(delta_y < 0){
 
                     md_dt_y[tid] = 20000;
-                    printf("delta_y=%f\n", delta_y);
+                    printf("delta_y=%f, %i\n", delta_y, tid);
                 }
                 else if (delta_y >= 0){
                     if(mdvy[tid] > 0.0)              md_dt_y[tid] = ((-mdvy[tid] + sqrt(delta_y))/(mdAy_tot[tid]));
@@ -587,7 +587,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
                 delta_z = (mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid]));
                 if (delta_z < 0.0){
                     md_dt_z[tid] = 20000;
-                    printf("delta_z=%f\n", delta_z);
+                    printf("delta_z=%f, %i\n", delta_z, tid);
                 }
                 else if (delta_z >= 0.0){
                     if(mdvz[tid] > 0.0)             md_dt_z[tid] = ((-mdvz[tid] + sqrt(delta_z))/(mdAz_tot[tid]));
