@@ -382,7 +382,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             //printf("gama_T=%f\n",*gama_T);
         
             //printf("88gama_T=%f\n",*gama_T);
-            printf("mmmm = %f\n", mass);
+            printf("mmmm = %i\n", mass);
             //forces calculations in a seperate kernel:
             Active_calc_forces<<<grid_size,blockSize>>>(fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz,
                     ex, ey, ez, ux, mass, mass_fluid, size, N, gamaT, u_scale);
