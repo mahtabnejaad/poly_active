@@ -62,7 +62,7 @@ __global__ void MakeCellReady(double* ux , double* uy , double* uz,double* e, in
 
 //Purpose: This kernel calculates the mean velocity and mass of particles in each cell.
 //vx, vy, vz: Arrays containing the particle velocities 
-__global__ void MeanVelCell(double* ux, double* vx,double* uy, double* vy,double* uz, double* vz,int* index, int *n, double *m, int mass, int N)
+__global__ void MeanVelCell(double* ux, double* vx,double* uy, double* vy,double* uz, double* vz,int* index, int *n, double *m, double mass, int N)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N)
@@ -385,7 +385,7 @@ __global__ void reduceKernel_double(double *input, double *output, int N) {
     }
 }
 
-__global__ void MeanNumCell(int *index, int *n, double *m, int mass, int N)
+__global__ void MeanNumCell(int *index, int *n, double *m, double mass, int N)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N)
@@ -401,7 +401,7 @@ __global__ void MeanNumCell(int *index, int *n, double *m, int mass, int N)
 
 
 
-__global__ void noslip_MeanVelCell(double* ux, double* vx,double* uy, double* vy,double* uz, double* vz,int* index, int mass, int N)
+__global__ void noslip_MeanVelCell(double* ux, double* vx,double* uy, double* vy,double* uz, double* vz,int* index, double mass, int N)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N)
@@ -436,7 +436,7 @@ __device__ double boxMullerTransform(curandState *state) {
     return sqrt(abs(-2.0 * log(u1))) * cos(2.0 * M_PI * u2);
 }
 
-__global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_uz, double *N_avg, int mass, int *d_n, double *variance, int Nc, double *a_x, double *a_y, double *a_z, curandState *state) {
+__global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_uz, double *N_avg, double mass, int *d_n, double *variance, int Nc, double *a_x, double *a_y, double *a_z, curandState *state) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid < Nc) {
         double mean_x = d_ux[tid]; // Use the mean from d_ux[tid]
@@ -453,7 +453,7 @@ __global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_
 }
 
 
-/*__global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_uz, double *N_avg, int mass, int *d_n, double *variance, std::normal_distribution<double> *normalDistributions_x, std::normal_distribution<double> *normalDistributions_y,std::normal_distribution<double> *normalDistributions_z, int Nc) {
+/*__global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_uz, double *N_avg, double mass, int *d_n, double *variance, std::normal_distribution<double> *normalDistributions_x, std::normal_distribution<double> *normalDistributions_y,std::normal_distribution<double> *normalDistributions_z, int Nc) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid < Nc) {
         variance[tid] = (*N_avg - d_n[tid])/mass;//*(kT = 1)
@@ -466,7 +466,7 @@ __global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_
 
 
 
-__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, int mass , int density, int *d_n, int Nc){
+__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double mass , int density, int *d_n, int Nc){
 
         int tid = blockIdx.x * blockDim.x + threadIdx.x;
        
