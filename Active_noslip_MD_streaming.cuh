@@ -644,9 +644,9 @@ double *mdAx_tot , double *mdAy_tot , double *mdAz_tot,
     {
         // Particle velocities are updated by half a time step, and particle positions are updated based on the new velocities.
 
-        mdVx[particleID] += 0.5 * h * mdAx_tot[particleID];
-        mdVy[particleID] += 0.5 * h * mdAy_tot[particleID];
-        mdVz[particleID] += 0.5 * h * mdAz_tot[particleID];
+        mdVx[particleID] +=  h * mdAx_tot[particleID];// * 0.5;
+        mdVy[particleID] +=  h * mdAy_tot[particleID];// * 0.5;
+        mdVz[particleID] +=  h * mdAz_tot[particleID];// * 0.5;
 
         mdX[particleID] = mdX[particleID] + h * mdVx[particleID] + 0.5 * h * h * mdAx_tot[particleID];
         mdY[particleID] = mdY[particleID] + h * mdVy[particleID] + 0.5 * h * h * mdAy_tot[particleID];
@@ -713,9 +713,9 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback
             mdvy[tid] = -mdvy_o[tid];
             mdvz[tid] = -mdvz_o[tid];
             //let the particle move during dt-dt1 with the reversed velocity:
-            mdvx[tid]=mdvx[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];
-            mdvy[tid]=mdvy[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];
-            mdvz[tid]=mdvz[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];
+            mdvx[tid]=mdvx[tid]+   (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];// * 0.5;
+            mdvy[tid]=mdvy[tid]+   (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];// * 0.5;
+            mdvz[tid]=mdvz[tid]+   (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];// * 0.5;
             mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
             mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
             mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid];
@@ -1298,7 +1298,7 @@ __host__ void Active_noslip_MD_streaming2(double *d_mdX, double *d_mdY, double *
         
         //velocityverletKernel2 is called to complete the velocity verlet algorithm by updating particle velocities using the second half of the time step. 
         //This ensures that the velocities are synchronized with the newly calculated accelerations.
-        Active_noslip_md_velocityverletKernel4(d_mdX, d_mdY , d_mdZ, d_x, d_y, d_z,
+        /*Active_noslip_md_velocityverletKernel4(d_mdX, d_mdY , d_mdZ, d_x, d_y, d_z,
         d_mdvx, d_mdvy, d_mdvz, d_vx, d_vy, d_vz, d_mdAx, d_mdAy, d_mdAz,
         mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, dn_md_tot, dn_mpcd_tot,
         CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_n_outbox_md, CMsumblock_n_outbox_mpcd,
@@ -1306,7 +1306,7 @@ __host__ void Active_noslip_MD_streaming2(double *d_mdX, double *d_mdY, double *
         h_md, Nmd, N, n_outbox_md, n_outbox_mpcd, mass, mass_fluid, d_L, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, md_dt_x, md_dt_y, md_dt_z, md_dt_min ,
         mdX_o, mdY_o, mdZ_o, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot, 
         mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ);
-        
+        */
 
 
         //The real_time is incremented by the time step h_md, effectively moving the simulation time forward.
