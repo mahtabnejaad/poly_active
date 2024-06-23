@@ -196,11 +196,14 @@ __global__ void md_distance_from_walls(double *x, double *y, double *z, double *
 
 
 //a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
-__global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx, double *mdAy, double *mdAz, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *md_dt_x, double *md_dt_y, double *md_dt_z, int Nmd){
+__global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx, double *mdAy, double *mdAz, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, double *mdmdX_wall_dist, double *mdmdY_wall_dist, double *mdZ_wall_dist, double *md_dt_x, double *md_dt_y, double *md_dt_z, int Nmd, double *L){
 
-    int ID = blockIdx.x * blockDim.x + threadIdx.x;
+int ID = blockIdx.x * blockDim.x + threadIdx.x;
+    double delta_x;
+    double delta_y;
+    double delta_z;
     if (ID<Nmd){
-
+        
         //printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f \n", ID, mdvx[ID], ID, mdvy[ID], ID, mdvz[ID]);
         //printf("mdAx[%i]=%f, mdAy[%i]=%f, mdAz[%i]=%f \n", ID, mdAx[ID], ID, mdAy[ID], ID, mdAz[ID]);
 
@@ -212,38 +215,74 @@ __global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx
                                                             : printf("");
          (isnan(mdX_wall_dist[ID])|| isnan(mdY_wall_dist[ID]) || isnan(mdZ_wall_dist[ID])) ? printf("mdX_wall_dist[%i]=%f, mdY_wall_dist[%i]=%f, mdZ_wall_dist[%i]=%f \n", ID, mdX_wall_dist[ID], ID, mdY_wall_dist[ID], ID, mdZ_wall_dist[ID])
                                                             : printf("");
-        if(wall_sign_mdX[ID] == 0 ) md_dt_x[ID] == 10000;//a big number because next step is to consider the minimum of dt .
+
+                                                            
+
+        if(wall_sign_mdX[ID] == 0 ){
+            if(mdAx[ID] == 0) md_dt_x[ID] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(mdAx[ID] > 0.0)  md_dt_x[ID] = sqrt(2*mdX_wall_dist[ID]/mdAx[ID]);
+            else if(mdAx[ID] < 0.0)  md_dt_x[ID] = sqrt(2*(mdX_wall_dist[ID]-L[0]/2)/mdAx[ID]);
+        }
+
+
         else if(wall_sign_mdX[ID] == 1 || wall_sign_mdX[ID] == -1){
             
-            if(mdAx[ID]  == 0.0)   md_dt_x[ID] = abs(mdX_wall_dist[ID]/mdvx[ID]);
+            if(mdAx[ID] == 0.0)   md_dt_x[ID] = abs(mdX_wall_dist[ID]/mdvx[ID]);
 
-            else if (mdAx[ID]  != 0.0)  md_dt_x[ID] = ((-mdvx[ID]+sqrt(abs((mdvx[ID]*mdvx[ID])+(2*mdX_wall_dist[ID]*mdAx[ID]))))/mdAx[ID]);
+            else if (mdAx[ID] != 0.0){
+                delta_x = ((mdvx[ID]*mdvx[ID])+(2*mdX_wall_dist[ID]*(mdAx[ID])));
+                if (delta_x < 0.0)       md_dt_x[ID] = 20000;
 
+                else if(delta_x >= 0.0){
+                        if(mdvx[ID] > 0.0)         md_dt_x[ID] = ((-mdvx[ID] + sqrt(delta_x))/(mdAx[ID]));
+                        else if(mdvx[ID] < 0.0)    md_dt_x[ID] = ((-mdvx[ID] - sqrt(delta_x))/(mdAx[ID]));
+                        
+                }
+            }
         }  
 
-        if(wall_sign_mdY[ID] == 0 ) md_dt_y[ID] == 10000;
+        if(wall_sign_mdY[ID] == 0 ){
+            if(mdAy[ID] == 0) md_dt_y[ID] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(mdAy[ID] > 0.0)  md_dt_y[ID] = sqrt(2*mdY_wall_dist[ID]/mdAy[ID]);
+            else if(mdAy[ID] < 0.0)  md_dt_y[ID] = sqrt(2*(mdY_wall_dist[ID]-L[1]/2)/mdAy[ID]);
+        }
+
         else if(wall_sign_mdY[ID] == 1 || wall_sign_mdY[ID] == -1){
+            
+            if(mdAy[ID]  == 0.0)   md_dt_y[ID] = abs(mdY_wall_dist[ID]/mdvy[ID]);
+            
+            else if (mdAy[ID] != 0.0){
+                delta_y = (mdvy[ID]*mdvy[ID])+(2*mdY_wall_dist[ID]*(mdAy[ID]));
+                if(delta_y < 0)                 md_dt_y[ID] = 10000;
 
-            if(mdAy[ID] == 0.0)   md_dt_y[ID] = abs(mdY_wall_dist[ID]/mdvy[ID]);
-
-            else if(mdAy[ID]  != 0.0)   md_dt_y[ID] = ((-mdvy[ID]+sqrt(abs((mdvy[ID]*mdvy[ID])+(2*mdY_wall_dist[ID]*mdAy[ID]))))/mdAy[ID]);
-
+                else if (delta_y >= 0){
+                    if(mdvy[ID] > 0.0)              md_dt_y[ID] = ((-mdvy[ID] + sqrt(delta_y))/(mdAy[ID]));
+                    else if (mdvy[ID] < 0.0)        md_dt_y[ID] = ((-mdvy[ID] - sqrt(delta_y))/(mdAy[ID]));
+                }        
+            }
         }
+  
 
-        if(wall_sign_mdZ[ID] == 0 ) md_dt_z[ID] == 10000;
-        else if(wall_sign_mdZ[ID] == 1 || wall_sign_mdZ[ID] == -1){
-
-            if(mdAz[ID]  == 0.0)   md_dt_z[ID] = abs(mdZ_wall_dist[ID]/mdvz[ID]);
-
-            else if(mdAz[ID]  != 0.0)   md_dt_z[ID] = ((-mdvz[ID]+sqrt(abs((mdvz[ID]*mdvz[ID])+(2*mdZ_wall_dist[ID]*mdAz[ID]))))/mdAz[ID]);
-
+        if(wall_sign_z[ID] == 0 ){
+            if(mdAz_tot[ID] == 0)        md_dt_z[ID] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(mdAz_tot[ID] > 0.0)  md_dt_z[ID] = sqrt(2*z_wall_dist[ID]/mdAz_tot[ID]);
+            else if(mdAz_tot[ID] < 0.0)  md_dt_z[ID] = sqrt(2*(z_wall_dist[ID]-L[2]/2)/mdAz_tot[ID]);
         }
+        else if(wall_sign_z[ID] == 1 || wall_sign_z[ID] == -1){
+            
+            if(mdAz_tot[ID] == 0.0)   md_dt_z[ID] = abs(z_wall_dist[ID]/mdvz[ID]);
 
-        
-
-    }
-
-
+            else if (mdAz_tot[ID] != 0.0){
+                delta_z = (mdvz[ID]*mdvz[ID])+(2*z_wall_dist[ID]*(mdAz_tot[ID]));
+                if (delta_z < 0.0)              md_dt_z[ID] = 10000;
+                else if (delta_z >= 0.0){
+                    if(mdvz[ID] > 0.0)             md_dt_z[ID] = ((-mdvz[ID] + sqrt(delta_z))/(mdAz_tot[ID]));
+                    else if(mdvz[ID] < 0.0)        md_dt_z[ID] = ((-mdvz[ID] - sqrt(delta_z))/(mdAz_tot[ID]));  
+                }
+            }
+        }
+    printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", ID, md_dt_x[ID], ID, md_dt_y[ID], ID, md_dt_z[ID]);
+    }    
 }
 
 //calculate the crossing location where the particles intersect with one wall:
