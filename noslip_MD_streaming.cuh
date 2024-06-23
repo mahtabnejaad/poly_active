@@ -12,7 +12,7 @@ __device__ __host__ void regular_distance(double x0,double x1, double x2, double
 __global__ void noslip_nb_b_interaction( 
 double *mdX, double *mdY , double *mdZ ,
 double *fx , double *fy , double *fz, 
-double *L,int size , double ux, int mass, double real_time, int m , int topology)
+double *L,int size , double ux, double mass, double real_time, int m , int topology)
 {
     int size2 = size*(size); //size2 calculates the total number of particle pairs for the interaction.
 
