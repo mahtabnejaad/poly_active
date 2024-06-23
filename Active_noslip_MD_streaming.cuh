@@ -644,13 +644,14 @@ double *mdAx_tot , double *mdAy_tot , double *mdAz_tot,
     {
         // Particle velocities are updated by half a time step, and particle positions are updated based on the new velocities.
 
-        mdVx[particleID] +=  h * mdAx_tot[particleID];// * 0.5;
-        mdVy[particleID] +=  h * mdAy_tot[particleID];// * 0.5;
-        mdVz[particleID] +=  h * mdAz_tot[particleID];// * 0.5;
-
+        
         mdX[particleID] = mdX[particleID] + h * mdVx[particleID] + 0.5 * h * h * mdAx_tot[particleID];
         mdY[particleID] = mdY[particleID] + h * mdVy[particleID] + 0.5 * h * h * mdAy_tot[particleID];
         mdZ[particleID] = mdZ[particleID] + h * mdVz[particleID] + 0.5 * h * h * mdAz_tot[particleID];
+
+        mdVx[particleID] +=  h * mdAx_tot[particleID];// * 0.5;
+        mdVy[particleID] +=  h * mdAy_tot[particleID];// * 0.5;
+        mdVz[particleID] +=  h * mdAz_tot[particleID];// * 0.5;
 
 
         //printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", particleID, mdAx_tot[particleID], particleID, mdAy_tot[particleID], particleID, mdAz_tot[particleID]);
@@ -713,13 +714,14 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback
             mdvy[tid] = -mdvy_o[tid];
             mdvz[tid] = -mdvz_o[tid];
             //let the particle move during dt-dt1 with the reversed velocity:
-            mdvx[tid]=mdvx[tid]+   (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];// * 0.5;
-            mdvy[tid]=mdvy[tid]+   (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];// * 0.5;
-            mdvz[tid]=mdvz[tid]+   (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];// * 0.5;
+        
             mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
             mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
             mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid];
-
+            mdvx[tid]=mdvx[tid]+   (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];// * 0.5;
+            mdvy[tid]=mdvy[tid]+   (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];// * 0.5;
+            mdvz[tid]=mdvz[tid]+   (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];// * 0.5;
+            
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
         if((mdx[tid] + *Xcm )>L[0]/2 || (mdx[tid] + *Xcm)<-L[0]/2 || (mdy[tid] + *Ycm )>L[1]/2 || (mdy[tid] + *Ycm )<-L[1]/2 || (mdz[tid] + *Zcm )>L[2]/2 || (mdz[tid] + *Zcm )<-L[2]/2)  printf("*************************goes out %i\n", tid);
