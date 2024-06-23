@@ -196,7 +196,7 @@ __global__ void md_distance_from_walls(double *x, double *y, double *z, double *
 
 
 //a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
-__global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx, double *mdAy, double *mdAz, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, double *mdmdX_wall_dist, double *mdmdY_wall_dist, double *mdZ_wall_dist, double *md_dt_x, double *md_dt_y, double *md_dt_z, int Nmd, double *L){
+__global__ void md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *mdAx, double *mdAy, double *mdAz, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *md_dt_x, double *md_dt_y, double *md_dt_z, int Nmd, double *L){
 
 int ID = blockIdx.x * blockDim.x + threadIdx.x;
     double delta_x;
