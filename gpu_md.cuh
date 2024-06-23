@@ -8,7 +8,7 @@ __host__ void initMD(double *d_mdX, double *d_mdY , double *d_mdZ ,
  double *d_mdVx , double *d_mdVy , double *d_mdVz, 
  double *d_mdAx , double *d_mdAy , double *d_mdAz,
 double *d_Fx_holder , double *d_Fy_holder, double *d_Fz_holder,
- double *d_L, double ux, double xx[3], int n, int m, int topology, int mass)
+ double *d_L, double ux, double xx[3], int n, int m, int topology, double mass)
 {
     int Nmd = n * m;//Nmd is the total number of MD particles, calculated as the product of n and m.
     //mdX, mdY, etc., are temporary arrays used for host-side initialization before transferring data to the GPU.
@@ -237,7 +237,7 @@ __global__ void sum_kernel(double *F1 ,double *F2 , double *F3,
 __global__ void nb_b_interaction( 
 double *mdX, double *mdY , double *mdZ ,
 double *fx , double *fy , double *fz, 
-double *L,int size , double ux, int mass, double real_time, int m , int topology)
+double *L,int size , double ux, double mass, double real_time, int m , int topology)
 {
     int size2 = size*(size); //size2 calculates the total number of particle pairs for the interaction.
 
