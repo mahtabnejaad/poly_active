@@ -366,8 +366,8 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
                         f -= 30/(1 - r_sqr/2.25);
                     }
                 } 
-            printf("f=%f\n", f); 
-            printf("r_sqr=%f\n", r_sqr);   
+            //printf("f=%f\n", f); 
+            //printf("r_sqr=%f\n", r_sqr);   
             }
         
             //FENE:
