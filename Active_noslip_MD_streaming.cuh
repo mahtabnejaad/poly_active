@@ -530,7 +530,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
                 if(mdAx_tot[tid] > 0.0)  md_dt_x[tid] = ((-mdvx[tid]+sqrt(abs((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])))))/(mdAx_tot[tid]));
                 else if(mdAx_tot[tid] < 0.0){
                     if(mdvx[tid]>=0.0)     md_dt_x[tid] = ((-mdvx[tid]+sqrt(abs((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])))))/(mdAx_tot[tid]));
-                    else if(mdvx[tid]<0.0)    md_dt_x[tid] == 10000;
+                    else if(mdvx[tid]<0.0)    md_dt_x[tid] == 20000;
                 }
             }
 
@@ -545,7 +545,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
                 if(mdAy_tot[tid] > 0.0)     md_dt_y[tid] = ((-mdvy[tid]+sqrt(abs((mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid])))))/(mdAy_tot[tid]));
                 else if (mdAy_tot[tid] < 0.0){
                     if(mdvy[tid]>=0.0)          md_dt_y[tid] = ((-mdvy[tid]+sqrt(abs((mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid])))))/(mdAy_tot[tid]));
-                    else if (mdvy[tid]<0.0)    md_dt_y[tid] = 10000;
+                    else if (mdvy[tid]<0.0)    md_dt_y[tid] = 20000;
                 }
             }
         }
@@ -560,7 +560,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
                 if(mdAz_tot[tid] > 0.0)     md_dt_z[tid] = ((-mdvz[tid]+sqrt(abs((mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid])))))/(mdAz_tot[tid]));
                 else if(mdAz_tot[tid] < 0.0){
                     if(mdvz[tid]>=0.0)     md_dt_z[tid] = ((-mdvz[tid]+sqrt(abs((mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid])))))/(mdAz_tot[tid]));
-                    else if(mdvz[tid]<0.0) md_dt_z[tid] = 10000;
+                    else if(mdvz[tid]<0.0) md_dt_z[tid] = 20000;
                 }
             }
         }
