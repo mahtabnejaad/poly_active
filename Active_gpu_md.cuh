@@ -2,7 +2,7 @@
 
 __global__ void tangential_vectors(double *mdX, double *mdY , double *mdZ ,
 double *ex , double *ey , double *ez, 
-double *L, int size, double ux, int mass, double real_time, int m, int topology) 
+double *L, int size, double ux, double mass, double real_time, int m, int topology) 
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
    
@@ -52,7 +52,7 @@ double *L, int size, double ux, int mass, double real_time, int m, int topology)
     }
 }
 // a kernel to put active forces on the polymer in an specific way that can be changes as you wish
-__global__ void SpecificOrientedForce(double *mdX, double *mdY, double *mdZ, double real_time,double u0, int size, double *fa_kx, double *fa_ky, double *fa_kz,double *fb_kx, double *fb_ky, double *fb_kz, double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *gama_T, double *Q, int mass, double u_scale)
+__global__ void SpecificOrientedForce(double *mdX, double *mdY, double *mdZ, double real_time,double u0, int size, double *fa_kx, double *fa_ky, double *fa_kz,double *fb_kx, double *fb_ky, double *fb_kz, double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *gama_T, double *Q, double mass, double u_scale)
 {
  
     int tid = blockIdx.x*blockDim.x+threadIdx.x;//index of the particle in the system
@@ -220,8 +220,8 @@ __global__ void choice_tangential(double *ex, double *ey, double *ez, int *flag_
 
 __host__ void monomer_active_backward_forces(double *mdX, double *mdY , double *mdZ ,
 double *Ax, double *Ay, double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
-double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, int mass, double *gama_T,
-double *L, int size, int mass_fluid, double real_time, int m, int topology, int grid_size, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot,
+double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T,
+double *L, int size, double mass_fluid, double real_time, int m, int topology, int grid_size, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot,
 double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array,double u_scale)
 {
     double Q;
@@ -382,7 +382,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             //printf("gama_T=%f\n",*gama_T);
         
             //printf("88gama_T=%f\n",*gama_T);
-            printf("mmmm = %i\n", mass);
+            //printf("mmmm = %i\n", mass);
             //forces calculations in a seperate kernel:
             Active_calc_forces<<<grid_size,blockSize>>>(fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz,
                     ex, ey, ez, ux, mass, mass_fluid, size, N, gamaT, u_scale);
@@ -456,7 +456,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
 __global__ void Active_nb_b_interaction( 
 double *mdX, double *mdY , double *mdZ ,
 double *fx , double *fy , double *fz, 
-double *L,int size , double ux, int mass, double real_time, int m , int topology)
+double *L,int size , double ux, double mass, double real_time, int m , int topology)
 {
     int size2 = size*(size); //size2 calculates the total number of particle pairs for the interaction.
 
@@ -562,8 +562,8 @@ double *L,int size , double ux, int mass, double real_time, int m , int topology
 __host__ void Active_calc_acceleration( double *x ,double *y , double *z , 
 double *Fx , double *Fy , double *Fz, 
 double *Ax , double *Ay , double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
-double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, int mass, double *gama_T, 
-double *L, int size, int m, int topology, double real_time, int grid_size, int mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale)
+double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T, 
+double *L, int size, int m, int topology, double real_time, int grid_size, double mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale)
 
 {
   
@@ -646,7 +646,7 @@ __host__ void Active_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
     double *h_fb_x, double *h_fb_y, double *h_fb_z,
     double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
     double h_md , int Nmd, int density, double *d_L , double ux, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, int delta, 
-    double real_time, int m, int N, int mass, int mass_fluid, double *gama_T, int *random_array, unsigned int seed, int topology, 
+    double real_time, int m, int N, double mass, double mass_fluid, double *gama_T, int *random_array, unsigned int seed, int topology, 
     double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, int *flag_array, double u_scale)
 {
     for (int tt = 0 ; tt < delta ; tt++)
