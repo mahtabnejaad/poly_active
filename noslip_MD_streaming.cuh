@@ -1,9 +1,9 @@
 #include <stdlib.h>
-__device__ __host__ void regular_distance(double x0, double y0, double z0, double x1, double y1, double z1, double *r,double *L,double ux, double t){
+__device__ __host__ void regular_distance(double x1, double y1, double z1, double x2, double y2, double z2, double *r,double *L,double ux, double t){
 
-    r[0] = x0 - x1;
-    r[1] = y0 - y1;
-    r[2] = z0 - z1;
+    r[0] = x1 - x2;
+    r[1] = y1 - y2;
+    r[2] = z1 - z2;
 
 }
 
