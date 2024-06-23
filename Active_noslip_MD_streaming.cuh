@@ -514,53 +514,76 @@ __global__ void CM_md_distance_from_walls(double *mdx, double *mdy, double *mdz,
 //************
 //Active_noslip_md_deltaT
 //a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
-__global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, int Nmd){
+__global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, int Nmd, double *L){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    double delta_x;
+    double delta_y;
+    double delta_z;
     if (tid<Nmd){
         
         
 
-        if(wall_sign_x[tid] == 0 ) md_dt_x[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+        if(wall_sign_x[tid] == 0 ){
+            if(mdAx_tot[tid] == 0) md_dt_x[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(mdAx_tot[tid] > 0.0)  md_dt_x[tid] = sqrt(2*x_wall_dist[tid]/mdAx_tot[tid]);
+            else if(mdAx_tot[tid] < 0.0)  md_dt_x[tid] = sqrt(2*(x_wall_dist[tid]-L[0]/2)/mdAx_tot[tid]);
+        }
+
+
         else if(wall_sign_x[tid] == 1 || wall_sign_x[tid] == -1){
             
             if(mdAx_tot[tid] == 0.0)   md_dt_x[tid] = abs(x_wall_dist[tid]/mdvx[tid]);
 
             else if (mdAx_tot[tid] != 0.0){
-                if(mdAx_tot[tid] > 0.0)  md_dt_x[tid] = ((-mdvx[tid]+sqrt(abs((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])))))/(mdAx_tot[tid]));
-                else if(mdAx_tot[tid] < 0.0){
-                    if(mdvx[tid]>=0.0)     md_dt_x[tid] = ((-mdvx[tid]+sqrt(abs((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])))))/(mdAx_tot[tid]));
-                    else if(mdvx[tid]<0.0)    md_dt_x[tid] == 20000;
+                delta_x = ((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])));
+                if (delta_x < 0.0)       md_dt_x[tid] = 20000;
+
+                else if(delta_x >= 0.0){
+                        if(mdvx[tid] > 0.0)         md_dt_x[tid] = ((-mdvx[tid] + sqrt(delta_x))/(mdAx_tot[tid]));
+                        else if(mdvx[tid] < 0.0)    md_dt_x[tid] = ((-mdvx[tid] - sqrt(delta_x))/(mdAx_tot[tid]));
+                        
                 }
             }
-
         }  
 
-        if(wall_sign_y[tid] == 0 ) md_dt_y[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+        if(wall_sign_y[tid] == 0 ){
+            if(mdAy_tot[tid] == 0) md_dt_y[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(mdAy_tot[tid] > 0.0)  md_dt_y[tid] = sqrt(2*y_wall_dist[tid]/mdAy_tot[tid]);
+            else if(mdAy_tot[tid] < 0.0)  md_dt_y[tid] = sqrt(2*(y_wall_dist[tid]-L[1]/2)/mdAy_tot[tid]);
+        }
+
         else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
             
             if(mdAy_tot[tid]  == 0.0)   md_dt_y[tid] = abs(y_wall_dist[tid]/mdvy[tid]);
-
+            
             else if (mdAy_tot[tid] != 0.0){
-                if(mdAy_tot[tid] > 0.0)     md_dt_y[tid] = ((-mdvy[tid]+sqrt(abs((mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid])))))/(mdAy_tot[tid]));
-                else if (mdAy_tot[tid] < 0.0){
-                    if(mdvy[tid]>=0.0)          md_dt_y[tid] = ((-mdvy[tid]+sqrt(abs((mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid])))))/(mdAy_tot[tid]));
-                    else if (mdvy[tid]<0.0)    md_dt_y[tid] = 20000;
-                }
+                delta_y = (mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid]));
+                if(delta_y < 0)                 md_dt_y[tid] = 10000;
+
+                else if (delta_y >= 0){
+                    if(mdvy[tid] > 0.0)              md_dt_y[tid] = ((-mdvy[tid] + sqrt(delta_y))/(mdAy_tot[tid]));
+                    else if (mdvy[tid] < 0.0)        md_dt_y[tid] = ((-mdvy[tid] - sqrt(delta_y))/(mdAy_tot[tid]));
+                }        
             }
         }
   
 
-        if(wall_sign_z[tid] == 0 ) md_dt_z[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+        if(wall_sign_z[tid] == 0 ){
+            if(mdAz_tot[tid] == 0)        md_dt_z[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(mdAz_tot[tid] > 0.0)  md_dt_z[tid] = sqrt(2*z_wall_dist[tid]/mdAz_tot[tid]);
+            else if(mdAz_tot[tid] < 0.0)  md_dt_z[tid] = sqrt(2*(z_wall_dist[tid]-L[2]/2)/mdAz_tot[tid]);
+        }
         else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
             
             if(mdAz_tot[tid] == 0.0)   md_dt_z[tid] = abs(z_wall_dist[tid]/mdvz[tid]);
 
             else if (mdAz_tot[tid] != 0.0){
-                if(mdAz_tot[tid] > 0.0)     md_dt_z[tid] = ((-mdvz[tid]+sqrt(abs((mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid])))))/(mdAz_tot[tid]));
-                else if(mdAz_tot[tid] < 0.0){
-                    if(mdvz[tid]>=0.0)     md_dt_z[tid] = ((-mdvz[tid]+sqrt(abs((mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid])))))/(mdAz_tot[tid]));
-                    else if(mdvz[tid]<0.0) md_dt_z[tid] = 20000;
+                delta_z = (mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid]));
+                if (delta_z < 0.0)              md_dt_z[tid] = 10000;
+                else if (delta_z >= 0.0){
+                    if(mdvz[tid] > 0.0)             md_dt_z[tid] = ((-mdvz[tid] + sqrt(delta_z))/(mdAz_tot[tid]));
+                    else if(mdvz[tid] < 0.0)        md_dt_z[tid] = ((-mdvz[tid] - sqrt(delta_z))/(mdAz_tot[tid]));  
                 }
             }
         }
@@ -805,7 +828,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
+    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd, L);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -899,7 +922,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaDeviceSynchronize() );
 
 
-    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
+    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd, L);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -1017,7 +1040,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
-    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
+    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd, L);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
