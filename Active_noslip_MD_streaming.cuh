@@ -722,7 +722,8 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback
             mdvx[tid]=mdvx[tid] -   (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];// * 0.5;
             mdvy[tid]=mdvy[tid] -   (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];// * 0.5;
             mdvz[tid]=mdvz[tid] -   (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];// * 0.5;
-
+        
+            if((mdx_o[tid] + *Xcm )>L[0]/2 || (mdx_o[tid] + *Xcm)<-L[0]/2 || (mdy_o[tid] + *Ycm )>L[1]/2 || (mdy_o[tid] + *Ycm )<-L[1]/2 || (mdz_o[tid] + *Zcm )>L[2]/2 || (mdz_o[tid] + *Zcm )<-L[2]/2)  printf("wrong mdx_o[%i]=%f, mdY_o[%i]=%f, mdz_o[%i]=%f\n", tid, (mdx_o[tid] + *Xcm), tid, (mdy_o[tid] + *Ycm), tid, (mdz_o[tid] + *Zcm));
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
         if((mdx[tid] + *Xcm )>L[0]/2 || (mdx[tid] + *Xcm)<-L[0]/2 || (mdy[tid] + *Ycm )>L[1]/2 || (mdy[tid] + *Ycm )<-L[1]/2 || (mdz[tid] + *Zcm )>L[2]/2 || (mdz[tid] + *Zcm )<-L[2]/2)  printf("*************************goes out %i\n", tid);
