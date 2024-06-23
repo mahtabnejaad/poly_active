@@ -181,7 +181,7 @@ __global__ void md_distance_from_walls(double *x, double *y, double *z, double *
         //(isnan(x_wall_dist[tid])|| isnan(y_wall_dist[tid]) || isnan(z_wall_dist[tid])) ? printf("x_wall_dist[%i]=%f, y_wall_dist[%i]=%f, z_wall_dist[%i]=%f \n", tid, x_wall_dist[tid], tid, y_wall_dist[tid], tid, z_wall_dist[tid])
                                                             //: printf("");
 
-        printf("x_wall_dist[%i]=%f, y_wall_dist[%i]=%f, z_wall_dist[%i]=%f \n", tid, x_wall_dist[tid], tid, y_wall_dist[tid], tid, z_wall_dist[tid]);
+        //printf("x_wall_dist[%i]=%f, y_wall_dist[%i]=%f, z_wall_dist[%i]=%f \n", tid, x_wall_dist[tid], tid, y_wall_dist[tid], tid, z_wall_dist[tid]);
 
         
 
