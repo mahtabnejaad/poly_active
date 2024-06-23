@@ -648,9 +648,9 @@ double *mdAx_tot , double *mdAy_tot , double *mdAz_tot,
         mdVy[particleID] += 0.5 * h * mdAy_tot[particleID];
         mdVz[particleID] += 0.5 * h * mdAz_tot[particleID];
 
-        mdX[particleID] = mdX[particleID] + h * mdVx[particleID] ;
-        mdY[particleID] = mdY[particleID] + h * mdVy[particleID] ;
-        mdZ[particleID] = mdZ[particleID] + h * mdVz[particleID] ;
+        mdX[particleID] = mdX[particleID] + h * mdVx[particleID] + 0.5 * h * h * mdAx_tot[particleID];
+        mdY[particleID] = mdY[particleID] + h * mdVy[particleID] + 0.5 * h * h * mdAy_tot[particleID];
+        mdZ[particleID] = mdZ[particleID] + h * mdVz[particleID] + 0.5 * h * h * mdAz_tot[particleID];
 
 
         //printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", particleID, mdAx_tot[particleID], particleID, mdAy_tot[particleID], particleID, mdAz_tot[particleID]);
@@ -716,9 +716,9 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback
             mdvx[tid]=mdvx[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];
             mdvy[tid]=mdvy[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];
             mdvz[tid]=mdvz[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];
-            mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
-            mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
-            mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid];
+            mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
+            mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
+            mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid];
 
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
