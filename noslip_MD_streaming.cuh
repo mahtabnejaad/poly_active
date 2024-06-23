@@ -158,17 +158,17 @@ __global__ void md_distance_from_walls(double *x, double *y, double *z, double *
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
         if (wall_sign_x[tid] == 1)   x_wall_dist[tid] = L[0]/2-(x[tid]);
-        else if (wall_sign_x[tid] == -1)  x_wall_dist[tid] = L[0]/2+(x[tid]);
+        else if (wall_sign_x[tid] == -1)  x_wall_dist[tid] = -(L[0]/2+(x[tid]));
         else if(wall_sign_x[tid] == 0)  x_wall_dist[tid] = L[0]/2 -(x[tid]);//we can change it as we like . it doesn't matter.
 
 
         if (wall_sign_y[tid] == 1)   y_wall_dist[tid] = L[1]/2-(y[tid]);
-        else if (wall_sign_y[tid] == -1)  y_wall_dist[tid] = L[1]/2+(y[tid]);
+        else if (wall_sign_y[tid] == -1)  y_wall_dist[tid] = -(L[1]/2+(y[tid]));
         else if(wall_sign_y[tid] == 0)  y_wall_dist[tid] = L[1]/2 -(y[tid]);//we can change it as we like . it doesn't matter.
 
 
         if (wall_sign_z[tid] == 1)   z_wall_dist[tid] = L[2]/2-(z[tid]);
-        else if (wall_sign_z[tid] == -1)  z_wall_dist[tid] = L[2]/2+(z[tid]);
+        else if (wall_sign_z[tid] == -1)  z_wall_dist[tid] = -(L[2]/2+(z[tid]));
         else if(wall_sign_z[tid] == 0)  z_wall_dist[tid] = L[2]/2 -(z[tid]);//we can change it as we like . it doesn't matter.
 
 
