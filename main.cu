@@ -869,7 +869,7 @@ int main(int argc, const char* argv[])
         zerofactorrsumblock1,zerofactorrsumblock2,zerofactorrsumblock3,zerofactorrsumblock4,zerofactorrsumblock5,zerofactorrsumblock6,zerofactorrsumblock7);
 
  
-        /*for(int t = TIME/swapsize ; t<T; t++) //T is TIME/swapsize + simulationtime/swapsize. it goes 10 steps from TIME/swapsize till end (in case swapsize is 100 and siumlationtime is 1000). 
+        for(int t = TIME/swapsize ; t<T; t++) //T is TIME/swapsize + simulationtime/swapsize. it goes 10 steps from TIME/swapsize till end (in case swapsize is 100 and siumlationtime is 1000). 
         {
             
             for (int i =0;i<int(swapsize/h_mpcd); i++) //swapsize/h_mpcd when swapsize is 100 and h_mpcd is 0.1, is equal to 1000.
@@ -919,7 +919,7 @@ int main(int argc, const char* argv[])
                     d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ);
 
 
-                noslip_Sort_begin(d_x , d_y , d_z ,d_vx, d_vy, d_vz, d_index , d_mdX , d_mdY , d_mdZ ,
+                /*noslip_Sort_begin(d_x , d_y , d_z ,d_vx, d_vy, d_vz, d_index , d_mdX , d_mdY , d_mdZ ,
                     d_mdVx, d_mdVy, d_mdVz, d_mdIndex ,ux , d_L , d_r , N , Nmd , real_time, grid_size);
 
                 /*noslip_MPCD_MD_collision(d_vx , d_vy , d_vz , d_index,
@@ -930,7 +930,7 @@ int main(int argc, const char* argv[])
             
                 noslip_Sort_finish(d_x , d_y , d_z , d_vx, d_vy, d_vz, d_index , 
                     d_mdX , d_mdY , d_mdZ, d_mdVx, d_mdVy, d_mdVz, d_mdIndex, ux, 
-                    d_L , d_r , N , Nmd , real_time, grid_size);
+                    d_L , d_r , N , Nmd , real_time, grid_size);*/
             
                 real_time += h_mpcd;
                  
@@ -1086,7 +1086,7 @@ int main(int argc, const char* argv[])
         //reducefile_traj();
         //reducefile_vel();
 
-        std::cout<<"The program has terminated succesffuly at time:"<<real_time<<std::endl;*/
+        std::cout<<"The program has terminated succesffuly at time:"<<real_time<<std::endl;
     }
 
 }
