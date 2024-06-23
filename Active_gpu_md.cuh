@@ -117,7 +117,7 @@ __global__ void choiceArray(int *flag, int size)
 
 }   
 __global__ void Active_calc_forces(double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
-double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, int mass, int mass_fluid, int size, int N, double *gama_T,double u_scale){
+double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double mass_fluid, int size, int N, double *gama_T,double u_scale){
 
     int tid = blockIdx.x *blockDim.x + threadIdx.x;
     //calculating (-M/mN+MN(m))
