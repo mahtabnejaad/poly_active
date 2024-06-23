@@ -682,12 +682,12 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback
             mdvy[tid] = -mdvy_o[tid];
             mdvz[tid] = -mdvz_o[tid];
             //let the particle move during dt-dt1 with the reversed velocity:
-            mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
-            mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
-            mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid];
-            mdvx[tid]=mdvx[tid]+ (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];
-            mdvy[tid]=mdvy[tid]+ (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];
-            mdvz[tid]=mdvz[tid]+ (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];
+            mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
+            mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
+            mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid]; // + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid];
+            mdvx[tid]=mdvx[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];
+            mdvy[tid]=mdvy[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];
+            mdvz[tid]=mdvz[tid]+  0.5 * (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];
 
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
@@ -753,21 +753,10 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback
 
         //if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
         if(md_dt_min[tid] < md_dt){
-            //make the position of particle equal to (xo, yo, zo):
-            mdx[tid] = mdx_o[tid];
-            mdy[tid] = mdy_o[tid];
-            mdz[tid] = mdz_o[tid];
-            //make the velocity equal to the reverse of the velocity in crossing point.
-            mdvx[tid] = -mdvx_o[tid];
-            mdvy[tid] = -mdvy_o[tid];
-            mdvz[tid] = -mdvz_o[tid];
-            //let the particle move during dt-dt1 with the reversed velocity:
-            mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
-            mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
-            mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid];
-            mdvx[tid]=mdvx[tid]+ (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];
-            mdvy[tid]=mdvy[tid]+ (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];
-            mdvz[tid]=mdvz[tid]+ (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];
+            
+            mdvx[tid]=mdvx[tid]+ 0.5 * (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];
+            mdvy[tid]=mdvy[tid]+ 0.5 * (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];
+            mdvz[tid]=mdvz[tid]+ 0.5 * (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];
 
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
@@ -1113,8 +1102,8 @@ double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, dou
 double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ){
 
     //CM_system
-    CM_system(mdX, mdY, mdZ, x, y, z, mdvx, mdvy, mdvz, vx, vy, vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid,
-    Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Vxcm, Vycm, Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
+    //CM_system(mdX, mdY, mdZ, x, y, z, mdvx, mdvy, mdvz, vx, vy, vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid,
+    //Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Vxcm, Vycm, Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
 
 
     //gotoCMframe
@@ -1127,7 +1116,10 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    
+    Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet2<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot, md_dt_min, h_md, L, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
     
     Active_md_velocityverlet2<<<grid_size, blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, h_md, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
