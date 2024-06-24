@@ -527,7 +527,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
         if(wall_sign_x[tid] == 0 ){
             if(mdAx_tot[tid] == 0) md_dt_x[tid] = 10000;//a big number because next step is to consider the minimum of dt .
             else if(mdAx_tot[tid] > 0.0)  md_dt_x[tid] = sqrt(2*x_wall_dist[tid]/mdAx_tot[tid]);
-            else if(mdAx_tot[tid] < 0.0)  md_dt_x[tid] = sqrt(2*(x_wall_dist[tid]-L[0]/2)/mdAx_tot[tid]);
+            else if(mdAx_tot[tid] < 0.0)  md_dt_x[tid] = sqrt(2*(x_wall_dist[tid]-L[0])/mdAx_tot[tid]);
         }
 
 
@@ -719,9 +719,9 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback
             mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid];// + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid]);
             mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid];// + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid]);
             mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid];// + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid]);
-            mdvx[tid]=mdvx[tid];// -   (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];// * 0.5;
-            mdvy[tid]=mdvy[tid];// -   (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];// * 0.5;
-            mdvz[tid]=mdvz[tid];// -   (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];// * 0.5;
+            //mdvx[tid]=mdvx[tid];// -   (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];// * 0.5;
+            //mdvy[tid]=mdvy[tid];// -   (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];// * 0.5;
+            //mdvz[tid]=mdvz[tid];// -   (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];// * 0.5;
         
             if((mdx_o[tid] + *Xcm )>L[0]/2 || (mdx_o[tid] + *Xcm)<-L[0]/2 || (mdy_o[tid] + *Ycm )>L[1]/2 || (mdy_o[tid] + *Ycm )<-L[1]/2 || (mdz_o[tid] + *Zcm )>L[2]/2 || (mdz_o[tid] + *Zcm )<-L[2]/2)  printf("wrong mdx_o[%i]=%f, mdY_o[%i]=%f, mdz_o[%i]=%f\n", tid, (mdx_o[tid] + *Xcm), tid, (mdy_o[tid] + *Ycm), tid, (mdz_o[tid] + *Zcm));
         }
