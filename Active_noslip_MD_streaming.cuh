@@ -726,12 +726,12 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback
             if((mdx_o[tid] + *Xcm )>L[0]/2 || (mdx_o[tid] + *Xcm)<-L[0]/2 || (mdy_o[tid] + *Ycm )>L[1]/2 || (mdy_o[tid] + *Ycm )<-L[1]/2 || (mdz_o[tid] + *Zcm )>L[2]/2 || (mdz_o[tid] + *Zcm )<-L[2]/2)  printf("wrong mdx_o[%i]=%f, mdY_o[%i]=%f, mdz_o[%i]=%f\n", tid, (mdx_o[tid] + *Xcm), tid, (mdy_o[tid] + *Ycm), tid, (mdz_o[tid] + *Zcm));
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
-        if((mdx[tid] + *Xcm )>L[0]/2 || (mdx[tid] + *Xcm)<-L[0]/2 || (mdy[tid] + *Ycm )>L[1]/2 || (mdy[tid] + *Ycm )<-L[1]/2 || (mdz[tid] + *Zcm )>L[2]/2 || (mdz[tid] + *Zcm )<-L[2]/2)  break;
+        if((mdx[tid] + *Xcm )>L[0]/2 || (mdx[tid] + *Xcm)<-L[0]/2 || (mdy[tid] + *Ycm )>L[1]/2 || (mdy[tid] + *Ycm )<-L[1]/2 || (mdz[tid] + *Zcm )>L[2]/2 || (mdz[tid] + *Zcm )<-L[2]/2)  goto finished;
         
     }
 
 }
-
+finished: print("stopped\n");
 //Active_md_velocityverlet2
 //second Kernel of velocity verelt: v += 0.5ha(old)
 __global__ void Active_md_velocityverlet2(double *mdx , double *mdy , double *mdz, double *mdVx , double *mdVy , double *mdVz,
