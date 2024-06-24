@@ -608,7 +608,7 @@ __global__ void Active_md_crossing_location(double *mdx, double *mdy, double *md
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<Nmd){
-        if( ((mdx[tid] + md_dt * mdvx[tid]) >L[0]/2 || (mdx[tid] + md_dt * mdvx[tid])<-L[0]/2 || (mdy[tid] + md_dt * mdvy[tid])>L[1]/2 || (mdy[tid] + md_dt * mdvy[tid])<-L[1]/2 || (mdz[tid]+ md_dt * mdvz[tid])>L[2]/2 || (mdz[tid] + md_dt * mdvz[tid])<-L[2]/2) && md_dt_min[tid]>0.1) printf("dt_min[%i] = %f\n", tid, md_dt_min[tid]);
+        //if( ((mdx[tid] + md_dt * mdvx[tid]) >L[0]/2 || (mdx[tid] + md_dt * mdvx[tid])<-L[0]/2 || (mdy[tid] + md_dt * mdvy[tid])>L[1]/2 || (mdy[tid] + md_dt * mdvy[tid])<-L[1]/2 || (mdz[tid]+ md_dt * mdvz[tid])>L[2]/2 || (mdz[tid] + md_dt * mdvz[tid])<-L[2]/2) && md_dt_min[tid]>0.1) printf("dt_min[%i] = %f\n", tid, md_dt_min[tid]);
         mdx_o[tid] = mdx[tid] + mdvx[tid] * md_dt_min[tid] + 0.5 * mdAx_tot[tid] * md_dt_min[tid] * md_dt_min[tid];
         mdy_o[tid] = mdy[tid] + mdvy[tid] * md_dt_min[tid] + 0.5 * mdAy_tot[tid] * md_dt_min[tid] * md_dt_min[tid];
         mdz_o[tid] = mdz[tid] + mdvz[tid] * md_dt_min[tid] + 0.5 * mdAz_tot[tid] * md_dt_min[tid] * md_dt_min[tid];
@@ -726,7 +726,7 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback
             if((mdx_o[tid] + *Xcm )>L[0]/2 || (mdx_o[tid] + *Xcm)<-L[0]/2 || (mdy_o[tid] + *Ycm )>L[1]/2 || (mdy_o[tid] + *Ycm )<-L[1]/2 || (mdz_o[tid] + *Zcm )>L[2]/2 || (mdz_o[tid] + *Zcm )<-L[2]/2)  printf("wrong mdx_o[%i]=%f, mdY_o[%i]=%f, mdz_o[%i]=%f\n", tid, (mdx_o[tid] + *Xcm), tid, (mdy_o[tid] + *Ycm), tid, (mdz_o[tid] + *Zcm));
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
-        if((mdx[tid] + *Xcm )>L[0]/2 || (mdx[tid] + *Xcm)<-L[0]/2 || (mdy[tid] + *Ycm )>L[1]/2 || (mdy[tid] + *Ycm )<-L[1]/2 || (mdz[tid] + *Zcm )>L[2]/2 || (mdz[tid] + *Zcm )<-L[2]/2)  printf("*************************goes out %i\n", tid);
+        if((mdx[tid] + *Xcm )>L[0]/2 || (mdx[tid] + *Xcm)<-L[0]/2 || (mdy[tid] + *Ycm )>L[1]/2 || (mdy[tid] + *Ycm )<-L[1]/2 || (mdz[tid] + *Zcm )>L[2]/2 || (mdz[tid] + *Zcm )<-L[2]/2)  break;
         
     }
 
