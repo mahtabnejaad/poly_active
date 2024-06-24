@@ -91,7 +91,7 @@ __global__ void mpcd_crossing_location(double *x, double *y, double *z, double *
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
-        if( ((x[tid] + dt * vx[tid]) >L[0]/2 || (x[tid] + dt * vx[tid])<-L[0]/2 || (y[tid] + dt * vy[tid])>L[1]/2 || (y[tid] + dt * vy[tid])<-L[1]/2 || (z[tid]+dt * vz[tid])>L[2]/2 || (z[tid] + dt * vz[tid])<-L[2]/2) && dt_min[tid]>0.1) printf("dt_min[%i] = %f\n", tid, dt_min[tid]);
+        //if( ((x[tid] + dt * vx[tid]) >L[0]/2 || (x[tid] + dt * vx[tid])<-L[0]/2 || (y[tid] + dt * vy[tid])>L[1]/2 || (y[tid] + dt * vy[tid])<-L[1]/2 || (z[tid]+dt * vz[tid])>L[2]/2 || (z[tid] + dt * vz[tid])<-L[2]/2) && dt_min[tid]>0.1) printf("dt_min[%i] = %f\n", tid, dt_min[tid]);
         x_o[tid] = x[tid] + vx[tid]*dt_min[tid];
         y_o[tid] = y[tid] + vy[tid]*dt_min[tid];
         z_o[tid] = z[tid] + vz[tid]*dt_min[tid];
