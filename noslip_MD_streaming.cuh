@@ -221,7 +221,7 @@ int ID = blockIdx.x * blockDim.x + threadIdx.x;
         if(wall_sign_mdX[ID] == 0 ){
             if(mdAx[ID] == 0) md_dt_x[ID] = 10000;//a big number because next step is to consider the minimum of dt .
             else if(mdAx[ID] > 0.0)  md_dt_x[ID] = sqrt(2*mdX_wall_dist[ID]/mdAx[ID]);
-            else if(mdAx[ID] < 0.0)  md_dt_x[ID] = sqrt(2*(mdX_wall_dist[ID]-L[0]/2)/mdAx[ID]);
+            else if(mdAx[ID] < 0.0)  md_dt_x[ID] = sqrt(2*(mdX_wall_dist[ID]-L[0])/mdAx[ID]);
         }
 
 
@@ -230,13 +230,22 @@ int ID = blockIdx.x * blockDim.x + threadIdx.x;
             if(mdAx[ID] == 0.0)   md_dt_x[ID] = abs(mdX_wall_dist[ID]/mdvx[ID]);
 
             else if (mdAx[ID] != 0.0){
-                delta_x = ((mdvx[ID]*mdvx[ID])+(2*mdX_wall_dist[ID]*(mdAx[ID])));
-                if (delta_x < 0.0)       md_dt_x[ID] = 20000;
 
-                else if(delta_x >= 0.0){
+                delta_x = ((mdvx[ID]*mdvx[ID])+(2*mdX_wall_dist[ID]*(mdAx[ID])));
+
+                if(delta_x >= 0.0){
+
                         if(mdvx[ID] > 0.0)         md_dt_x[ID] = ((-mdvx[ID] + sqrt(delta_x))/(mdAx[ID]));
                         else if(mdvx[ID] < 0.0)    md_dt_x[ID] = ((-mdvx[ID] - sqrt(delta_x))/(mdAx[ID]));
                         
+                }
+                else if(delta_x < 0.0){
+
+                        delta_x_p = ((mdvx[ID]*mdvx[ID])+(2*(mdX_wall_dist[ID]-L[0])*(mdAx[ID])));
+                        delta_x_n = ((mdvx[ID]*mdvx[ID])+(2*(mdX_wall_dist[ID]+L[0])*(mdAx[ID])));
+
+                        if(mdvx[ID] > 0.0)        md_dt_x[ID] = ((-mdvx[ID] - sqrt(delta_x_p))/(mdAx[ID]));
+                        else if(mdvx[ID] < 0.0)   md_dt_x[ID] = ((-mdvx[ID] + sqrt(delta_x_n))/(mdAx[ID]));
                 }
             }
         }  
@@ -252,13 +261,25 @@ int ID = blockIdx.x * blockDim.x + threadIdx.x;
             if(mdAy[ID]  == 0.0)   md_dt_y[ID] = abs(mdY_wall_dist[ID]/mdvy[ID]);
             
             else if (mdAy[ID] != 0.0){
-                delta_y = (mdvy[ID]*mdvy[ID])+(2*mdY_wall_dist[ID]*(mdAy[ID]));
-                if(delta_y < 0)                 md_dt_y[ID] = 10000;
 
-                else if (delta_y >= 0){
+                delta_y = (mdvy[ID]*mdvy[ID])+(2*mdY_wall_dist[ID]*(mdAy[ID]));
+
+                if (delta_y >= 0){
                     if(mdvy[ID] > 0.0)              md_dt_y[ID] = ((-mdvy[ID] + sqrt(delta_y))/(mdAy[ID]));
                     else if (mdvy[ID] < 0.0)        md_dt_y[ID] = ((-mdvy[ID] - sqrt(delta_y))/(mdAy[ID]));
-                }        
+                }     
+
+                else if(delta_y < 0){
+                    
+                    delta_y_p = ((mdvy[ID]*mdvy[ID])+(2*(mdY_wall_dist[ID]-L[1])*(mdAy[ID])));
+                    delta_y_n = ((mdvy[ID]*mdvy[ID])+(2*(mdY_wall_dist[ID]+L[1])*(mdAy[ID])));
+
+                    if(mdvy[ID] > 0.0)        md_dt_y[ID] = ((-mdvy[ID] - sqrt(delta_y_p))/(mdAy[ID]));
+                    else if(mdvy[ID] < 0.0)   md_dt_y[ID] = ((-mdvy[ID] + sqrt(delta_y_n))/(mdAy[ID]));
+
+                }                 
+
+                   
             }
         }
   
@@ -273,12 +294,26 @@ int ID = blockIdx.x * blockDim.x + threadIdx.x;
             if(mdAz[ID] == 0.0)   md_dt_z[ID] = abs(mdZ_wall_dist[ID]/mdvz[ID]);
 
             else if (mdAz[ID] != 0.0){
+
                 delta_z = (mdvz[ID]*mdvz[ID])+(2*mdZ_wall_dist[ID]*(mdAz[ID]));
-                if (delta_z < 0.0)              md_dt_z[ID] = 10000;
-                else if (delta_z >= 0.0){
+
+                if (delta_z >= 0.0){
+
                     if(mdvz[ID] > 0.0)             md_dt_z[ID] = ((-mdvz[ID] + sqrt(delta_z))/(mdAz[ID]));
                     else if(mdvz[ID] < 0.0)        md_dt_z[ID] = ((-mdvz[ID] - sqrt(delta_z))/(mdAz[ID]));  
                 }
+
+                else if (delta_z < 0.0){
+                    
+                    delta_z_p = ((mdvz[ID]*mdvz[ID])+(2*(mdZ_wall_dist[ID]-L[2])*(mdAz[ID])));
+                    delta_z_n = ((mdvz[ID]*mdvz[ID])+(2*(mdZ_wall_dist[ID]+L[2])*(mdAz[ID])));
+
+                    if(mdvz[ID] > 0.0)        md_dt_z[ID] = ((-mdvz[ID] - sqrt(delta_z_p))/(mdAz[ID]));
+                    else if(mdvz[ID] < 0.0)   md_dt_z[ID] = ((-mdvz[ID] + sqrt(delta_z_n))/(mdAz[ID]));
+                    
+                }
+                }
+
             }
         }
     printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", ID, md_dt_x[ID], ID, md_dt_y[ID], ID, md_dt_z[ID]);
