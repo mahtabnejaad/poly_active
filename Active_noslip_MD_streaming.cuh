@@ -536,16 +536,22 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
             if(mdAx_tot[tid] == 0.0)   md_dt_x[tid] = abs(x_wall_dist[tid]/mdvx[tid]);
 
             else if (mdAx_tot[tid] != 0.0){
+
                 delta_x = ((mdvx[tid]*mdvx[tid])+(2*x_wall_dist[tid]*(mdAx_tot[tid])));
-                if (delta_x < 0.0){
-                        md_dt_x[tid] = 20000;
-                        printf("delta_x=%f, %i\n", delta_x, tid);
-                }
-                else if(delta_x >= 0.0){
+
+                if(delta_x >= 0.0){
                         if(mdvx[tid] > 0.0)         md_dt_x[tid] = ((-mdvx[tid] + sqrt(delta_x))/(mdAx_tot[tid]));
                         else if(mdvx[tid] < 0.0)    md_dt_x[tid] = ((-mdvx[tid] - sqrt(delta_x))/(mdAx_tot[tid]));
                         
+                } 
+                else if (delta_x < 0.0){
+                        delta_x_p = ((mdvx[tid]*mdvx[tid])+(2*(mdX_wall_dist[tid]-L[0])*(mdAx[tid])));
+                        delta_x_n = ((mdvx[tid]*mdvx[tid])+(2*(mdX_wall_dist[tid]+L[0])*(mdAx[tid])));
+
+                        if(mdvx[tid] > 0.0)        md_dt_x[tid] = ((-mdvx[tid] - sqrt(delta_x_p))/(mdAx[tid]));
+                        else if(mdvx[tid] < 0.0)   md_dt_x[tid] = ((-mdvx[tid] + sqrt(delta_x_n))/(mdAx[tid]));
                 }
+                
             }
         }  
 
@@ -560,15 +566,22 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
             if(mdAy_tot[tid]  == 0.0)   md_dt_y[tid] = abs(y_wall_dist[tid]/mdvy[tid]);
             
             else if (mdAy_tot[tid] != 0.0){
-                delta_y = (mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid]));
-                if(delta_y < 0){
 
-                    md_dt_y[tid] = 20000;
-                    printf("delta_y=%f, %i\n", delta_y, tid);
-                }
-                else if (delta_y >= 0){
+                delta_y = (mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid]));
+
+                if (delta_y >= 0){
+
                     if(mdvy[tid] > 0.0)              md_dt_y[tid] = ((-mdvy[tid] + sqrt(delta_y))/(mdAy_tot[tid]));
                     else if (mdvy[tid] < 0.0)        md_dt_y[tid] = ((-mdvy[tid] - sqrt(delta_y))/(mdAy_tot[tid]));
+                }
+                else if(delta_y < 0){
+
+                    delta_y_p = ((mdvy[tid]*mdvy[tid])+(2*(mdY_wall_dist[tid]-L[1])*(mdAy[tid])));
+                    delta_y_n = ((mdvy[tid]*mdvy[tid])+(2*(mdY_wall_dist[tid]+L[1])*(mdAy[tid])));
+
+                    if(mdvy[tid] > 0.0)        md_dt_y[tid] = ((-mdvy[tid] - sqrt(delta_y_p))/(mdAy[tid]));
+                    else if(mdvy[tid] < 0.0)   md_dt_y[tid] = ((-mdvy[tid] + sqrt(delta_y_n))/(mdAy[tid]));
+
                 }        
             }
         }
@@ -584,15 +597,25 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
             if(mdAz_tot[tid] == 0.0)   md_dt_z[tid] = abs(z_wall_dist[tid]/mdvz[tid]);
 
             else if (mdAz_tot[tid] != 0.0){
+
                 delta_z = (mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid]));
-                if (delta_z < 0.0){
-                    md_dt_z[tid] = 20000;
-                    printf("delta_z=%f, %i\n", delta_z, tid);
-                }
-                else if (delta_z >= 0.0){
+
+                if (delta_z >= 0.0){
+                    
                     if(mdvz[tid] > 0.0)             md_dt_z[tid] = ((-mdvz[tid] + sqrt(delta_z))/(mdAz_tot[tid]));
                     else if(mdvz[tid] < 0.0)        md_dt_z[tid] = ((-mdvz[tid] - sqrt(delta_z))/(mdAz_tot[tid]));  
                 }
+
+                else if (delta_z < 0.0){
+                
+                    delta_z_p = ((mdvz[tid]*mdvz[tid])+(2*(mdZ_wall_dist[tid]-L[2])*(mdAz[tid])));
+                    delta_z_n = ((mdvz[tid]*mdvz[tid])+(2*(mdZ_wall_dist[tid]+L[2])*(mdAz[tid])));
+
+                    if(mdvz[tid] > 0.0)        md_dt_z[tid] = ((-mdvz[tid] - sqrt(delta_z_p))/(mdAz[tid]));
+                    else if(mdvz[tid] < 0.0)   md_dt_z[tid] = ((-mdvz[tid] + sqrt(delta_z_n))/(mdAz[tid]));
+                    
+                }
+                
             }
         }
     printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
