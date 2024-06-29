@@ -265,6 +265,20 @@ __global__ void Take_o_to_CM_system(double *x_o, double *y_o, double *z_o, doubl
     }
 }
 
+__global__ void Take_o_to_Lab_system(double *x_o, double *y_o, double *z_o, double *vx_o, double *vy_o, double *vz_o, double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, int N){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N){
+        x_o[tid] = x_o[tid] + *Xcm;
+        y_o[tid] = y_o[tid] + *Ycm;
+        z_o[tid] = z_o[tid] + *Zcm;
+
+        vx_o[tid] = vx_o[tid] + *Vxcm;
+        vy_o[tid] = vy_o[tid] + *Vycm;
+        vz_o[tid] = vz_o[tid] + *Vzcm;
+    }
+}
+
 __global__ void Take_o_to_outerCM_system(double *x_o, double *y_o, double *z_o, double *vx_o, double *vy_o, double *vz_o, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, int N){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
