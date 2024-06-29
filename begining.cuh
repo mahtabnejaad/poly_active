@@ -295,6 +295,7 @@ curandGenerator_t gen, int grid_size, double real_time, double *gama_T, int *d_r
 
     printf("************\n");
     print_kernel<<<grid_size,blockSize>>>(d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
+    print_kernel<<<grid_size,blockSize>>>(d_mdVx, d_mdVy, d_mdVz, Nmd);
     print_kernel<<<grid_size,blockSize>>>(d_Aa_kx, d_Aa_ky, d_Aa_kz, Nmd);
     print_kernel<<<grid_size,blockSize>>>(d_Ab_kx, d_Ab_ky, d_Ab_kz, Nmd);
     print_kernel<<<grid_size,blockSize>>>(d_Fx_holder, d_Fy_holder, d_Fz_holder, Nmd);
