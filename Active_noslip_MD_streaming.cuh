@@ -620,6 +620,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
             }
         }
     printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
+    printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n", tid, mdvx[tid], tid, mdvy[tid], tid, mdvz[tid]);
     printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", tid, mdAx_tot[tid], tid, mdAy_tot[tid], tid, mdAz_tot[tid]);
     }
 }
@@ -719,6 +720,26 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_md_bounceback_ve
     }
 
 }
+__global__ void particles_on_crossing_points(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *md_dt_min, double dt, double *L, int Nmd){
+
+
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<Nmd){
+
+        if(md_dt_min[tid] < md_dt){
+            //make the position of particle equal to (xo, yo, zo):
+            mdx[tid] = mdx_o[tid];
+            mdy[tid] = mdy_o[tid];
+            mdz[tid] = mdz_o[tid];
+            //make the velocity equal to the reverse of the velocity in crossing point.
+            mdvx[tid] = -mdvx_o[tid];
+            mdvy[tid] = -mdvy_o[tid];
+            mdvz[tid] = -mdvz_o[tid];
+        }
+    }
+
+}
 
 //Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1
 __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *md_dt_min, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag){
@@ -730,16 +751,8 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback
 
         //if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
         if(md_dt_min[tid] < md_dt){
-            //make the position of particle equal to (xo, yo, zo):
-            mdx[tid] = mdx_o[tid];
-            mdy[tid] = mdy_o[tid];
-            mdz[tid] = mdz_o[tid];
-            //make the velocity equal to the reverse of the velocity in crossing point.
-            mdvx[tid] = -mdvx_o[tid];
-            mdvy[tid] = -mdvy_o[tid];
-            mdvz[tid] = -mdvz_o[tid];
+            
             //let the particle move during dt-dt1 with the reversed velocity:
-        
             mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
             mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
             mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid];
