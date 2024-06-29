@@ -559,7 +559,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
         if(wall_sign_y[tid] == 0 ){
             if(mdAy_tot[tid] == 0) md_dt_y[tid] = 10000;//a big number because next step is to consider the minimum of dt .
             else if(mdAy_tot[tid] > 0.0)  md_dt_y[tid] = sqrt(2*y_wall_dist[tid]/mdAy_tot[tid]);
-            else if(mdAy_tot[tid] < 0.0)  md_dt_y[tid] = sqrt(2*(y_wall_dist[tid]-L[1]/2)/mdAy_tot[tid]);
+            else if(mdAy_tot[tid] < 0.0)  md_dt_y[tid] = sqrt(2*(y_wall_dist[tid]-L[1])/mdAy_tot[tid]);
         }
 
         else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
@@ -591,7 +591,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
         if(wall_sign_z[tid] == 0 ){
             if(mdAz_tot[tid] == 0)        md_dt_z[tid] = 10000;//a big number because next step is to consider the minimum of dt .
             else if(mdAz_tot[tid] > 0.0)  md_dt_z[tid] = sqrt(2*z_wall_dist[tid]/mdAz_tot[tid]);
-            else if(mdAz_tot[tid] < 0.0)  md_dt_z[tid] = sqrt(2*(z_wall_dist[tid]-L[2]/2)/mdAz_tot[tid]);
+            else if(mdAz_tot[tid] < 0.0)  md_dt_z[tid] = sqrt(2*(z_wall_dist[tid]-L[2])/mdAz_tot[tid]);
         }
         else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
             
