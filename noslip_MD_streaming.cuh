@@ -202,6 +202,7 @@ int ID = blockIdx.x * blockDim.x + threadIdx.x;
     double delta_x;
     double delta_y;
     double delta_z;
+    double delta_x_p; double delta_x_n; double delta_y_p; double delta_y_n; double delta_z_p; double delta_z_n;
     if (ID<Nmd){
         
         //printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f \n", ID, mdvx[ID], ID, mdvy[ID], ID, mdvz[ID]);
