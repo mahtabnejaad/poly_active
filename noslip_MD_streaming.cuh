@@ -312,7 +312,7 @@ int ID = blockIdx.x * blockDim.x + threadIdx.x;
                     else if(mdvz[ID] < 0.0)   md_dt_z[ID] = ((-mdvz[ID] + sqrt(delta_z_n))/(mdAz[ID]));
                     
                 }
-                }
+                
 
             }
         }
