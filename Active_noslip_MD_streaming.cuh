@@ -520,6 +520,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
     double delta_x;
     double delta_y;
     double delta_z;
+    double delta_x_p; double delta_x_n; double delta_y_p; double delta_y_n; double delta_z_p; double delta_z_n;
     if (tid<Nmd){
         
         
