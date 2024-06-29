@@ -1062,7 +1062,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    particles_on_crossing_points<<<grid_size,blockSize>>>(mdx, mdy, mdz, mdx_o, mdy_o, mdz_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min, dt, L, Nmd);
+    particles_on_crossing_points<<<grid_size,blockSize>>>(mdX, mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min, dt, L, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
