@@ -406,12 +406,12 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
             //printf("fx[%i]=%f, fy[%i]=%f, fz[%i]=%f\n", tid, fx[tid], tid, fy[tid], tid, fz[tid]);
             }
     
-            /*else
+            else
             {
                 fx[tid] = 0;
                 fy[tid] = 0;
                 fz[tid] = 0;
-            }*/
+            }
       
 
         }
@@ -1025,14 +1025,6 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_md_crossing_location<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, mdX_o, mdY_o, mdZ_o, md_dt_min, h_md, L, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-
-    Active_md_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min,  d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-
     //gotoCMframe
     //gotoCMframe<<<grid_size,blockSize>>>(x, y, z, Xcm, Ycm, Zcm, vx, vy, vz, Vxcm, Vycm, Vzcm, N);
     gpuErrchk( cudaPeekAtLastError() );
@@ -1043,10 +1035,16 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
-    //Take_o_to_CM_system<<<grid_size,blockSize>>>(mdX_o, mdY_o, mdZ_o, mdvx_o, mdvy_o, mdvz_o, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, Nmd);
-    //gpuErrchk( cudaPeekAtLastError() );
-    //gpuErrchk( cudaDeviceSynchronize() );
-    
+    //crossing location is calculated in CM frame bacause we're using the accelerations in CM system (A_tot)
+    Active_md_crossing_location<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, mdX_o, mdY_o, mdZ_o, md_dt_min, h_md, L, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //crossing velocity is calculated in CM frame bacause we're using the accelerations in CM system (A_tot)
+    Active_md_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min,  d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
     
     Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, h_md, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
@@ -1061,6 +1059,12 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     backtoLabframe<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Xcm, Ycm, Zcm, mdvx, mdvy, mdvz, Vxcm, Vycm, Vzcm, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
+
+    //now we can take crossing location and velocity to Lab system 
+    Take_o_to_Lab_system<<<grid_size,blockSize>>>(mdX_o, mdY_o, mdZ_o, mdvx_o, mdvy_o, mdvz_o, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    
 
     particles_on_crossing_points<<<grid_size,blockSize>>>(mdX, mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min, h_md, L, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
@@ -1082,7 +1086,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );*/
 
-    //CM_system
+    //CM_system : we call CM system to calculate the new CM after streaming. we should check if this is alright or not. we could also use the former CM system for bounceback part.
     CM_system(mdX, mdY, mdZ, x, y, z, mdvx, mdvy, mdvz, vx, vy, vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid,
     Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Vxcm, Vycm, Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
 
@@ -1096,6 +1100,12 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gotoCMframe<<<grid_size,blockSize>>>(mdX, mdY, mdZ, Xcm, Ycm, Zcm, mdvx, mdvy, mdvz, Vxcm, Vycm, Vzcm, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
+
+    //now we can take crossing location and velocity to CM system 
+    Take_o_to_CM_system<<<grid_size,blockSize>>>(mdX_o, mdY_o, mdZ_o, mdvx_o, mdvy_o, mdvz_o, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    
     
 
     int *d_errorFlag;
