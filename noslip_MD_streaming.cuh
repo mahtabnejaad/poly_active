@@ -254,7 +254,7 @@ int ID = blockIdx.x * blockDim.x + threadIdx.x;
         if(wall_sign_mdY[ID] == 0 ){
             if(mdAy[ID] == 0) md_dt_y[ID] = 10000;//a big number because next step is to consider the minimum of dt .
             else if(mdAy[ID] > 0.0)  md_dt_y[ID] = sqrt(2*mdY_wall_dist[ID]/mdAy[ID]);
-            else if(mdAy[ID] < 0.0)  md_dt_y[ID] = sqrt(2*(mdY_wall_dist[ID]-L[1]/2)/mdAy[ID]);
+            else if(mdAy[ID] < 0.0)  md_dt_y[ID] = sqrt(2*(mdY_wall_dist[ID]-L[1])/mdAy[ID]);
         }
 
         else if(wall_sign_mdY[ID] == 1 || wall_sign_mdY[ID] == -1){
@@ -288,7 +288,7 @@ int ID = blockIdx.x * blockDim.x + threadIdx.x;
         if(wall_sign_mdZ[ID] == 0 ){
             if(mdAz[ID] == 0)        md_dt_z[ID] = 10000;//a big number because next step is to consider the minimum of dt .
             else if(mdAz[ID] > 0.0)  md_dt_z[ID] = sqrt(2*mdZ_wall_dist[ID]/mdAz[ID]);
-            else if(mdAz[ID] < 0.0)  md_dt_z[ID] = sqrt(2*(mdZ_wall_dist[ID]-L[2]/2)/mdAz[ID]);
+            else if(mdAz[ID] < 0.0)  md_dt_z[ID] = sqrt(2*(mdZ_wall_dist[ID]-L[2])/mdAz[ID]);
         }
         else if(wall_sign_mdZ[ID] == 1 || wall_sign_mdZ[ID] == -1){
             
