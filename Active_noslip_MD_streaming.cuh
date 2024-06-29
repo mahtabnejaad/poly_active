@@ -546,11 +546,11 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
                         
                 } 
                 else if (delta_x < 0.0){
-                        delta_x_p = ((mdvx[tid]*mdvx[tid])+(2*(mdX_wall_dist[tid]-L[0])*(mdAx[tid])));
-                        delta_x_n = ((mdvx[tid]*mdvx[tid])+(2*(mdX_wall_dist[tid]+L[0])*(mdAx[tid])));
+                        delta_x_p = ((mdvx[tid]*mdvx[tid])+(2*(x_wall_dist[tid]-L[0])*(mdAx_tot[tid])));
+                        delta_x_n = ((mdvx[tid]*mdvx[tid])+(2*(x_wall_dist[tid]+L[0])*(mdAx_tot[tid])));
 
-                        if(mdvx[tid] > 0.0)        md_dt_x[tid] = ((-mdvx[tid] - sqrt(delta_x_p))/(mdAx[tid]));
-                        else if(mdvx[tid] < 0.0)   md_dt_x[tid] = ((-mdvx[tid] + sqrt(delta_x_n))/(mdAx[tid]));
+                        if(mdvx[tid] > 0.0)        md_dt_x[tid] = ((-mdvx[tid] - sqrt(delta_x_p))/(mdAx_tot[tid]));
+                        else if(mdvx[tid] < 0.0)   md_dt_x[tid] = ((-mdvx[tid] + sqrt(delta_x_n))/(mdAx_tot[tid]));
                 }
                 
             }
@@ -577,11 +577,11 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
                 }
                 else if(delta_y < 0){
 
-                    delta_y_p = ((mdvy[tid]*mdvy[tid])+(2*(mdY_wall_dist[tid]-L[1])*(mdAy[tid])));
-                    delta_y_n = ((mdvy[tid]*mdvy[tid])+(2*(mdY_wall_dist[tid]+L[1])*(mdAy[tid])));
+                    delta_y_p = ((mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid]-L[1])*(mdAy_tot[tid])));
+                    delta_y_n = ((mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid]+L[1])*(mdAy_tot[tid])));
 
-                    if(mdvy[tid] > 0.0)        md_dt_y[tid] = ((-mdvy[tid] - sqrt(delta_y_p))/(mdAy[tid]));
-                    else if(mdvy[tid] < 0.0)   md_dt_y[tid] = ((-mdvy[tid] + sqrt(delta_y_n))/(mdAy[tid]));
+                    if(mdvy[tid] > 0.0)        md_dt_y[tid] = ((-mdvy[tid] - sqrt(delta_y_p))/(mdAy_tot[tid]));
+                    else if(mdvy[tid] < 0.0)   md_dt_y[tid] = ((-mdvy[tid] + sqrt(delta_y_n))/(mdAy_tot[tid]));
 
                 }        
             }
@@ -609,11 +609,11 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
 
                 else if (delta_z < 0.0){
                 
-                    delta_z_p = ((mdvz[tid]*mdvz[tid])+(2*(mdZ_wall_dist[tid]-L[2])*(mdAz[tid])));
-                    delta_z_n = ((mdvz[tid]*mdvz[tid])+(2*(mdZ_wall_dist[tid]+L[2])*(mdAz[tid])));
+                    delta_z_p = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]-L[2])*(mdAz_tot[tid])));
+                    delta_z_n = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]+L[2])*(mdAz_tot[tid])));
 
-                    if(mdvz[tid] > 0.0)        md_dt_z[tid] = ((-mdvz[tid] - sqrt(delta_z_p))/(mdAz[tid]));
-                    else if(mdvz[tid] < 0.0)   md_dt_z[tid] = ((-mdvz[tid] + sqrt(delta_z_n))/(mdAz[tid]));
+                    if(mdvz[tid] > 0.0)        md_dt_z[tid] = ((-mdvz[tid] - sqrt(delta_z_p))/(mdAz_tot[tid]));
+                    else if(mdvz[tid] < 0.0)   md_dt_z[tid] = ((-mdvz[tid] + sqrt(delta_z_n))/(mdAz_tot[tid]));
                     
                 }
                 
