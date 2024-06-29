@@ -29,9 +29,9 @@ __global__ void backtoLabframe(double *X, double *Y, double *Z, double *Xcm,doub
             Y[tid] = Y[tid] + *Ycm;
             Z[tid] = Z[tid] + *Zcm;
 
-            Vx[tid] = Vx[tid] - *Vxcm;
-            Vy[tid] = Vy[tid] - *Vycm;
-            Vz[tid] = Vz[tid] - *Vzcm;
+            Vx[tid] = Vx[tid] + *Vxcm;
+            Vy[tid] = Vy[tid] + *Vycm;
+            Vz[tid] = Vz[tid] + *Vzcm;
 
         }
 }
