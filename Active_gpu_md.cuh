@@ -324,7 +324,7 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             cudaDeviceSynchronize();
             cudaError_t cudaStatus = cudaGetLastError();
             if (cudaStatus != cudaSuccess) {
-                fprintf(stderr, "Kernel launch error: %s\n", cudaGetErrorString(cudaStatus));
+                //fprintf(stderr, "Kernel launch error: %s\n", cudaGetErrorString(cudaStatus));
     
             }
             double *sumx;
