@@ -505,7 +505,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dZ, CMsumblock_z, N);
 
         gpuErrchk( cudaPeekAtLastError() );
-        gpuErrchk( cudaDeviceSynchronize() );s
+        gpuErrchk( cudaDeviceSynchronize() );
 
         reduce_kernel_var<<<grid_size,blockSize>>>(dVx, dVy, dVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz,  N);
         //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, CMsumblock_Vx, N);
