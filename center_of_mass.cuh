@@ -482,11 +482,11 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         }
 
         cudaDeviceSynchronize();
-        cudaError_t cudaStatus = cudaGetLastError();
+        /*cudaError_t cudaStatus = cudaGetLastError();
         if (cudaStatus != cudaSuccess) {
             fprintf(stderr, "Kernel launch error: %s\n", cudaGetErrorString(cudaStatus));
     
-        }
+        }*/
   
     
         /////// mpcd part:
@@ -503,6 +503,9 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
         //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dX, CMsumblock_x, N);
         //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dY, CMsumblock_y, N);
         //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dZ, CMsumblock_z, N);
+
+        gpuErrchk( cudaPeekAtLastError() );
+        gpuErrchk( cudaDeviceSynchronize() );s
 
         reduce_kernel_var<<<grid_size,blockSize>>>(dVx, dVy, dVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz,  N);
         //reduceKernel_<<<grid_size_,blockSize_,shared_mem_size_>>>(dVx, CMsumblock_Vx, N);
