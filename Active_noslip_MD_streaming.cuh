@@ -740,7 +740,7 @@ __global__ void Active_md_crossing_velocity(double *mdvx, double *mdvy, double *
 __global__ void Active_md_velocityverlet1(double *mdX, double *mdY , double *mdZ , 
 double *mdVx , double *mdVy , double *mdVz,
 double *mdAx_tot , double *mdAy_tot , double *mdAz_tot,
- double h, int Nmd)
+double *Xcm, double *Ycm, double *Zcm, double h, int Nmd)
 {
     int particleID =  blockIdx.x * blockDim.x + threadIdx.x ;
     if (particleID < Nmd)
@@ -758,8 +758,7 @@ double *mdAx_tot , double *mdAy_tot , double *mdAz_tot,
 
 
         //printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", particleID, mdAx_tot[particleID], particleID, mdAy_tot[particleID], particleID, mdAz_tot[particleID]);
-
-
+        if((mdX[particleID] + *Xcm )>L[0]/2 || (mdX[particleID] + *Xcm)<-L[0]/2 || (mdY[particleID] + *Ycm )>L[1]/2 || (mdY[particleID] + *Ycm )<-L[1]/2 || (mdZ[particleID] + *Zcm )>L[2]/2 || (mdZ[particleID] + *Zcm )<-L[2]/2)  printf("the %i th particle went out\n", particleID);
 
 
     }
@@ -1131,7 +1130,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     
 
     //a velocity verlet is performed in x and v 
-    Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, h_md, Nmd);
+    Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, Xcm, Ycm, Zcm, h_md, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
