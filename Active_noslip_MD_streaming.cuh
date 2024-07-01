@@ -752,17 +752,19 @@ double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm,
         mdY[particleID] = mdY[particleID] + h * mdVy[particleID] + 0.5 * h * h * mdAy_tot[particleID];
         mdZ[particleID] = mdZ[particleID] + h * mdVz[particleID] + 0.5 * h * h * mdAz_tot[particleID];
 
+        if((mdX[particleID] + *Xcm )>L[0]/2 || (mdX[particleID] + *Xcm)<-L[0]/2 || (mdY[particleID] + *Ycm )>L[1]/2 || (mdY[particleID] + *Ycm )<-L[1]/2 || (mdZ[particleID] + *Zcm )>L[2]/2 || (mdZ[particleID] + *Zcm )<-L[2]/2){
+            
+            printf("the %i th particle went out mdX[%i]=%f, mdY[%i]=%f, mdZ[%i]=%f]\n ", particleID, particleID, mdX[particleID] + *Xcm, particleID, mdY[particleID] + *Ycm, particleID, mdZ[particleID] + *Zcm );
+            printf("the %i th particle went out mdVx[%i]=%f, mdVy[%i]=%f, mdVz[%i]=%f\n ", particleID, particleID, mdVx[particleID] + *Vxcm, particleID, mdVy[particleID] + *Vycm, particleID, mdVz[particleID] + *Vzcm );
+        }
+
         mdVx[particleID] +=  h * mdAx_tot[particleID];// * 0.5;
         mdVy[particleID] +=  h * mdAy_tot[particleID];// * 0.5;
         mdVz[particleID] +=  h * mdAz_tot[particleID];// * 0.5;
 
 
         //printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", particleID, mdAx_tot[particleID], particleID, mdAy_tot[particleID], particleID, mdAz_tot[particleID]);
-        if((mdX[particleID] + *Xcm )>L[0]/2 || (mdX[particleID] + *Xcm)<-L[0]/2 || (mdY[particleID] + *Ycm )>L[1]/2 || (mdY[particleID] + *Ycm )<-L[1]/2 || (mdZ[particleID] + *Zcm )>L[2]/2 || (mdZ[particleID] + *Zcm )<-L[2]/2){
-            
-            printf("the %i th particle went out mdX[%i]=%f, mdY[%i]=%f, mdZ[%i]=%f]\n ", particleID, particleID, mdX[particleID] + *Xcm, particleID, mdY[particleID] + *Ycm, particleID, mdZ[particleID] + *Zcm );
-            printf("the %i th particle went out mdVx[%i]=%f, mdVy[%i]=%f, mdVz[%i]=%f\n ", particleID, particleID, mdVx[particleID] + *Vxcm, particleID, mdVy[particleID] + *Vycm, particleID, mdVz[particleID] + *Vzcm );
-        }
+        
     }
 }
 
