@@ -320,7 +320,7 @@ __host__ void Active_restarting_simulation(std::string file_name,std::string fil
 double *d_mdX , double *d_mdY , double *d_mdZ,
 double *d_mdVx , double *d_mdVy , double *d_mdVz,
 double *d_mdAx , double *d_mdAy , double *d_mdAz,
-double *_holder , double *d_Fy_holder, double *d_Fz_holder,
+double *d_Fx_holder , double *d_Fy_holder, double *d_Fz_holder,
 double *d_x , double *d_y , double *d_z ,
 double *d_vx , double *d_vy , double *d_vz, 
 double *d_fa_kx, double *d_fa_ky, double *d_fa_kz, 
