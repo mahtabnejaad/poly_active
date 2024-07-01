@@ -405,9 +405,13 @@ int main(int argc, const char* argv[])
     double h_Ab_x , h_Ab_y, h_Ab_z;
    
     
-    //Allocate device memory for total d_Ax_tot, d_Ay_tot and d_Az_tot:
+    //Allocate device memory for total d_Ax_tot, d_Ay_tot and d_Az_tot in CM:
     double *d_Ax_tot , *d_Ay_tot , *d_Az_tot;
     cudaMalloc((void**)&d_Ax_tot, sizeof(double)* Nmd);    cudaMalloc((void**)&d_Ay_tot, sizeof(double)* Nmd);    cudaMalloc((void**)&d_Az_tot, sizeof(double)* Nmd);
+
+    //Allocate device memory for total d_Ax_tot_lab, d_Ay_tot_lab and d_Az_tot_lab in lab:
+    double *d_Ax_tot_lab , *d_Ay_tot_lab , *d_Az_tot_lab;
+    cudaMalloc((void**)&d_Ax_tot_lab, sizeof(double)* Nmd);    cudaMalloc((void**)&d_Ay_tot_lab, sizeof(double)* Nmd);    cudaMalloc((void**)&d_Az_tot_lab, sizeof(double)* Nmd);
 
     //Allocate device memory for tanfential vectors ex , ey and ez:
     double *d_ex , *d_ey , *d_ez;
@@ -839,10 +843,10 @@ int main(int argc, const char* argv[])
        
         if (TIME ==0) Active_start_simulation(basename, simuationtime , swapsize ,d_L, d_mdX , d_mdY , d_mdZ,
         d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , md_Fx_holder, md_Fy_holder,md_Fz_holder,
-        d_x , d_y , d_z , d_vx , d_vy , d_vz, d_fa_kx,d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz,d_Ax_tot, d_Ay_tot, d_Az_tot, d_ex, d_ey,d_ez, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, gen , grid_size, real_time, gama_T, d_random_array, d_seed, d_flag_array, u_scale);
+        d_x , d_y , d_z , d_vx , d_vy , d_vz, d_fa_kx,d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, d_ex, d_ey,d_ez, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, gen , grid_size, real_time, gama_T, d_random_array, d_seed, d_flag_array, u_scale);
         else Active_restarting_simulation(basename , inputfile , simuationtime , swapsize ,d_L, d_mdX , d_mdY , d_mdZ,
         d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , md_Fx_holder, md_Fy_holder,md_Fz_holder,
-        d_x , d_y , d_z , d_vx , d_vy , d_vz, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz,d_Ax_tot,d_Ay_tot, d_Az_tot, d_ex, d_ey, d_ez, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, ux , N , Nmd , TIME , grid_size, real_time, gama_T, d_random_array, d_seed, d_flag_array, u_scale);
+        d_x , d_y , d_z , d_vx , d_vy , d_vz, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, d_ex, d_ey, d_ez, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, ux , N , Nmd , TIME , grid_size, real_time, gama_T, d_random_array, d_seed, d_flag_array, u_scale);
     
         
         //double real_time = TIME;
@@ -911,7 +915,7 @@ int main(int argc, const char* argv[])
                     CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_n_outbox_md, CMsumblock_n_outbox_mpcd, d_n_outbox_md, d_n_outbox_mpcd,
                     h_Xcm, h_Ycm, h_Zcm, h_Vxcm, h_Vycm, h_Vzcm, h_Xcm_out, h_Ycm_out, h_Zcm_out, h_Vxcm_out, h_Vycm_out, h_Vzcm_out, 
                     md_Fx_holder, md_Fy_holder, md_Fz_holder, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, 
-                    d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_ex, d_ey, d_ez,
+                    d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, d_ex, d_ey, d_ez,
                     h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, 
                     h_md, Nmd, m_md, N, density, 1, d_L, ux, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, delta, real_time, 
                     gama_T, d_random_array, d_seed, topology, d_flag_array, u_scale, 
@@ -1003,6 +1007,7 @@ int main(int argc, const char* argv[])
         cudaFree(d_Aa_kx); cudaFree(d_Aa_ky); cudaFree(d_Aa_kz);
         cudaFree(d_Ab_kx); cudaFree(d_Ab_ky); cudaFree(d_Ab_kz);
         cudaFree(d_Ax_tot); cudaFree(d_Ay_tot); cudaFree(d_Az_tot);
+        cudaFree(d_Ax_tot_lab); cudaFree(d_Ay_tot_lab); cudaFree(d_Az_tot_lab);
         cudaFree(d_ex); cudaFree(d_ey); cudaFree(d_ez);
         cudaFree(d_block_sum_ex); cudaFree(d_block_sum_ey); cudaFree(d_block_sum_ez);
         cudaFree(d_random_array);
