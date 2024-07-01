@@ -698,6 +698,7 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
     printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
     printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n", tid, mdvx[tid], tid, mdvy[tid], tid, mdvz[tid]);
     printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", tid, mdAx_tot[tid], tid, mdAy_tot[tid], tid, mdAz_tot[tid]);
+    if (md_dt_x[tid] <0.002 || md_dt_y[tid] < 0.002 || md_dt_z[tid]< 0.002)  printf("the %i th particle will go out of box\n", tid);
     }
 }
 
