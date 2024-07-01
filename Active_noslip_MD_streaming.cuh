@@ -807,7 +807,8 @@ __global__ void particles_on_crossing_points(double *mdx, double *mdy, double *m
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<Nmd){
 
-        if(md_dt_min[tid] < md_dt){
+        //if(md_dt_min[tid] < md_dt){
+        if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
             //make the position of particle equal to (xo, yo, zo):
             mdx[tid] = mdx_o[tid];
             mdy[tid] = mdy_o[tid];
@@ -830,7 +831,8 @@ __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy
      
 
         //if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
-        if(md_dt_min[tid] < md_dt){
+        if((mdx[tid]+*Xcm)>L[0]/2 || (mdx[tid]+*Xcm)<-L[0]/2 || (mdy[tid]+*Ycm)>L[1]/2 || (mdy[tid]+*Ycm)<-L[1]/2 || (mdz[tid]+*Zcm)>L[2]/2 || (mdz[tid]+*Zcm)<-L[2]/2){
+        //if(md_dt_min[tid] < md_dt){
             
             //let the particle move during dt-dt1 with the reversed velocity:
             mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid];// + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
