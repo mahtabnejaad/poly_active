@@ -834,6 +834,7 @@ __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy
         if((mdx[tid]+*Xcm)>L[0]/2 || (mdx[tid]+*Xcm)<-L[0]/2 || (mdy[tid]+*Ycm)>L[1]/2 || (mdy[tid]+*Ycm)<-L[1]/2 || (mdz[tid]+*Zcm)>L[2]/2 || (mdz[tid]+*Zcm)<-L[2]/2){
         //if(md_dt_min[tid] < md_dt){
             
+            if (md_dt_min[tid] > md_dt) md_dt_min[tid]=md_dt;
             //let the particle move during dt-dt1 with the reversed velocity:
             mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid];// + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
             mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid];// + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
