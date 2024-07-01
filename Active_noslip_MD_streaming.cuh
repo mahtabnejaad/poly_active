@@ -1106,6 +1106,18 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
+
+    
+    //crossing location is calculated in Lab frame bacause we're using the accelerations in Lab system (A_tot_lab which is the particle's acceleration in lab system)
+    Active_md_crossing_location<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, mdX_o, mdY_o, mdZ_o, md_dt_min, h_md, L, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //crossing velocity is calculated in Lab frame bacause we're using the accelerations in Lab system (A_tot_lab)
+    Active_md_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min,  d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
     //take all mpcd particles to CM system. might not be necessary here.
     //gotoCMframe<<<grid_size,blockSize>>>(x, y, z, Xcm, Ycm, Zcm, vx, vy, vz, Vxcm, Vycm, Vzcm, N);
     gpuErrchk( cudaPeekAtLastError() );
@@ -1116,15 +1128,6 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
-    //crossing location is calculated in CM frame bacause we're using the accelerations in CM system (A_tot which is the particle's acceleration in CM system)
-    Active_md_crossing_location<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, mdX_o, mdY_o, mdZ_o, md_dt_min, h_md, L, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-
-    //crossing velocity is calculated in CM frame bacause we're using the accelerations in CM system (A_tot)
-    Active_md_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min,  d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
 
     //a velocity verlet is performed in x and v 
     Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, h_md, Nmd);
@@ -1141,12 +1144,9 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    //now we take crossing location and velocity to Lab system 
-    Take_o_to_Lab_system<<<grid_size,blockSize>>>(mdX_o, mdY_o, mdZ_o, mdvx_o, mdvy_o, mdvz_o, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, Nmd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
+
     
-    //we put the particles that had gone outside the box, on the box's boundaries and set its velocity equal to the negative of the crossing velocity.
+    //we put the particles that had gone outside the box, on the box's boundaries and set its velocity equal to the negative of the crossing velocity in Lab system.
     particles_on_crossing_points<<<grid_size,blockSize>>>(mdX, mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min, h_md, L, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
