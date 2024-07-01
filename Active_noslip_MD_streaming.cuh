@@ -53,6 +53,68 @@ double *L, int size, double ux, double mass, double real_time, int m, int topolo
     }
 }
 
+__global__ void CM_totalActive_calc_acceleration(double *Ax, double *Ay, double *Az, double *Aa_kx, double *Aa_ky, double *Aa_kz, double *Ab_kx, double *Ab_ky, double *Ab_kz, int *random_array, double *Ax_tot, double *Ay_tot, double *Az_tot, int size, int topology){
+
+    int tid=blockIdx.x * blockDim.x + threadIdx.x;
+
+    //here I added a randomness to the active and backflow forces exerting on the monomers. 
+    //we can change this manually or we can replace any other function instead of random_array as we prefer.
+    
+    if(tid< size){
+
+        if(topology == 4){
+            
+            Ax_tot[tid]=Ax[tid] + Aa_kx[tid] + Ab_kx[tid]; 
+            Ay_tot[tid]=Ay[tid] + Aa_ky[tid] + Ab_ky[tid];
+            Az_tot[tid]=Az[tid] + Aa_kz[tid] + Ab_kz[tid];
+            //printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Aa_kx[tid], tid, Aa_ky[tid], tid, Aa_kz[tid]);
+
+        }
+        else{
+
+            Ax_tot[tid]=Ax[tid]+(Aa_kx[tid]+Ab_kx[tid])*random_array[tid]; 
+            Ay_tot[tid]=Ay[tid]+(Aa_ky[tid]+Ab_ky[tid])*random_array[tid];
+            Az_tot[tid]=Az[tid]+(Aa_kz[tid]+Ab_kz[tid])*random_array[tid];
+            //printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Aa_kx[tid], tid, Aa_ky[tid], tid, Aa_kz[tid]);
+            printf("Ax_tot[%i]=%f, Ay_tot[%i]=%f, Az_tot[%i]=%f\n", tid, Ax_tot[tid], tid, Ay_tot[tid], tid, Az_tot[tid]);
+        }
+    }
+   
+
+}
+
+
+__global__ void Lab_totalActive_calc_acceleration(double *Ax, double *Ay, double *Az, double *Aa_kx, double *Aa_ky, double *Aa_kz, int *random_array, double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, int size, int topology){
+
+    int tid=blockIdx.x * blockDim.x + threadIdx.x;
+
+    //here I added a randomness to the active and backflow forces exerting on the monomers. 
+    //we can change this manually or we can replace any other function instead of random_array as we prefer.
+    
+    if(tid< size){
+
+        if(topology == 4){
+            
+            Ax_tot_lab[tid]=Ax[tid] + Aa_kx[tid]; 
+            Ay_tot_lab[tid]=Ay[tid] + Aa_ky[tid];
+            Az_tot_lab[tid]=Az[tid] + Aa_kz[tid];
+            //printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Aa_kx[tid], tid, Aa_ky[tid], tid, Aa_kz[tid]);
+
+        }
+        else{
+
+            Ax_tot_lab[tid]=Ax[tid]+(Aa_kx[tid])*random_array[tid]; 
+            Ay_tot_lab[tid]=Ay[tid]+(Aa_ky[tid])*random_array[tid];
+            Az_tot_lab[tid]=Az[tid]+(Aa_kz[tid])*random_array[tid];
+            //printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Aa_kx[tid], tid, Aa_ky[tid], tid, Aa_kz[tid]);
+            printf("Ax_tot[%i]=%f, Ay_tot[%i]=%f, Az_tot[%i]=%f\n", tid, Ax_tot[tid], tid, Ay_tot[tid], tid, Az_tot[tid]);
+        }
+    }
+   
+
+
+}
+
 
 
 
@@ -61,7 +123,7 @@ __host__ void noslip_monomer_active_backward_forces(double *mdX, double *mdY , d
 double *Ax, double *Ay, double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
 double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T,
 double *L, int size, double mass_fluid, double real_time, int m, int topology, int grid_size, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot,
-double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array,double u_scale)
+double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array,double u_scale)
 {
     double Q = -mass/(size*mass+mass_fluid*N);
     //shared_mem_size: The amount of shared memory allocated per block for the reduction operation.
@@ -82,9 +144,14 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
-        totalActive_calc_acceleration<<<grid_size,blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, flag_array, Ax_tot, Ay_tot, Az_tot, 1, topology);
+        CM_totalActive_calc_acceleration<<<grid_size,blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, flag_array, Ax_tot, Ay_tot, Az_tot, 1, topology);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
+
+        Lab_totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, random_array, Ax_tot_lab, Ay_tot_lab, Az_tot_lab, size, topology);
+        gpuErrchk( cudaPeekAtLastError() );
+        gpuErrchk( cudaDeviceSynchronize() );
+    
 
 
         double fax, fay, faz;
@@ -138,7 +205,11 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             gpuErrchk( cudaDeviceSynchronize() );
 
             //calling the totalActive_calc_acceleration kernel:
-            totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, random_array, Ax_tot, Ay_tot, Az_tot, size, topology);
+            CM_totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, random_array, Ax_tot, Ay_tot, Az_tot, size, topology);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            Lab_totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, random_array, Ax_tot_lab, Ay_tot_lab, Az_tot_lab, size, topology);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
     
@@ -236,9 +307,14 @@ double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb
             gpuErrchk( cudaDeviceSynchronize() );
    
 
-            totalActive_calc_acceleration<<<grid_size,blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, flag_array, Ax_tot, Ay_tot, Az_tot, size, topology);
+            CM_totalActive_calc_acceleration<<<grid_size,blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, flag_array, Ax_tot, Ay_tot, Az_tot, size, topology);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
+
+            Lab_totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, random_array, Ax_tot_lab, Ay_tot_lab, Az_tot_lab, size, topology);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+    
 
 
             choice_tangential<<<grid_size, blockSize>>>(ex, ey, ez, flag_array, size);
@@ -426,7 +502,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 double *Fx , double *Fy , double *Fz, 
 double *Ax , double *Ay , double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
 double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T, 
-double *L, int size, int m, int topology, double real_time, int grid_size, double mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale)
+double *L, int size, int m, int topology, double real_time, int grid_size, double mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale)
 
 {
   
@@ -444,7 +520,7 @@ double *L, int size, int m, int topology, double real_time, int grid_size, doubl
 
     noslip_monomer_active_backward_forces(x, y ,z ,
     Ax , Ay, Az, fa_kx, fa_ky, fa_kz, fb_kx, fb_ky, fb_kz, Aa_kx, Aa_ky, Aa_kz, Ab_kx, Ab_ky, Ab_kz, ex, ey, ez, ux, mass, gama_T, 
-    L, size , mass_fluid, real_time, m, topology, grid_size, N , random_array, seed , Ax_tot, Ay_tot, Az_tot, fa_x, fa_y, fa_z, fb_x, fb_y, fb_z, block_sum_ex, block_sum_ey, block_sum_ez, flag_array, u_scale);
+    L, size , mass_fluid, real_time, m, topology, grid_size, N , random_array, seed , Ax_tot, Ay_tot, Az_tot, Ax_tot_lab, Ay_tot_lab, Az_tot_lab, fa_x, fa_y, fa_z, fb_x, fb_y, fb_z, block_sum_ex, block_sum_ey, block_sum_ez, flag_array, u_scale);
     
 
 
@@ -1003,7 +1079,7 @@ double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *X_tot, double *Y_tot,
 double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz, double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz, double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, int *CMsumblock_n_outbox_md, int *CMsumblock_n_outbox_mpcd,
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out,
 double h_md, int Nmd, int N, int *n_outbox_md, int *n_outbox_mpcd, double mass, double mass_fluid, double *L, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *md_dt_min ,
-double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *d_Ax_tot, double *d_Ay_tot, double *d_Az_tot, 
+double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *d_Ax_tot, double *d_Ay_tot, double *d_Az_tot, double *d_Ax_tot_lab, double *d_Ay_tot_lab, double *d_Az_tot_lab, 
 double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, int *hostErrorFlag){
 
     //CM_system : calculate CM of the whole system.
@@ -1021,7 +1097,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaDeviceSynchronize() );
 
     //calculate 3 time periods needed for the particle to reach the walls in 3 directions.
-    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, d_Ax_tot, d_Ay_tot, d_Az_tot, Nmd, L);
+    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Nmd, L);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -1349,7 +1425,7 @@ __host__ void Active_noslip_MD_streaming(double *d_mdX, double *d_mdY, double *d
     double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *X_tot, double *Y_tot, double *Z_tot, double *mdVx_tot, double *mdVy_tot, double *mdVz_tot, double *Vx_tot, double *Vy_tot, double *Vz_tot, int *dn_md_tot, int *dn_mpcd_tot,
     double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz, double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz, double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, int *CMsumblock_n_outbox_md, int *CMsumblock_n_outbox_mpcd,  int *n_outbox_md, int *n_outbox_mpcd, 
     double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out,
-    double *d_Fx, double *d_Fy, double *d_Fz, double *d_fa_kx, double *d_fa_ky, double *d_fa_kz, double *d_fb_kx, double *d_fb_ky, double *d_fb_kz, double *d_Aa_kx, double *d_Aa_ky, double *d_Aa_kz, double *d_Ab_kx, double *d_Ab_ky, double *d_Ab_kz, double *d_Ax_tot, double *d_Ay_tot, double *d_Az_tot, double *d_ex, double *d_ey, double *d_ez, double *h_fa_x, double *h_fa_y, double *h_fa_z, double *h_fb_x, double *h_fb_y, double *h_fb_z, double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
+    double *d_Fx, double *d_Fy, double *d_Fz, double *d_fa_kx, double *d_fa_ky, double *d_fa_kz, double *d_fb_kx, double *d_fb_ky, double *d_fb_kz, double *d_Aa_kx, double *d_Aa_ky, double *d_Aa_kz, double *d_Ab_kx, double *d_Ab_ky, double *d_Ab_kz, double *d_Ax_tot, double *d_Ay_tot, double *d_Az_tot, double *d_Ax_tot_lab, double *d_Ay_tot_lab, double *d_Az_tot_lab, double *d_ex, double *d_ey, double *d_ez, double *h_fa_x, double *h_fa_y, double *h_fa_z, double *h_fb_x, double *h_fb_y, double *h_fb_z, double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
     double h_md, int Nmd, int m_md, int N, double mass, double mass_fluid, double *d_L , double ux, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, int delta, double real_time, double *gama_T, int *random_array, unsigned int seed, int topology, int *flag_array, double u_scale,
     double *md_dt_min, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ){
 
@@ -1363,7 +1439,7 @@ __host__ void Active_noslip_MD_streaming(double *d_mdX, double *d_mdY, double *d
         CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_n_outbox_md, CMsumblock_n_outbox_mpcd,
         Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, Xcm_out, Ycm_out, Zcm_out, Vxcm_out, Vycm_out, Vzcm_out,
         h_md, Nmd, N, n_outbox_md, n_outbox_mpcd, mass, mass_fluid, d_L, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, md_dt_x, md_dt_y, md_dt_z, md_dt_min ,
-        mdX_o, mdY_o, mdZ_o, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot,
+        mdX_o, mdY_o, mdZ_o, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab,
         mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ);
         
         
@@ -1373,7 +1449,7 @@ __host__ void Active_noslip_MD_streaming(double *d_mdX, double *d_mdY, double *d
         d_Fx, d_Fy, d_Fz,
         d_mdAx , d_mdAy, d_mdAz, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz,
         d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_ex, d_ey, d_ez,
-        ux, mass, gama_T, d_L, Nmd, m_md , topology, real_time,  grid_size, mass_fluid, N, random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale);
+        ux, mass, gama_T, d_L, Nmd, m_md , topology, real_time,  grid_size, mass_fluid, N, random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale);
 
 
         sum_kernel<<<grid_size,blockSize>>>(d_Fx ,d_Fy,d_Fz, d_mdAx ,d_mdAy, d_mdAz, Nmd);
@@ -1423,7 +1499,7 @@ __host__ void Active_noslip_MD_streaming2(double *d_mdX, double *d_mdY, double *
     double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *X_tot, double *Y_tot, double *Z_tot, double *mdVx_tot, double *mdVy_tot, double *mdVz_tot, double *Vx_tot, double *Vy_tot, double *Vz_tot, int *dn_md_tot, int *dn_mpcd_tot,
     double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz, double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz, double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, int *CMsumblock_n_outbox_md, int *CMsumblock_n_outbox_mpcd,  int *n_outbox_md, int *n_outbox_mpcd, 
     double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out,
-    double *d_Fx, double *d_Fy, double *d_Fz, double *d_fa_kx, double *d_fa_ky, double *d_fa_kz, double *d_fb_kx, double *d_fb_ky, double *d_fb_kz, double *d_Aa_kx, double *d_Aa_ky, double *d_Aa_kz, double *d_Ab_kx, double *d_Ab_ky, double *d_Ab_kz, double *d_Ax_tot, double *d_Ay_tot, double *d_Az_tot, double *d_ex, double *d_ey, double *d_ez, double *h_fa_x, double *h_fa_y, double *h_fa_z, double *h_fb_x, double *h_fb_y, double *h_fb_z, double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
+    double *d_Fx, double *d_Fy, double *d_Fz, double *d_fa_kx, double *d_fa_ky, double *d_fa_kz, double *d_fb_kx, double *d_fb_ky, double *d_fb_kz, double *d_Aa_kx, double *d_Aa_ky, double *d_Aa_kz, double *d_Ab_kx, double *d_Ab_ky, double *d_Ab_kz, double *d_Ax_tot, double *d_Ay_tot, double *d_Az_tot, double *d_Ax_tot_lab, double *d_Ay_tot_lab, double *d_Az_tot_lab, double *d_ex, double *d_ey, double *d_ez, double *h_fa_x, double *h_fa_y, double *h_fa_z, double *h_fb_x, double *h_fb_y, double *h_fb_z, double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
     double h_md, int Nmd, int m_md, int N, double mass, double mass_fluid, double *d_L , double ux, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, int delta, double real_time, double *gama_T, int *random_array, unsigned int seed, int topology, int *flag_array, double u_scale,
     double *md_dt_min, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, int *hostErrorFlag){
 
@@ -1437,7 +1513,7 @@ __host__ void Active_noslip_MD_streaming2(double *d_mdX, double *d_mdY, double *
         CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_n_outbox_md, CMsumblock_n_outbox_mpcd,
         Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, Xcm_out, Ycm_out, Zcm_out, Vxcm_out, Vycm_out, Vzcm_out,
         h_md, Nmd, N, n_outbox_md, n_outbox_mpcd, mass, mass_fluid, d_L, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, md_dt_x, md_dt_y, md_dt_z, md_dt_min ,
-        mdX_o, mdY_o, mdZ_o, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot,
+        mdX_o, mdY_o, mdZ_o, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab,
         mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ, hostErrorFlag);
         
         
@@ -1447,7 +1523,7 @@ __host__ void Active_noslip_MD_streaming2(double *d_mdX, double *d_mdY, double *
         d_Fx, d_Fy, d_Fz,
         d_mdAx , d_mdAy, d_mdAz, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz,
         d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_ex, d_ey, d_ez,
-        ux, mass, gama_T, d_L, Nmd, m_md , topology, real_time,  grid_size, mass_fluid, N, random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale);
+        ux, mass, gama_T, d_L, Nmd, m_md , topology, real_time,  grid_size, mass_fluid, N, random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale);
 
 
         //sum_kernel<<<grid_size,blockSize>>>(d_Fx ,d_Fy,d_Fz, d_mdAx ,d_mdAy, d_mdAz, Nmd);
