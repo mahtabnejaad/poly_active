@@ -311,7 +311,7 @@ double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            Lab_totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, random_array, Ax_tot_lab, Ay_tot_lab, Az_tot_lab, size, topology);
+            Lab_totalActive_calc_acceleration<<<grid_size, blockSize>>>(Ax, Ay, Az, Aa_kx, Aa_ky, Aa_kz, flag_array, Ax_tot_lab, Ay_tot_lab, Az_tot_lab, size, topology);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
     
