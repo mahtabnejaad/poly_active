@@ -740,7 +740,7 @@ __global__ void Active_md_crossing_velocity(double *mdvx, double *mdvy, double *
 __global__ void Active_md_velocityverlet1(double *mdX, double *mdY , double *mdZ , 
 double *mdVx , double *mdVy , double *mdVz,
 double *mdAx_tot , double *mdAy_tot , double *mdAz_tot,
-double *Xcm, double *Ycm, double *Zcm, double h, int Nmd)
+double *Xcm, double *Ycm, double *Zcm, double *L, double h, int Nmd)
 {
     int particleID =  blockIdx.x * blockDim.x + threadIdx.x ;
     if (particleID < Nmd)
@@ -1018,7 +1018,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
-    Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, Xcm, Ycm, Zcm, h_md, Nmd);
+    Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, Xcm, Ycm, Zcm, L, h_md, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -1130,7 +1130,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     
 
     //a velocity verlet is performed in x and v 
-    Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, Xcm, Ycm, Zcm, h_md, Nmd);
+    Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot, d_Ay_tot, d_Az_tot, Xcm, Ycm, Zcm, L, h_md, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
