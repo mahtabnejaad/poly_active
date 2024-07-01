@@ -25,7 +25,7 @@ m=5
 s=0.0
 
 #md time step:
-hmd=0.002
+hmd=0.002000
 
 #mpcd time step:
 hmpcd=0.01
