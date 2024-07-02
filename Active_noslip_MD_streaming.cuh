@@ -169,7 +169,7 @@ double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double
 
         *Ax_cm = fax/Mtot;
         *Ay_cm = fay/Mtot;
-        *Az_CM = faz/Mtot;
+        *Az_cm = faz/Mtot;
 
      
     cudaFree(gamaTT);
@@ -275,7 +275,7 @@ double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double
 
             *Ax_cm = *fa_x/Mtot;
             *Ay_cm = *fa_y/Mtot;
-            *Az_CM = *fa_z/Mtot;
+            *Az_cm = *fa_z/Mtot;
             
 
             
@@ -376,7 +376,7 @@ double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double
 
             *Ax_cm = *fa_x/Mtot;
             *Ay_cm = *fa_y/Mtot;
-            *Az_CM = *fa_z/Mtot;
+            *Az_cm = *fa_z/Mtot;
 
             cudaFree(gamaT);
             free(sumx);  free(sumy);  free(sumz);
