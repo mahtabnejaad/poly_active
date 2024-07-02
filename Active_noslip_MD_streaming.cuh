@@ -800,7 +800,7 @@ __global__ void Active_particle_on_box_and_reverse_velocity_and_md_bounceback_ve
     }
 
 }
-__global__ void particles_on_crossing_points(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *md_dt_min, double md_dt, double *L, int Nmd){
+__global__ void particles_on_crossing_points(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *md_dt_min, double md_dt, double *L, int Nmd, int *n_out_flag){
 
 
 
@@ -817,13 +817,15 @@ __global__ void particles_on_crossing_points(double *mdx, double *mdy, double *m
             mdvx[tid] = -mdvx_o[tid];
             mdvy[tid] = -mdvy_o[tid];
             mdvz[tid] = -mdvz_o[tid];
+            n_out_flag[tid] = 1;
         }
+        else  n_out_flag[tid]=0;
     }
 
 }
 
 //Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1
-__global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *md_dt_min, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag){
+__global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *md_dt_min, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<Nmd){
@@ -831,8 +833,9 @@ __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy
      
 
         //if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
-        if((mdx[tid]+*Xcm)>L[0]/2 || (mdx[tid]+*Xcm)<-L[0]/2 || (mdy[tid]+*Ycm)>L[1]/2 || (mdy[tid]+*Ycm)<-L[1]/2 || (mdz[tid]+*Zcm)>L[2]/2 || (mdz[tid]+*Zcm)<-L[2]/2){
+        //if((mdx[tid]+*Xcm)>L[0]/2 || (mdx[tid]+*Xcm)<-L[0]/2 || (mdy[tid]+*Ycm)>L[1]/2 || (mdy[tid]+*Ycm)<-L[1]/2 || (mdz[tid]+*Zcm)>L[2]/2 || (mdz[tid]+*Zcm)<-L[2]/2){
         //if(md_dt_min[tid] < md_dt){
+        if(n_out_flag[tid] == 1){
             
             if (md_dt_min[tid] > md_dt) {
                 printf("*********************md_dt_min[%i]=%f\n", tid, md_dt_min[tid]);
@@ -1093,7 +1096,7 @@ double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz, double *
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out,
 double h_md, int Nmd, int N, int *n_outbox_md, int *n_outbox_mpcd, double mass, double mass_fluid, double *L, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *md_dt_min ,
 double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *d_Ax_tot, double *d_Ay_tot, double *d_Az_tot, double *d_Ax_tot_lab, double *d_Ay_tot_lab, double *d_Az_tot_lab, 
-double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, int *hostErrorFlag){
+double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, int *hostErrorFlag, int *n_out_flag){
 
     //CM_system : calculate CM of the whole system.
     CM_system(mdX, mdY, mdZ, x, y, z, mdvx, mdvy, mdvz, vx, vy, vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid,
@@ -1160,7 +1163,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
 
     
     //we put the particles that had gone outside the box, on the box's boundaries and set its velocity equal to the negative of the crossing velocity in Lab system.
-    particles_on_crossing_points<<<grid_size,blockSize>>>(mdX, mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min, h_md, L, Nmd);
+    particles_on_crossing_points<<<grid_size,blockSize>>>(mdX, mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min, h_md, L, Nmd, n_out_flag);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
@@ -1209,7 +1212,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
 
 
     //after putting the particles that had traveled outside of the box on its boundaries, we let them stream in the opposite direction for the time they had spent outside the box. 
-    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot, md_dt_min, h_md, L, Nmd, Xcm, Ycm, Zcm, d_errorFlag);
+    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot, md_dt_min, h_md, L, Nmd, Xcm, Ycm, Zcm, d_errorFlag, n_out_flag);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
