@@ -862,12 +862,12 @@ __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy
                 return;  // Early exit
             }
             //let the particle move during dt-dt1 with the reversed velocity:
-            mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid];// + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
-            mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid];// + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAy_tot[tid];
-            mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid];// + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAz_tot[tid];
-            //mdvx[tid]=mdvx[tid] +   (md_dt - (md_dt_min[tid])) * mdAx_tot[tid];// * 0.5;
-            //mdvy[tid]=mdvy[tid] +   (md_dt - (md_dt_min[tid])) * mdAy_tot[tid];// * 0.5;
-            //mdvz[tid]=mdvz[tid] +   (md_dt - (md_dt_min[tid])) * mdAz_tot[tid];// * 0.5;
+            mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * (-*Ax_cm);// mdAx_tot[tid];
+            mdy[tid] += (md_dt - (md_dt_min[tid])) * mdvy[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * (-*Ay_cm);// mdAy_tot[tid];
+            mdz[tid] += (md_dt - (md_dt_min[tid])) * mdvz[tid] + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * (-*Az_cm);// mdAz_tot[tid];
+            mdvx[tid]=mdvx[tid] +   (md_dt - (md_dt_min[tid])) * (-*Ax_cm);// mdAx_tot[tid];// * 0.5;
+            mdvy[tid]=mdvy[tid] +   (md_dt - (md_dt_min[tid])) * (-*Ay_cm);//mdAy_tot[tid];// * 0.5;
+            mdvz[tid]=mdvz[tid] +   (md_dt - (md_dt_min[tid])) * (-*Az_cm);//mdAz_tot[tid];// * 0.5;
         
             if((mdx_o[tid] + *Xcm )>L[0]/2 || (mdx_o[tid] + *Xcm)<-L[0]/2 || (mdy_o[tid] + *Ycm )>L[1]/2 || (mdy_o[tid] + *Ycm )<-L[1]/2 || (mdz_o[tid] + *Zcm )>L[2]/2 || (mdz_o[tid] + *Zcm )<-L[2]/2)  printf("wrong mdx_o[%i]=%f, mdY_o[%i]=%f, mdz_o[%i]=%f\n", tid, (mdx_o[tid] + *Xcm), tid, (mdy_o[tid] + *Ycm), tid, (mdz_o[tid] + *Zcm));
 
@@ -1345,7 +1345,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     
 
     //a velocity verlet is performed in x and v 
-    Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, L, h_md, Nmd);
+    Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, L, h_md, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -1378,7 +1378,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     cudaMemcpy(Azcm, Az_cm, sizeof(double), cudaMemcpyHostToDevice);
 
     //after putting the particles that had traveled outside of the box on its boundaries, we let them stream in the opposite direction for the time they had spent outside the box. 
-    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Axcm, Aycm, Azcm, md_dt_min, h_md, L, Nmd, Xcm, Ycm, Zcm, d_errorFlag, n_out_flag);
+    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, 0.0, 0.0, 0.0, md_dt_min, h_md, L, Nmd, 0.0, 0.0, 0.0, d_errorFlag, n_out_flag);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
