@@ -192,6 +192,7 @@ double *d_Ax_tot_lab, double *d_Ay_tot_lab, double *d_Az_tot_lab,
 double *d_ex, double *d_ey, double *d_ez,
 double *h_fa_x, double *h_fa_y, double *h_fa_z,
 double *h_fb_x, double *h_fb_y, double *h_fb_z,
+double *Ax_cm, double *Ay_cm, double *Az_cm,
 double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
 curandGenerator_t gen, int grid_size, double real_time, double *gama_T, int *d_random_array, unsigned int seed, int *flag_array, double u_scale)
 {
@@ -332,6 +333,7 @@ double *d_Ax_tot_lab, double *d_Ay_tot_lab, double *d_Az_tot_lab,
 double *d_ex, double *d_ey, double *d_ez,
 double *h_fa_x, double *h_fa_y, double *h_fa_z,
 double *h_fb_x, double *h_fb_y, double *h_fb_z,
+double *Ax_cm, double *Ay_cm, double *Az_cm,
 double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
 double ux,
 int N, int Nmd, int last_step, int grid_size, double real_time, double *gama_T, int *d_random_array, unsigned int seed, int *flag_array, double u_scale)
