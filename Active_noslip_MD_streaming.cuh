@@ -1343,7 +1343,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaDeviceSynchronize() );
 
     double *zero;
-    cudaMalloc(&Axcm, sizeof(double));
+    cudaMalloc(&zero, sizeof(double));
     double *d_zero = 0.0;
     cudaMemcpy(zero, d_zero, sizeof(double), cudaMemcpyHostToDevice);
 
