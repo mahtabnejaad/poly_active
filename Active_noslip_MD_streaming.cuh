@@ -1342,10 +1342,14 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    
+    double *zero;
+    cudaMalloc(&Axcm, sizeof(double));
+    double *d_zero = 0.0;
+    cudaMemcpy(zero, d_zero, sizeof(double), cudaMemcpyHostToDevice);
+
 
     //a velocity verlet is performed in x and v 
-    Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, L, h_md, Nmd);
+    Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, zero, zero, zero, zero, zero, zero, L, h_md, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -1377,8 +1381,10 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     cudaMemcpy(Aycm, Ay_cm, sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(Azcm, Az_cm, sizeof(double), cudaMemcpyHostToDevice);
 
+    
+
     //after putting the particles that had traveled outside of the box on its boundaries, we let them stream in the opposite direction for the time they had spent outside the box. 
-    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, 0.0, 0.0, 0.0, md_dt_min, h_md, L, Nmd, 0.0, 0.0, 0.0, d_errorFlag, n_out_flag);
+    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, zero, zero, zero, md_dt_min, h_md, L, Nmd, zero, zero, zero, d_errorFlag, n_out_flag);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
