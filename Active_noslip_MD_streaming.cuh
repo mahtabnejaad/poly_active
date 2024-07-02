@@ -843,6 +843,8 @@ __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy
                 mdAx_tot[tid]=0.0;
                 mdAy_tot[tid]=0.0;
                 mdAz_tot[tid]=0.0;
+                *errorFlag = 1;  // Set the error flag
+                return;  // Early exit
             }
             //let the particle move during dt-dt1 with the reversed velocity:
             mdx[tid] += (md_dt - (md_dt_min[tid])) * mdvx[tid];// + 0.5 * ((md_dt - (md_dt_min[tid]))*(md_dt - (md_dt_min[tid]))) * mdAx_tot[tid];
