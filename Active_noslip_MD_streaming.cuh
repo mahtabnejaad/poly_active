@@ -848,8 +848,8 @@ __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy
      
 
         //if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
-        //if((mdx[tid]+*Xcm)>L[0]/2 || (mdx[tid]+*Xcm)<-L[0]/2 || (mdy[tid]+*Ycm)>L[1]/2 || (mdy[tid]+*Ycm)<-L[1]/2 || (mdz[tid]+*Zcm)>L[2]/2 || (mdz[tid]+*Zcm)<-L[2]/2){
-        //if(md_dt_min[tid] < md_dt){
+    if((mdx[tid]+*Xcm)>L[0]/2 || (mdx[tid]+*Xcm)<-L[0]/2 || (mdy[tid]+*Ycm)>L[1]/2 || (mdy[tid]+*Ycm)<-L[1]/2 || (mdz[tid]+*Zcm)>L[2]/2 || (mdz[tid]+*Zcm)<-L[2]/2){
+        
         if(n_out_flag[tid] == 1){
             
             if (md_dt_min[tid] > md_dt) {
@@ -882,6 +882,8 @@ __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy
         }
         
     }
+
+}
 
 }
 
@@ -1284,10 +1286,132 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     
 
     cudaFree(d_errorFlag);
+    cudaFree(d_errorFlag);
+    cudaFree(Axcm); cudaFree(Aycm); cudaFree(Azcm);
+
+    
 
     
    
 }
+
+
+//first velocityverletKernel version 3:
+__host__ void Active_noslip_md_velocityverletKernel5(double *mdX, double *mdY , double *mdZ, double *x, double *y, double *z,
+double *mdvx, double *mdvy, double *mdvz, double *vx, double *vy, double *vz, double *mdAx , double *mdAy , double *mdAz, double *Aa_kx, double *Aa_ky, double *Aa_kz, double *Ab_kx, double *Ab_ky, double *Ab_kz, double *Ax_cm, double *Ay_cm, double *Az_cm,
+double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *X_tot, double *Y_tot, double *Z_tot, double *mdVx_tot, double *mdVy_tot, double *mdVz_tot, double *Vx_tot, double *Vy_tot, double *Vz_tot, int *dn_md_tot, int *dn_mpcd_tot,
+double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz, double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz, double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, int *CMsumblock_n_outbox_md, int *CMsumblock_n_outbox_mpcd,
+double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out,
+double h_md, int Nmd, int N, int *n_outbox_md, int *n_outbox_mpcd, double mass, double mass_fluid, double *L, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *md_dt_min ,
+double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *d_Ax_tot, double *d_Ay_tot, double *d_Az_tot, double *d_Ax_tot_lab, double *d_Ay_tot_lab, double *d_Az_tot_lab, 
+double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, int *hostErrorFlag, int *n_out_flag){
+
+    //CM_system : calculate CM of the whole system.
+    //CM_system(mdX, mdY, mdZ, x, y, z, mdvx, mdvy, mdvz, vx, vy, vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid,
+    //Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Vxcm, Vycm, Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
+
+    //calculate md_wall_sign to determine which wall the initial velocity vector of the particle is pointing to. 
+    md_wall_sign<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz , wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //calculate particle's distance from walls if the particle is inside the box in Lab system:
+    md_distance_from_walls<<<grid_size,blockSize>>>(mdX , mdY, mdZ, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, L, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //calculate 3 time periods needed for the particle to reach the walls in 3 directions.
+    Active_noslip_md_deltaT<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x, md_dt_y, md_dt_z, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Nmd, L);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //the actual time period is the minimum of those three.
+    Active_deltaT_min<<<grid_size,blockSize>>>(md_dt_x, md_dt_y, md_dt_z, md_dt_min, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+
+    
+    //crossing location is calculated in Lab frame bacause we're using the accelerations in Lab system (A_tot_lab which is the particle's acceleration in lab system)
+    Active_md_crossing_location<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, mdX_o, mdY_o, mdZ_o, md_dt_min, h_md, L, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //crossing velocity is calculated in Lab frame bacause we're using the accelerations in Lab system (A_tot_lab)
+    Active_md_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min,  d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    
+
+    //a velocity verlet is performed in x and v 
+    Active_md_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy, mdvz, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, L, h_md, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+
+    
+    //we put the particles that had gone outside the box, on the box's boundaries and set its velocity equal to the negative of the crossing velocity in Lab system.
+    particles_on_crossing_points<<<grid_size,blockSize>>>(mdX, mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min, h_md, L, Nmd, n_out_flag);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    
+  
+    //CM_system : we call CM system to calculate the new CM after streaming. we should check if this is alright or not. we could also use the former CM system for bounceback part.
+    //CM_system(mdX, mdY, mdZ, x, y, z, mdvx, mdvy, mdvz, vx, vy, vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid,
+    //Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Vxcm, Vycm, Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
+
+
+    
+
+    int *d_errorFlag;
+    *hostErrorFlag = 0;
+    cudaMalloc(&d_errorFlag, sizeof(int));
+    cudaMemcpy(d_errorFlag, hostErrorFlag, sizeof(int), cudaMemcpyHostToDevice);
+
+    double *Axcm, *Aycm, *Azcm;
+    cudaMalloc(&Axcm, sizeof(double));
+    cudaMalloc(&Aycm, sizeof(double));
+    cudaMalloc(&Azcm, sizeof(double));
+    cudaMemcpy(Axcm, Ax_cm, sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(Aycm, Ay_cm, sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(Azcm, Az_cm, sizeof(double), cudaMemcpyHostToDevice);
+
+    //after putting the particles that had traveled outside of the box on its boundaries, we let them stream in the opposite direction for the time they had spent outside the box. 
+    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Axcm, Aycm, Azcm, md_dt_min, h_md, L, Nmd, Xcm, Ycm, Zcm, d_errorFlag, n_out_flag);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    // Check for kernel errors and sync
+    cudaDeviceSynchronize();
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        printf("CUDA Error: %s\n", cudaGetErrorString(err));
+        cudaFree(d_errorFlag);
+        *hostErrorFlag = -1;  // Set error flag
+        return;
+    }
+
+    // Check the error flag
+    cudaMemcpy(hostErrorFlag, d_errorFlag, sizeof(int), cudaMemcpyDeviceToHost);
+    if (*hostErrorFlag) {
+        printf("Error condition met in kernel. Exiting.\n");
+        // Clean up and exit
+        cudaFree(d_errorFlag);
+        *hostErrorFlag = -1;  // Set error flag
+        return;
+    }
+
+    
+    
+
+    cudaFree(d_errorFlag);
+    cudaFree(Axcm); cudaFree(Aycm); cudaFree(Azcm);
+
+    
+   
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1548,7 +1672,7 @@ __host__ void Active_noslip_MD_streaming2(double *d_mdX, double *d_mdY, double *
     {
 
         
-        Active_noslip_md_velocityverletKernel3(d_mdX, d_mdY , d_mdZ, d_x, d_y, d_z,
+        Active_noslip_md_velocityverletKernel5(d_mdX, d_mdY , d_mdZ, d_x, d_y, d_z,
         d_mdvx, d_mdvy, d_mdvz, d_vx, d_vy, d_vz, d_mdAx, d_mdAy, d_mdAz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, Ax_cm, Ay_cm, Az_cm,
         mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, dn_md_tot, dn_mpcd_tot,
         CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_n_outbox_md, CMsumblock_n_outbox_mpcd,
