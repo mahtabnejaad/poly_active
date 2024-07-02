@@ -917,6 +917,7 @@ int main(int argc, const char* argv[])
                 d_n_outbox_mpcd, d_n_outbox_md, h_dn_mpcd_tot, h_dn_md_tot, CMsumblock_n_outbox_mpcd, CMsumblock_n_outbox_md);
             
                 int ErrorFlag = 0;
+                double d_zero = 0.0;
                 Active_noslip_MD_streaming2(d_mdX, d_mdY, d_mdZ, d_x , d_y , d_z, d_mdVx , d_mdVy , d_mdVz, d_vx , d_vy , d_vz,
                     d_mdAx, d_mdAy, d_mdAz, mdX_tot, mdY_tot, mdZ_tot, dX_tot, dY_tot, dZ_tot, mdVx_tot, mdVy_tot, mdVz_tot, dVx_tot, dVy_tot, dVz_tot, h_dn_md_tot, h_dn_mpcd_tot,
                     CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_x, CMsumblock_y, CMsumblock_z,
@@ -928,7 +929,7 @@ int main(int argc, const char* argv[])
                     h_md, Nmd, m_md, N, density, 1, d_L, ux, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, delta, real_time, 
                     gama_T, d_random_array, d_seed, topology, d_flag_array, u_scale, 
                     d_md_dt_min, d_md_dt_x, d_md_dt_y, d_md_dt_z, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdVx_o, d_mdVy_o, d_mdVz_o, 
-                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag, n_out_flag);
+                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag, n_out_flag, &d_zero);
                 
                 if (ErrorFlag != 0){
                 // Handle error
