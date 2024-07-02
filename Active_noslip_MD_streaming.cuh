@@ -512,7 +512,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
 //Active_noslip_calc_acceleration
 
-    __host__ void Active_noslip_calc_acceleration( double *x ,double *y , double *z , 
+__host__ void Active_noslip_calc_acceleration( double *x ,double *y , double *z , 
 double *Fx , double *Fy , double *Fz, 
 double *Ax , double *Ay , double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
 double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T, 
@@ -521,9 +521,9 @@ double *L, int size, int m, int topology, double real_time, int grid_size, doubl
 {
   
 
-    Active_noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux, mass, real_time , m , topology);
+    /*Active_noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux, mass, real_time , m , topology);
     gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
+    gpuErrchk( cudaDeviceSynchronize() );*/
 
 
     sum_kernel<<<grid_size,blockSize>>>(Fx , Fy, Fz, Ax , Ay, Az, size);
