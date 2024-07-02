@@ -277,6 +277,9 @@ int main(int argc, const char* argv[])
 
     int *d_n_outbox_md;
     cudaMalloc((void**)&d_n_outbox_md, sizeof(int) * Nmd);
+
+    int *n_out_flag;
+    cudaMalloc((void**)&n_out_flag, sizeof(int) * Nmd);
     
 
 /////////////////////////////////////////////// I'd maximize the performance by adjusting new grid_size_ amd blockSize_ this way:
@@ -920,7 +923,7 @@ int main(int argc, const char* argv[])
                     h_md, Nmd, m_md, N, density, 1, d_L, ux, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, delta, real_time, 
                     gama_T, d_random_array, d_seed, topology, d_flag_array, u_scale, 
                     d_md_dt_min, d_md_dt_x, d_md_dt_y, d_md_dt_z, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdVx_o, d_mdVy_o, d_mdVz_o, 
-                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag);
+                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag, n_out_flag);
                 
                 if (ErrorFlag != 0){
                 // Handle error
