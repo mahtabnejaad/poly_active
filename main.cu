@@ -267,7 +267,8 @@ int main(int argc, const char* argv[])
 
     //acceleration of center of mass:
     double *Ax_cm, *Ay_cm, *Az_cm;
-    cudaMalloc((void**)&Ax_cm, sizeof(double)); cudaMalloc((void**)&Ay_cm, sizeof(double)); cudaMalloc((void**)&Az_cm, sizeof(double));
+    Ax_cm = (double*) malloc(sizeof(double)); Ay_cm = (double*) malloc(sizeof(double)); Az_cm = (double*) malloc(sizeof(double));
+
 
     //outbox particles center of mass counter attributes:
     int *h_dn_mpcd_tot; 
