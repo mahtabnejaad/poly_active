@@ -1226,9 +1226,13 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     cudaMalloc(&d_errorFlag, sizeof(int));
     cudaMemcpy(d_errorFlag, hostErrorFlag, sizeof(int), cudaMemcpyHostToDevice);
 
+    double *Axcm, *Aycm, *Azcm;
+    cudaMemcpy(Axcm, Ax_cm, sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(Aycm, Ay_cm, sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(Azcm, Az_cm, sizeof(double), cudaMemcpyHostToDevice);
 
     //after putting the particles that had traveled outside of the box on its boundaries, we let them stream in the opposite direction for the time they had spent outside the box. 
-    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot, Ax_cm, Ay_cm, Az_cm, md_dt_min, h_md, L, Nmd, Xcm, Ycm, Zcm, d_errorFlag, n_out_flag);
+    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot, Axcm, Aycm, Azcm, md_dt_min, h_md, L, Nmd, Xcm, Ycm, Zcm, d_errorFlag, n_out_flag);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
