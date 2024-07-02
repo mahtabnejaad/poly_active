@@ -854,9 +854,9 @@ __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy
             if (md_dt_min[tid] > md_dt) {
                 printf("*********************md_dt_min[%i]=%f\n", tid, md_dt_min[tid]);
                 md_dt_min[tid]=md_dt;
-                mdAx_tot[tid]=0.0;
-                mdAy_tot[tid]=0.0;
-                mdAz_tot[tid]=0.0;
+                mdAx_tot[tid]=-*Ax_cm;
+                mdAy_tot[tid]=-*Ay_cm;
+                mdAz_tot[tid]=-*Az_cm;
                 *errorFlag = 1;  // Set the error flag
                 return;  // Early exit
             }
