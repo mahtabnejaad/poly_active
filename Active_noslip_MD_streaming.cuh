@@ -1227,6 +1227,9 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     cudaMemcpy(d_errorFlag, hostErrorFlag, sizeof(int), cudaMemcpyHostToDevice);
 
     double *Axcm, *Aycm, *Azcm;
+    cudaMalloc(&Axcm, sizeof(double));
+    cudaMalloc(&Aycm, sizeof(double));
+    cudaMalloc(&Azcm, sizeof(double));
     cudaMemcpy(Axcm, Ax_cm, sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(Aycm, Ay_cm, sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(Azcm, Az_cm, sizeof(double), cudaMemcpyHostToDevice);
