@@ -839,7 +839,7 @@ __global__ void particles_on_crossing_points(double *mdx, double *mdy, double *m
 }
 
 //Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1
-__global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *md_dt_min, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag){
+__global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *Ax_cm, double *Ay_cm, double *Az_cm, double *md_dt_min, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<Nmd){
@@ -1106,7 +1106,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
 
 //first velocityverletKernel version 2:
 __host__ void Active_noslip_md_velocityverletKernel3(double *mdX, double *mdY , double *mdZ, double *x, double *y, double *z,
-double *mdvx, double *mdvy, double *mdvz, double *vx, double *vy, double *vz, double *mdAx , double *mdAy , double *mdAz, double *Aa_kx, double *Aa_ky, double *Aa_kz, double *Ab_kx, double *Ab_ky, double *Ab_kz,
+double *mdvx, double *mdvy, double *mdvz, double *vx, double *vy, double *vz, double *mdAx , double *mdAy , double *mdAz, double *Aa_kx, double *Aa_ky, double *Aa_kz, double *Ab_kx, double *Ab_ky, double *Ab_kz, double *Ax_cm, double *Ay_cm, double *Az_cm,
 double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *X_tot, double *Y_tot, double *Z_tot, double *mdVx_tot, double *mdVy_tot, double *mdVz_tot, double *Vx_tot, double *Vy_tot, double *Vz_tot, int *dn_md_tot, int *dn_mpcd_tot,
 double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz, double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz, double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, int *CMsumblock_n_outbox_md, int *CMsumblock_n_outbox_mpcd,
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out,
@@ -1228,7 +1228,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
 
 
     //after putting the particles that had traveled outside of the box on its boundaries, we let them stream in the opposite direction for the time they had spent outside the box. 
-    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot, md_dt_min, h_md, L, Nmd, Xcm, Ycm, Zcm, d_errorFlag, n_out_flag);
+    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot, d_Ay_tot, d_Az_tot, Ax_cm, Ay_cm, Az_cm, md_dt_min, h_md, L, Nmd, Xcm, Ycm, Zcm, d_errorFlag, n_out_flag);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -1541,7 +1541,7 @@ __host__ void Active_noslip_MD_streaming2(double *d_mdX, double *d_mdY, double *
 
         
         Active_noslip_md_velocityverletKernel3(d_mdX, d_mdY , d_mdZ, d_x, d_y, d_z,
-        d_mdvx, d_mdvy, d_mdvz, d_vx, d_vy, d_vz, d_mdAx, d_mdAy, d_mdAz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz,
+        d_mdvx, d_mdvy, d_mdvz, d_vx, d_vy, d_vz, d_mdAx, d_mdAy, d_mdAz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, Ax_cm, Ay_cm, Az_cm,
         mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, dn_md_tot, dn_mpcd_tot,
         CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_n_outbox_md, CMsumblock_n_outbox_mpcd,
         Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, Xcm_out, Ycm_out, Zcm_out, Vxcm_out, Vycm_out, Vzcm_out,
