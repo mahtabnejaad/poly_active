@@ -1006,10 +1006,10 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
 
     
 
-    int *d_errorFlag;
+    int *d_errorFlag_mpcd;
     *hostErrorFlag = 0;
-    cudaMalloc(&d_errorFlag, sizeof(int));
-    cudaMemcpy(d_errorFlag, hostErrorFlag, sizeof(int), cudaMemcpyHostToDevice);
+    cudaMalloc(&d_errorFlag_mpcd, sizeof(int));
+    cudaMemcpy(d_errorFlag_mpcd, hostErrorFlag, sizeof(int), cudaMemcpyHostToDevice);
 
     double *Axcm, *Aycm, *Azcm;
     cudaMalloc(&Axcm, sizeof(double));
@@ -1019,13 +1019,13 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     cudaMemcpy(Aycm, Ay_cm, sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(Azcm, Az_cm, sizeof(double), cudaMemcpyHostToDevice);
 
-    double *zero;
-    cudaMalloc(&zero, sizeof(double));
+    double *zeroo;
+    cudaMalloc(&zeroo, sizeof(double));
     *d_zero = 0.0;
-    cudaMemcpy(zero, d_zero, sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(zeroo, d_zero, sizeof(double), cudaMemcpyHostToDevice);
 
     //after putting the particles that had traveled outside of the box on its boundaries, we let them stream in the opposite direction for the time they had spent outside the box. 
-    Active_CM_mpcd_bounceback_velocityverlet1<<<grid_size,blockSize>>>(d_x , d_y, d_z, x_o, y_o, z_o, d_vx, d_vy, d_vz, vx_o, vy_o, vz_o, fax, fay, faz, zero, zero, zero, dt_min, h_mpcd, L, N, zero, zero, zero, d_errorFlag, n_out_flag, Nmd, mass, mass_fluid);
+    Active_CM_mpcd_bounceback_velocityverlet1<<<grid_size,blockSize>>>(d_x , d_y, d_z, x_o, y_o, z_o, d_vx, d_vy, d_vz, vx_o, vy_o, vz_o, fax, fay, faz, zeroo, zeroo, zeroo, dt_min, h_mpcd, L, N, zeroo, zeroo, zeroo, d_errorFlag_mpcd, n_out_flag, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -1034,7 +1034,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess) {
         printf("CUDA Error: %s\n", cudaGetErrorString(err));
-        cudaFree(d_errorFlag);
+        cudaFree(d_errorFlag_mpcd);
         *hostErrorFlag = -1;  // Set error flag
         return;
     }
@@ -1044,7 +1044,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     if (*hostErrorFlag) {
         printf("Error condition met in kernel. Exiting.\n");
         // Clean up and exit
-        cudaFree(d_errorFlag);
+        cudaFree(d_errorFlag_mpcd);
         *hostErrorFlag = -1;  // Set error flag
         return;
     }
@@ -1052,8 +1052,9 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     
     
 
-    cudaFree(d_errorFlag);
+    cudaFree(d_errorFlag_mpcd);
     cudaFree(Axcm); cudaFree(Aycm); cudaFree(Azcm);
+    cudaFree(zeroo);
 
     
    
