@@ -919,7 +919,11 @@ int main(int argc, const char* argv[])
                 d_L, Nmd, ux, density, 1, real_time, m_md, topology, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_x_o, d_y_o, d_z_o, 
                 d_Vx_o , d_Vy_o , d_Vz_o, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z, totalT,
                 d_n_outbox_mpcd, d_n_outbox_md, h_dn_mpcd_tot, h_dn_md_tot, CMsumblock_n_outbox_mpcd, CMsumblock_n_outbox_md, &ErrorFlag_mpcd, n_out_flag_mpcd, &d_zero_mpcd);
-            
+                if (ErrorFlag_mpcd != 0){
+                // Handle error
+                return ErrorFlag_mpcd;
+                }
+                
                 int ErrorFlag_md = 0;
                 double d_zero_md = 0.0;
                 Active_noslip_MD_streaming2(d_mdX, d_mdY, d_mdZ, d_x , d_y , d_z, d_mdVx , d_mdVy , d_mdVz, d_vx , d_vy , d_vz,
@@ -935,9 +939,9 @@ int main(int argc, const char* argv[])
                     d_md_dt_min, d_md_dt_x, d_md_dt_y, d_md_dt_z, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdVx_o, d_mdVy_o, d_mdVz_o, 
                     d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag_md, n_out_flag_md, &d_zero_md);
                 
-                if (ErrorFlag != 0){
+                if (ErrorFlag_md != 0){
                 // Handle error
-                return ErrorFlag;
+                return ErrorFlag_md;
                 }
 
                 /*noslip_Sort_begin(d_x , d_y , d_z ,d_vx, d_vy, d_vz, d_index , d_mdX , d_mdY , d_mdZ ,
