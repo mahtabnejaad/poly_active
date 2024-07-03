@@ -1040,7 +1040,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     }
 
     // Check the error flag
-    cudaMemcpy(hostErrorFlag, d_errorFlag, sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(hostErrorFlag, d_errorFlag_mpcd, sizeof(int), cudaMemcpyDeviceToHost);
     if (*hostErrorFlag) {
         printf("Error condition met in kernel. Exiting.\n");
         // Clean up and exit
