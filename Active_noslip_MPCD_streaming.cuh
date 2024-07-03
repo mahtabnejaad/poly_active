@@ -396,6 +396,80 @@ __global__ void Take_o_to_outerCM_system(double *x_o, double *y_o, double *z_o, 
     }
 }
 
+__global__ void mpcd_particles_on_crossing_points(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, int *n_out_flag){
+
+
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N){
+
+        //if(dt_min[tid] < dt){
+        if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
+            //make the position of particle equal to (xo, yo, zo):
+            x[tid] = x_o[tid];
+            y[tid] = y_o[tid];
+            z[tid] = z_o[tid];
+            //make the velocity equal to the reverse of the velocity in crossing point.
+            vx[tid] = -vx_o[tid];
+            vy[tid] = -vy_o[tid];
+            vz[tid] = -vz_o[tid];
+            n_out_flag[tid] = 1;
+        }
+        else  n_out_flag[tid]=0;
+    }
+
+}
+
+//Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1
+__global__ void Active_CM_mpcd_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *Ax_tot, double *Ay_tot, double *Az_tot, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N){
+
+     
+
+        //if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
+    if((x[tid]+*Xcm)>L[0]/2 || (x[tid]+*Xcm)<-L[0]/2 || (y[tid]+*Ycm)>L[1]/2 || (y[tid]+*Ycm)<-L[1]/2 || (z[tid]+*Zcm)>L[2]/2 || (z[tid]+*Zcm)<-L[2]/2){
+        
+        if(n_out_flag[tid] == 1){
+            
+            if (dt_min[tid] > dt) {
+                printf("*********************md_dt_min[%i]=%f\n", tid, dt_min[tid]);
+                dt_min[tid]=dt;
+                Ax_tot[tid]=-*Ax_cm;
+                Ay_tot[tid]=-*Ay_cm;
+                Az_tot[tid]=-*Az_cm;
+                *errorFlag = 1;  // Set the error flag
+                return;  // Early exit
+            }
+            //let the particle move during dt-dt1 with the reversed velocity:
+            x[tid] += (dt - (dt_min[tid])) * vx[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * (-*Ax_cm);// Ax_tot[tid];
+            y[tid] += (dt - (dt_min[tid])) * vy[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * (-*Ay_cm);// Ay_tot[tid];
+            z[tid] += (dt - (dt_min[tid])) * vz[tid] + 0.5 * ((dt - (dt_min[tid]))*(dt - (dt_min[tid]))) * (-*Az_cm);// Az_tot[tid];
+            vx[tid]= vx[tid] +   (dt - (dt_min[tid])) * (-*Ax_cm);// Ax_tot[tid];// * 0.5;
+            vy[tid]= vy[tid] +   (dt - (dt_min[tid])) * (-*Ay_cm);//Ay_tot[tid];// * 0.5;
+            vz[tid]= vz[tid] +   (dt - (dt_min[tid])) * (-*Az_cm);//Az_tot[tid];// * 0.5;
+        
+            if((x_o[tid] + *Xcm )>L[0]/2 || (x_o[tid] + *Xcm)<-L[0]/2 || (y_o[tid] + *Ycm )>L[1]/2 || (y_o[tid] + *Ycm )<-L[1]/2 || (z_o[tid] + *Zcm )>L[2]/2 || (z_o[tid] + *Zcm )<-L[2]/2)  printf("wrong x_o[%i]=%f, y_o[%i]=%f, z_o[%i]=%f\n", tid, (x_o[tid] + *Xcm), tid, (y_o[tid] + *Ycm), tid, (z_o[tid] + *Zcm));
+
+            printf("after bounceback in lab x[%i]=%f, y[%i]=%f, z[%i]=%f\n ", tid, (x[tid] + *Xcm), tid, (y[tid] + *Ycm), tid, (z[tid] + *Zcm));
+
+        }
+        //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
+        if((x[tid] + *Xcm )>L[0]/2 || (x[tid] + *Xcm)<-L[0]/2 || (y[tid] + *Ycm )>L[1]/2 || (y[tid] + *Ycm )<-L[1]/2 || (z[tid] + *Zcm )>L[2]/2 || (z[tid] + *Zcm )<-L[2]/2){
+
+            *errorFlag = 1;  // Set the error flag
+            return;  // Early exit
+        }
+        
+    }
+
+}
+
+}
+
+
+
 __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, double *Xcm, double *Ycm, double *Zcm, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -429,6 +503,7 @@ __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceba
     }
 
 }
+
 
 
 __global__ void Active_outboxCM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, double *Xcm, double *Ycm, double *Zcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, int Nmd, double mass, double mass_fluid){
@@ -848,7 +923,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, double h_mpcd, int N, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_,
 double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z ,double *ex, double *ey, double *ez,double *block_sum_ex, double *block_sum_ey, double *block_sum_ez,
 double *L, int Nmd , double ux, double mass, double mass_fluid, double real_time, int m, int topology, double *dt_x, double *dt_y, double *dt_z, double *dt_min, 
-double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_tot, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md)
+double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_tot, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md,  int *hostErrorFlag, int *n_out_flag, double *d_zero)
 
 {
 
@@ -889,80 +964,80 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaDeviceSynchronize() );
     
     
-    //take all MPCD particles to CM reference frame:
-    gotoCMframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, N);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-
-    Take_o_to_CM_system<<<grid_size,blockSize>>>(x_o, y_o, z_o, vx_o, vy_o, vz_o, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, N);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
     
-
-    //??with this function call MD particles go to box's center of mass frame:(should I???)
-    //gotoCMframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Nmd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
 
     Active_mpcd_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z , d_vx , d_vy , d_vz, h_mpcd, N, L, T, fax, fay, faz, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
     
-    /*
-    //CM_outside_particles
-    outerParticles_CM_system(d_mdX, d_mdY, d_mdZ, d_x, d_y, d_z,  d_mdVx, d_mdVy, d_mdVz, d_vx, d_vy, d_vz, Nmd, N, n_outbox_md, n_outbox_mpcd,
-    mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, dn_mpcd_tot, dn_md_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, 
-    Xcm_out, Ycm_out, Zcm_out, Vxcm_out, Vycm_out, Vzcm_out, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz,
-    CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_n_outbox_mpcd, CMsumblock_n_outbox_md, topology, L);
     
-    //gotoOUTBOXCMframe  go to out of box cm frame for mpcd particles:
-    gotoOUTBOXCMframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, Vxcm_out, Vycm_out, Vzcm_out, N, L);
+        //we put the particles that had gone outside the box, on the box's boundaries and set its velocity equal to the negative of the crossing velocity in Lab system.
+    particles_on_crossing_points<<<grid_size,blockSize>>>(d_x, d_y, d_z, x_o, y_o, z_o, vx, vy, vz, vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, n_out_flag);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
-
-    //go to out of box cm frame for md particles:(should I???)
-    gotoOUTBOXCMframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Vxcm_out, Vycm_out, Vzcm_out, Nmd, L);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-
-    //take o point (crossing point) components to the outer particles' CM system:
-    Take_o_to_outerCM_system<<<grid_size,blockSize>>>(x_o, y_o, z_o, vx_o, vy_o, vz_o, Xcm_out, Ycm_out, Zcm_out, Vxcm_out, Vycm_out, Vzcm_out, N);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );*/
     
-    //put the particles that had traveled outside of the box , on box boundaries.
-    /*Active_outboxCM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, fax, fay, faz, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, Nmd, mass, mass_fluid);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );*/
-
-    //put the particles that had traveled outside of the box , on box boundaries.
-    Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, fax, fay, faz, Xcm, Ycm, Zcm, Nmd, mass, mass_fluid);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
+  
+    //CM_system : we call CM system to calculate the new CM after streaming. we should check if this is alright or not. we could also use the former CM system for bounceback part.
+    //CM_system(mdX, mdY, mdZ, x, y, z, mdvx, mdvy, mdvz, vx, vy, vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid,
+    //Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Vxcm, Vycm, Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
 
 
+    
 
-    /*
-    //go back to the old CM frame:
-    gobackOUTBOX_OLDCMframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, Vxcm_out, Vycm_out, Vzcm_out, N, L, n_outbox_mpcd);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
+    int *d_errorFlag;
+    *hostErrorFlag = 0;
+    cudaMalloc(&d_errorFlag, sizeof(int));
+    cudaMemcpy(d_errorFlag, hostErrorFlag, sizeof(int), cudaMemcpyHostToDevice);
 
-    gobackOUTBOX_OLDCMframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Vxcm_out, Vycm_out, Vzcm_out, Nmd, L, n_outbox_md);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-    */
+    double *Axcm, *Aycm, *Azcm;
+    cudaMalloc(&Axcm, sizeof(double));
+    cudaMalloc(&Aycm, sizeof(double));
+    cudaMalloc(&Azcm, sizeof(double));
+    cudaMemcpy(Axcm, Ax_cm, sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(Aycm, Ay_cm, sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(Azcm, Az_cm, sizeof(double), cudaMemcpyHostToDevice);
 
-    //gotoLabFrame for mpcd particles:
-    backtoLabframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, N);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
+    double *zero;
+    cudaMalloc(&zero, sizeof(double));
+    *d_zero = 0.0;
+    cudaMemcpy(zero, d_zero, sizeof(double), cudaMemcpyHostToDevice);
 
-    //gotoLabFrame for md particles:
-    //backtoLabframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Nmd);
+    //after putting the particles that had traveled outside of the box on its boundaries, we let them stream in the opposite direction for the time they had spent outside the box. 
+    Active_CM_mpcd_bounceback_velocityverlet1<<<grid_size,blockSize>>>(x , y, z, x_o, y_o, z_o, vx, vy, vz, vx_o, vy_o, vz_o, fax, fay, faz, zero, zero, zero, dt_min, h_mpcd, L, N, zero, zero, zero, d_errorFlag, n_out_flag);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
+
+    // Check for kernel errors and sync
+    cudaDeviceSynchronize();
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        printf("CUDA Error: %s\n", cudaGetErrorString(err));
+        cudaFree(d_errorFlag);
+        *hostErrorFlag = -1;  // Set error flag
+        return;
+    }
+
+    // Check the error flag
+    cudaMemcpy(hostErrorFlag, d_errorFlag, sizeof(int), cudaMemcpyDeviceToHost);
+    if (*hostErrorFlag) {
+        printf("Error condition met in kernel. Exiting.\n");
+        // Clean up and exit
+        cudaFree(d_errorFlag);
+        *hostErrorFlag = -1;  // Set error flag
+        return;
+    }
+
+    
+    
+
+    cudaFree(d_errorFlag);
+    cudaFree(Axcm); cudaFree(Aycm); cudaFree(Azcm);
+
+    
+   
+
+
 
 
 }
