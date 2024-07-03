@@ -440,10 +440,10 @@ __global__ void mpcd_particles_on_crossing_points(double *x, double *y, double *
 }
 
 //Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1
-__global__ void Active_CM_mpcd_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *Ax_tot, double *Ay_tot, double *Az_tot, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag, int Nmd, double *mass, double *mass_fluid){
+__global__ void Active_CM_mpcd_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *Ax_tot, double *Ay_tot, double *Az_tot, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double dt, double *L, int N, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag, int Nmd, double *mass, double *mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-     int Mtot = (N * mass_fluid + Nmd * mass); 
+    double Mtot = (N * mass_fluid + Nmd * mass); 
     double QQ2=-((dt - (dt_min[tid]))*(dt - (dt_min[tid])))/(2*(Nmd*mass+mass_fluid*N));
     double Q2=-(dt - (dt_min[tid]))/(Nmd*mass+mass_fluid*N);
     if (tid<N){
@@ -993,7 +993,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     
     
         //we put the particles that had gone outside the box, on the box's boundaries and set its velocity equal to the negative of the crossing velocity in Lab system.
-    particles_on_crossing_points<<<grid_size,blockSize>>>(d_x, d_y, d_z, x_o, y_o, z_o, vx, vy, vz, vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, n_out_flag);
+    particles_on_crossing_points<<<grid_size,blockSize>>>(d_x, d_y, d_z, x_o, y_o, z_o, d_vx, d_vy, d_vz, vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, n_out_flag);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
@@ -1024,7 +1024,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     cudaMemcpy(zero, d_zero, sizeof(double), cudaMemcpyHostToDevice);
 
     //after putting the particles that had traveled outside of the box on its boundaries, we let them stream in the opposite direction for the time they had spent outside the box. 
-    Active_CM_mpcd_bounceback_velocityverlet1<<<grid_size,blockSize>>>(x , y, z, x_o, y_o, z_o, vx, vy, vz, vx_o, vy_o, vz_o, fax, fay, faz, zero, zero, zero, dt_min, h_mpcd, L, N, zero, zero, zero, d_errorFlag, n_out_flag, Nmd, mass, mass_fluid);
+    Active_CM_mpcd_bounceback_velocityverlet1<<<grid_size,blockSize>>>(d_x , d_y, d_z, x_o, y_o, z_o, d_vx, d_vy, d_vz, vx_o, vy_o, vz_o, fax, fay, faz, zero, zero, zero, dt_min, h_mpcd, L, N, zero, zero, zero, d_errorFlag, n_out_flag, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
