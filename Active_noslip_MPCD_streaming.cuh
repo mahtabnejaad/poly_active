@@ -170,6 +170,10 @@ __global__ void Active_CM_noslip_mpcd_deltaT(double *vx, double *vy, double *vz,
 __global__ void Active_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *Vxcm, double *Vycm, double *Vzcm, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    double delta_x;
+    double delta_y;
+    double delta_z;
+    double delta_x_p; double delta_x_n; double delta_y_p; double delta_y_n; double delta_z_p; double delta_z_n;
     //printf("---fa_x=%f, fa_y=%f, fa_z=%f\n", *fa_x, *fa_y, *fa_z);
     if (tid<N){
         
