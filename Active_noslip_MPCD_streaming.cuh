@@ -327,30 +327,6 @@ __global__ void Active_CM_mpcd_crossing_velocity(double *vx, double *vy, double 
     
 }
 
-__global__ void mpcd_particles_on_crossing_points(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *md_dt_min, double md_dt, double *L, int Nmd, int *n_out_flag){
-
-
-
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    if (tid<Nmd){
-
-        //if(md_dt_min[tid] < md_dt){
-        if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
-            //make the position of particle equal to (xo, yo, zo):
-            mdx[tid] = mdx_o[tid];
-            mdy[tid] = mdy_o[tid];
-            mdz[tid] = mdz_o[tid];
-            //make the velocity equal to the reverse of the velocity in crossing point.
-            mdvx[tid] = -mdvx_o[tid];
-            mdvy[tid] = -mdvy_o[tid];
-            mdvz[tid] = -mdvz_o[tid];
-            n_out_flag[tid] = 1;
-        }
-        else  n_out_flag[tid]=0;
-    }
-
-}
-
 
 __global__ void Active_mpcd_velocityverlet(double *x, double *y, double *z, double *vx, double *vy, double *vz, double dt, int N, double *L, double *T, int Nmd, double mass, double mass_fluid){
 
