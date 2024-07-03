@@ -915,7 +915,7 @@ int main(int argc, const char* argv[])
                 Active_noslip_MPCD_streaming4(d_x , d_y, d_z, d_vx, d_vy, d_vz, d_mdX, d_mdY, d_mdZ, d_mdVx, d_mdVy, d_mdVz, dX_tot, dY_tot, dZ_tot, dVx_tot, dVy_tot, dVz_tot, 
                 mdX_tot, mdY_tot, mdZ_tot, mdVx_tot, mdVy_tot, mdVz_tot, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz,
                 h_Xcm, h_Ycm, h_Zcm, h_Vxcm, h_Vycm, h_Vzcm, h_Xcm_out, h_Ycm_out, h_Zcm_out, h_Vxcm_out, h_Vycm_out, h_Vzcm_out, h_mpcd , N, grid_size, shared_mem_size, shared_mem_size_ , blockSize_, grid_size_, 
-                h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_ex, d_ey, d_ez, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez,
+                h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_ex, d_ey, d_ez, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez,
                 d_L, Nmd, ux, density, 1, real_time, m_md, topology, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_x_o, d_y_o, d_z_o, 
                 d_Vx_o , d_Vy_o , d_Vz_o, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z, totalT,
                 d_n_outbox_mpcd, d_n_outbox_md, h_dn_mpcd_tot, h_dn_md_tot, CMsumblock_n_outbox_mpcd, CMsumblock_n_outbox_md, &ErrorFlag_mpcd, n_out_flag_mpcd, &d_zero_mpcd);
