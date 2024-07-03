@@ -444,14 +444,15 @@ __global__ void mpcd_particles_on_crossing_points(double *x, double *y, double *
 __global__ void Active_CM_mpcd_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *fa_x, double *fa_y, double *fa_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double dt, double *L, int N, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    double Mtot = (N * mass_fluid + Nmd * mass); 
-    double QQ2=-((dt - (dt_min[tid]))*(dt - (dt_min[tid])))/(2*(Nmd*mass+mass_fluid*N));
-    double Q2=-(dt - (dt_min[tid]))/(Nmd*mass+mass_fluid*N);
+    
     if (tid<N){
 
    
-    
-        //if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
+    double Mtot = (N * mass_fluid + Nmd * mass); 
+    double QQ2=-((dt - (dt_min[tid]))*(dt - (dt_min[tid])))/(2*(Nmd*mass+mass_fluid*N));
+    double Q2=-(dt - (dt_min[tid]))/(Nmd*mass+mass_fluid*N);
+
+    //if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
     if((x[tid]+*Xcm)>L[0]/2 || (x[tid]+*Xcm)<-L[0]/2 || (y[tid]+*Ycm)>L[1]/2 || (y[tid]+*Ycm)<-L[1]/2 || (z[tid]+*Zcm)>L[2]/2 || (z[tid]+*Zcm)<-L[2]/2){
         
         if(n_out_flag[tid] == 1){
