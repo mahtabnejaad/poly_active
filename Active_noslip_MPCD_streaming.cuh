@@ -24,6 +24,38 @@ __global__ void CM_wall_sign(double *vx, double *vy, double *vz, double *wall_si
 }
 
 //a function to calculate distance of particles which are inside the box from the corresponding walls:
+__global__ void mpcd_distance_from_walls(double *x, double *y, double *z, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *L, int N){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N){
+        if (wall_sign_x[tid] == 1)   x_wall_dist[tid] = L[0]/2-(x[tid]);
+        else if (wall_sign_x[tid] == -1)  x_wall_dist[tid] = -(L[0]/2+(x[tid]));
+        else if(wall_sign_x[tid] == 0)  x_wall_dist[tid] = L[0]/2 -(x[tid]);//we can change it as we like . it doesn't matter.
+
+
+        if (wall_sign_y[tid] == 1)   y_wall_dist[tid] = L[1]/2-(y[tid]);
+        else if (wall_sign_y[tid] == -1)  y_wall_dist[tid] = -(L[1]/2+(y[tid]));
+        else if(wall_sign_y[tid] == 0)  y_wall_dist[tid] = L[1]/2 -(y[tid]);//we can change it as we like . it doesn't matter.
+
+
+        if (wall_sign_z[tid] == 1)   z_wall_dist[tid] = L[2]/2-(z[tid]);
+        else if (wall_sign_z[tid] == -1)  z_wall_dist[tid] = -(L[2]/2+(z[tid]));
+        else if(wall_sign_z[tid] == 0)  z_wall_dist[tid] = L[2]/2 -(z[tid]);//we can change it as we like . it doesn't matter.
+
+
+
+        //printf("***dist_x[%i]=%f, dist_y[%i]=%f, dist_z[%i]=%f\n", tid, x_wall_dist[tid], tid, y_wall_dist[tid], tid, z_wall_dist[tid]);
+        int idxx;
+        idxx = (int(x[tid] + L[0] / 2 + 2) + (L[0] + 4) * int(y[tid] + L[1] / 2 + 2) + (L[0] + 4) * (L[1] + 4) * int(z[tid] + L[2] / 2 + 2));
+        //printf("index[%i]=%i, x[%i]=%f, y[%i]=%f, z[%i]=%f\n", tid, idxx, tid, x[tid], tid, y[tid], tid, z[tid]);//checking
+
+    }    
+
+
+}
+
+
+//a function to calculate distance of particles which are inside the box from the corresponding walls:
 __global__ void CM_distance_from_walls(double *x, double *y, double *z, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *L, int N, double *Xcm, double *Ycm, double *Zcm){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -143,31 +175,98 @@ __global__ void Active_Lab_noslip_mpcd_deltaT(double *vx, double *vy, double *vz
         
         double mm = (Nmd*mass+mass_fluid*N);
 
-        if(wall_sign_x[tid] == 0 ) dt_x[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        if(wall_sign_x[tid] == 0 ){
+
+            if(*fa_x/mm  == 0) dt_x[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(*fa_x/mm  > 0.0)  dt_x[tid] = sqrt(2*x_wall_dist[tid]/(*fa_x/mm));
+            else if(*fa_x/mm < 0.0)  dt_x[tid] = sqrt(2*(x_wall_dist[tid]-L[0])/(*fa_x/mm));
+        }
         else if(wall_sign_x[tid] == 1 || wall_sign_x[tid] == -1){
             
-            if(*fa_x/mm == 0.0)   dt_x[tid] = abs(x_wall_dist[tid]/(vx[tid] + *Vxcm));
+           if(*fa_x == 0.0)   dt_x[tid] = abs(x_wall_dist[tid]/vx[tid]);
 
-            else if (*fa_x/mm != 0.0)  dt_x[tid] = ((-(vx[tid] + *Vxcm) + sqrt(abs(((vx[tid] + *Vxcm)*(vx[tid] + *Vxcm))+(2*x_wall_dist[tid]*(*fa_x/mm)))))/(*fa_x/mm));
+            else if (*fa_x != 0.0){
 
+                delta_x = ((vx[tid]*vx[tid])+(2*x_wall_dist[tid]*(*fa_x/mm)));
+
+                if(delta_x >= 0.0){
+                        if(vx[tid] > 0.0)         dt_x[tid] = ((-vx[tid] + sqrt(delta_x))/(*fa_x/mm));
+                        else if(vx[tid] < 0.0)    dt_x[tid] = ((-vx[tid] - sqrt(delta_x))/(*fa_x/mm));
+                        
+                } 
+                else if (delta_x < 0.0){
+                        delta_x_p = ((vx[tid]*vx[tid])+(2*(x_wall_dist[tid]-L[0])*(*fa_x/mm)));
+                        delta_x_n = ((vx[tid]*vx[tid])+(2*(x_wall_dist[tid]+L[0])*(*fa_x/mm)));
+
+                        if(vx[tid] > 0.0)        dt_x[tid] = ((-vx[tid] - sqrt(delta_x_p))/(*fa_x/mm));
+                        else if(vx[tid] < 0.0)   dt_x[tid] = ((-vx[tid] + sqrt(delta_x_n))/(*fa_x/mm));
+            
+                    }  
+            }  
         }  
 
-        if(wall_sign_y[tid] == 0 ) dt_y[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        if(wall_sign_y[tid] == 0 ){
+            if(*fa_y/mm== 0) dt_y[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(*fa_y/mm > 0.0)  dt_y[tid] = sqrt(2*y_wall_dist[tid]/(*fa_y/mm));
+            else if(*fa_y/mm < 0.0)  dt_y[tid] = sqrt(2*(y_wall_dist[tid]-L[1])/(*fa_y/mm));
+        }
         else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
             
-            if(*fa_y/mm  == 0.0)   dt_y[tid] = abs(y_wall_dist[tid]/(vy[tid] + *Vycm));
+            if(*fa_y/mm == 0.0)   dt_y[tid] = abs(y_wall_dist[tid]/vy[tid]);
+            
+            else if (*fa_y/mm != 0.0){
 
-            else if (*fa_y/mm != 0.0)  dt_y[tid] = ((-(vy[tid] + *Vycm)+sqrt(abs(((vy[tid] + *Vycm)*(vy[tid] + *Vycm))+(2*y_wall_dist[tid]*(*fa_y/mm )))))/(*fa_y/mm ));
+                delta_y = (vy[tid]*vy[tid])+(2*y_wall_dist[tid]*(*fa_y/mm));
+
+                if (delta_y >= 0){
+
+                    if(vy[tid] > 0.0)              dt_y[tid] = ((-vy[tid] + sqrt(delta_y))/(*fa_y/mm));
+                    else if (vy[tid] < 0.0)        dt_y[tid] = ((-vy[tid] - sqrt(delta_y))/(*fa_y/mm));
+                }
+                else if(delta_y < 0){
+
+                    delta_y_p = ((vy[tid]*vy[tid])+(2*(y_wall_dist[tid]-L[1])*(*fa_y/mm)));
+                    delta_y_n = ((vy[tid]*vy[tid])+(2*(y_wall_dist[tid]+L[1])*(*fa_y/mm)));
+
+                    if(vy[tid] > 0.0)        dt_y[tid] = ((-vy[tid] - sqrt(delta_y_p))/(*fa_y/mm));
+                    else if(vy[tid] < 0.0)   dt_y[tid] = ((-vy[tid] + sqrt(delta_y_n))/(*fa_y/mm));
+
+                }        
+            }
 
         }  
 
-        if(wall_sign_z[tid] == 0 ) dt_z[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        if(wall_sign_z[tid] == 0 ){
+
+            if(*fa_z/mm == 0)        dt_z[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(*fa_z/mm > 0.0)  dt_z[tid] = sqrt(2*z_wall_dist[tid]/(*fa_z/mm));
+            else if(*fa_z/mm < 0.0)  dt_z[tid] = sqrt(2*(z_wall_dist[tid]-L[2])/(*fa_z/mm));
+        }
         else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
             
-            if(*fa_z/mm == 0.0)   dt_z[tid] = abs(z_wall_dist[tid]/(vz[tid] + *Vzcm));
+            if(*fa_z/mm == 0.0)   dt_z[tid] = abs(z_wall_dist[tid]/vz[tid]);
 
-            else if (*fa_z/mm != 0.0)  dt_z[tid] = ((-(vz[tid] + *Vzcm)+sqrt(abs(((vz[tid] + *Vzcm)*(vz[tid] + *Vzcm))+(2*z_wall_dist[tid]*(*fa_z/mm)))))/(*fa_z/mm));
+            else if (*fa_z/mm != 0.0){
 
+                delta_z = (vz[tid]*vz[tid])+(2*z_wall_dist[tid]*(*fa_z/mm));
+
+                if (delta_z >= 0.0){
+                    
+                    if(vz[tid] > 0.0)             dt_z[tid] = ((-vz[tid] + sqrt(delta_z))/(*fa_z/mm));
+                    else if(vz[tid] < 0.0)        dt_z[tid] = ((-vz[tid] - sqrt(delta_z))/(*fa_z/mm));  
+                }
+
+                else if (delta_z < 0.0){
+                
+                    delta_z_p = ((vz[tid]*vz[tid])+(2*(z_wall_dist[tid]-L[2])*(*fa_z/mm)));
+                    delta_z_n = ((vz[tid]*vz[tid])+(2*(z_wall_dist[tid]+L[2])*(*fa_z/mm)));
+
+                    if(vz[tid] > 0.0)        dt_z[tid] = ((-vz[tid] - sqrt(delta_z_p))/(*fa_z/mm));
+                    else if(vz[tid] < 0.0)   dt_z[tid] = ((-vz[tid] + sqrt(delta_z_n))/(*fa_z/mm));
+                    
+                }
+                
+            }
         }  
 
 
@@ -636,6 +735,136 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
 
     //calculate particle's distance from walls if the particle is inside the box:
     distance_from_walls<<<grid_size,blockSize>>>(d_x , d_y , d_z, wall_sign_x, wall_sign_y, wall_sign_z, x_wall_dist, y_wall_dist, z_wall_dist, L, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    mpcd_deltaT<<<grid_size,blockSize>>>(d_vx, d_vy, d_vz, wall_sign_x, wall_sign_y, wall_sign_z, x_wall_dist, y_wall_dist, z_wall_dist, dt_x, dt_y, dt_z, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    deltaT_min<<<grid_size,blockSize>>>(dt_x, dt_y, dt_z, dt_min, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    mpcd_crossing_location<<<grid_size,blockSize>>>(d_x , d_y , d_z , d_vx , d_vy , d_vz, x_o, y_o, z_o, dt_min, h_mpcd, L, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    mpcd_crossing_velocity<<<grid_size,blockSize>>>(d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    
+    
+    //take all MPCD particles to CM reference frame:
+    gotoCMframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    Take_o_to_CM_system<<<grid_size,blockSize>>>(x_o, y_o, z_o, vx_o, vy_o, vz_o, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    
+
+    //??with this function call MD particles go to box's center of mass frame:(should I???)
+    //gotoCMframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    Active_mpcd_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z , d_vx , d_vy , d_vz, h_mpcd, N, L, T, fax, fay, faz, Nmd, mass, mass_fluid);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    
+    /*
+    //CM_outside_particles
+    outerParticles_CM_system(d_mdX, d_mdY, d_mdZ, d_x, d_y, d_z,  d_mdVx, d_mdVy, d_mdVz, d_vx, d_vy, d_vz, Nmd, N, n_outbox_md, n_outbox_mpcd,
+    mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, dn_mpcd_tot, dn_md_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid, Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, 
+    Xcm_out, Ycm_out, Zcm_out, Vxcm_out, Vycm_out, Vzcm_out, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz,
+    CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_n_outbox_mpcd, CMsumblock_n_outbox_md, topology, L);
+    
+    //gotoOUTBOXCMframe  go to out of box cm frame for mpcd particles:
+    gotoOUTBOXCMframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, Vxcm_out, Vycm_out, Vzcm_out, N, L);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //go to out of box cm frame for md particles:(should I???)
+    gotoOUTBOXCMframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Vxcm_out, Vycm_out, Vzcm_out, Nmd, L);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //take o point (crossing point) components to the outer particles' CM system:
+    Take_o_to_outerCM_system<<<grid_size,blockSize>>>(x_o, y_o, z_o, vx_o, vy_o, vz_o, Xcm_out, Ycm_out, Zcm_out, Vxcm_out, Vycm_out, Vzcm_out, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );*/
+    
+    //put the particles that had traveled outside of the box , on box boundaries.
+    /*Active_outboxCM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, fax, fay, faz, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, Nmd, mass, mass_fluid);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );*/
+
+    //put the particles that had traveled outside of the box , on box boundaries.
+    Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z, x_o, y_o, z_o, d_vx ,d_vy ,d_vz , vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, fax, fay, faz, Xcm, Ycm, Zcm, Nmd, mass, mass_fluid);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+
+
+    /*
+    //go back to the old CM frame:
+    gobackOUTBOX_OLDCMframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, Vxcm_out, Vycm_out, Vzcm_out, N, L, n_outbox_mpcd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    gobackOUTBOX_OLDCMframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, Xcm_out, Ycm_out, Zcm_out, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Vxcm_out, Vycm_out, Vzcm_out, Nmd, L, n_outbox_md);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    */
+
+    //gotoLabFrame for mpcd particles:
+    backtoLabframe<<<grid_size,blockSize>>>(d_x, d_y, d_z, Xcm, Ycm, Zcm, d_vx, d_vy, d_vz, Vxcm, Vycm, Vzcm, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //gotoLabFrame for md particles:
+    //backtoLabframe<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Xcm, Ycm, Zcm, d_mdVx, d_mdVy, d_mdVz, Vxcm, Vycm, Vzcm, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+
+}
+
+
+
+
+
+__host__ void Active_noslip_MPCD_streaming4(double* d_x, double* d_y , double* d_z, double* d_vx , double* d_vy, double* d_vz, double* d_mdX, double* d_mdY, double* d_mdZ, double* d_mdVx , double* d_mdVy, double* d_mdVz,
+double *X_tot, double *Y_tot, double *Z_tot, double *Vx_tot, double *Vy_tot, double *Vz_tot, double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *mdVx_tot, double *mdVy_tot, double *mdVz_tot,
+double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz,
+double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz,
+double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, double h_mpcd, int N, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_,
+double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z ,double *ex, double *ey, double *ez,double *block_sum_ex, double *block_sum_ey, double *block_sum_ez,
+double *L, int Nmd , double ux, double mass, double mass_fluid, double real_time, int m, int topology, double *dt_x, double *dt_y, double *dt_z, double *dt_min, 
+double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_tot, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md)
+
+{
+
+    double *fax, *fay, *faz;
+    cudaMalloc((void**)&fax, sizeof(double)); cudaMalloc((void**)&fay, sizeof(double)); cudaMalloc((void**)&faz, sizeof(double));
+    cudaMemcpy(fax, fa_x, sizeof(double) , cudaMemcpyHostToDevice);  cudaMemcpy(fax, fa_x, sizeof(double) , cudaMemcpyHostToDevice); 
+    cudaMemcpy(fax, fa_x, sizeof(double) , cudaMemcpyHostToDevice);  cudaMemcpy(fay, fa_y, sizeof(double) , cudaMemcpyHostToDevice);  cudaMemcpy(faz, fa_z, sizeof(double) , cudaMemcpyHostToDevice);
+
+
+    //CM_system(d_mdX, d_mdY, d_mdZ,d_x, d_y, d_z, d_mdVx, d_mdVy, d_mdVz, d_vx, d_vy, d_vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, density, 1,
+    //Xcm, Ycm, Zcm, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, Vxcm, Vycm, Vzcm, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, topology);
+
+    
+
+    wall_sign<<<grid_size,blockSize>>>(d_vx , d_vy , d_vz, wall_sign_x, wall_sign_y, wall_sign_z, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //calculate particle's distance from walls if the particle is inside the box:
+    mpcd_distance_from_walls<<<grid_size,blockSize>>>(d_x , d_y , d_z, wall_sign_x, wall_sign_y, wall_sign_z, x_wall_dist, y_wall_dist, z_wall_dist, L, N);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
