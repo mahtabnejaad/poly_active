@@ -440,7 +440,7 @@ __global__ void mpcd_particles_on_crossing_points(double *x, double *y, double *
 }
 
 //Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1
-__global__ void Active_CM_mpcd_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *Ax_tot, double *Ay_tot, double *Az_tot, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double dt, double *L, int N, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag, int Nmd, double *mass, double *mass_fluid){
+__global__ void Active_CM_mpcd_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *Ax_tot, double *Ay_tot, double *Az_tot, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double dt, double *L, int N, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     double Mtot = (N * mass_fluid + Nmd * mass); 
