@@ -166,3 +166,67 @@ __host__ void noslip_Sort_finish(double *d_x , double *d_y , double *d_z ,double
   
     
 }
+
+
+__global__ void shift_index_forward(double* x,double* y,double* z, double *L, int* index, double *r, int N)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N)
+    {
+    index[tid] = int(x[tid] + L[0] / 2 + r[0]) + L[0] * int(y[tid] + L[1] / 2 + r[1]) + L[0] * L[1] * int(z[tid] + L[2] / 2 + r[2]);
+    }
+
+} //Output: The index array will be updated with the computed unique IDs.
+
+__global__ void shift_index_backward(double* x,double* y,double* z, double *L, int* index, double *r int N)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N)
+    {
+    index[tid] = int(x[tid] + L[0] / 2 - r[0]) + L[0] * int(y[tid] + L[1] / 2 - r[1]) + L[0] * L[1] * int(z[tid] + L[2] / 2 - r[2]);
+    }
+
+} //Output: The index array will be updated with the computed unique IDs.
+
+
+
+//let's shift cells instead of shifting the particles
+
+__global__ void cell_index_shift_forward(double *d_x , double *d_y , double *d_z ,double *d_vx, double *d_vy, double *d_vz, int *d_index ,
+    double *d_mdX , double *d_mdY , double *d_mdZ , double *d_mdVx, double *d_mdVy, double *d_mdVz, int *d_mdIndex , double ux,
+    double *d_L , double *d_r , int N, int Nmd, double real_time, int grid_size){
+
+    cellSort<<<grid_size,blockSize>>>(d_x, d_y, d_z, d_L, d_index, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    cellSort<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, d_L, d_mdIndex, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    shift_index_forward<<<grid_size,blockSize>>>(d_x, d_y, d_z, d_L, d_index, d_r, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    shift_index_forward<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, d_L, d_mdIndex, d_r, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+
+}
+
+
+__global__ void cell_index_shift_backward(double *d_x , double *d_y , double *d_z ,double *d_vx, double *d_vy, double *d_vz, int *d_index ,
+    double *d_mdX , double *d_mdY , double *d_mdZ , double *d_mdVx, double *d_mdVy, double *d_mdVz, int *d_mdIndex , double ux,
+    double *d_L , double *d_r , int N, int Nmd, double real_time, int grid_size){
+
+    shift_index_backward<<<grid_size,blockSize>>>(d_x, d_y, d_z, d_L, d_index, d_r, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    shift_index_backward<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, d_L, d_mdIndex, d_r, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+
+}
