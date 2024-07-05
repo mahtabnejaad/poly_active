@@ -123,7 +123,7 @@ __host__ void noslip_Sort_begin(double *d_x , double *d_y , double *d_z ,double 
     double *d_mdX , double *d_mdY , double *d_mdZ , double *d_mdVx, double *d_mdVy, double *d_mdVz, int *d_mdIndex , double ux,
     double *d_L , double *d_r ,int N ,int Nmd , double real_time , int grid_size)
 {
-    grid_shift<<<grid_size,blockSize>>>(d_x, d_y, d_z, d_r, N);
+    noslip_grid_shift<<<grid_size,blockSize>>>(d_x, d_y, d_z, d_r, N, d_L);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );            
 
@@ -131,7 +131,7 @@ __host__ void noslip_Sort_begin(double *d_x , double *d_y , double *d_z ,double 
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );*/
 
-    grid_shift<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, d_r, Nmd);
+    noslip_grid_shift<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, d_r, Nmd, d_L);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -140,7 +140,7 @@ __host__ void noslip_Sort_begin(double *d_x , double *d_y , double *d_z ,double 
     gpuErrchk( cudaDeviceSynchronize() );*/
 
 
-    cellSort<<<grid_size,blockSize>>>(d_x,d_y,d_z,d_L,d_index,N);
+    cellSort<<<grid_size,blockSize>>>(d_x, d_y, d_z, d_L, d_index, N);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -153,13 +153,13 @@ __host__ void noslip_Sort_finish(double *d_x , double *d_y , double *d_z ,double
     double *d_mdX , double *d_mdY , double *d_mdZ ,double *d_mdVx, double *d_mdVy, double *d_mdVz, int *d_mdIndex , double ux,
     double *d_L , double *d_r ,int N ,int Nmd , double real_time , int grid_size)
 {
-    de_grid_shift<<<grid_size,blockSize>>>(d_x, d_y, d_z, d_r,N);
+    noslip_de_grid_shift<<<grid_size,blockSize>>>(d_x, d_y, d_z, d_r, N, d_L);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
 
     
-    de_grid_shift<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, d_r, Nmd);
+    noslip_de_grid_shift<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, d_r, Nmd, d_L);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
