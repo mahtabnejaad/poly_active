@@ -87,74 +87,51 @@ __global__ void CM_distance_from_walls(double *x, double *y, double *z, double *
 }
 
 //a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
-__global__ void Active_CM_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid){
+__global__ void Active_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid, double *L){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    
     //printf("---fa_x=%f, fa_y=%f, fa_z=%f\n", *fa_x, *fa_y, *fa_z);
     if (tid<N){
         
-        double mm = (Nmd*mass+mass_fluid*N);
+        
 
-        if(wall_sign_x[tid] == 0 ) dt_x[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        if(wall_sign_x[tid] == 0 ){
+
+            dt_x[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+           
+        }
         else if(wall_sign_x[tid] == 1 || wall_sign_x[tid] == -1){
             
-            if(*fa_x/mm == 0.0)   dt_x[tid] = abs(x_wall_dist[tid]/(vx[tid]));
+           dt_x[tid] = abs(x_wall_dist[tid]/vx[tid]);
 
-            else if (*fa_x/mm != 0.0){
-              if(*fa_x < 0.0){
-                if(vx[tid]>=0.0)        dt_x[tid] = ((-(vx[tid]) + sqrt(abs(((vx[tid])*(vx[tid]))+(2*x_wall_dist[tid]*(-*fa_x/mm)))))/(-*fa_x/mm));
-                else if(vx[tid]<0.0)    dt_x[tid] = ((-(vx[tid]) + sqrt(abs(((vx[tid])*(vx[tid]))+(2*x_wall_dist[tid]*(-*fa_x/mm)))))/(-*fa_x/mm));
-                }
-              else if(*fa_x > 0.0){
-                if(vx[tid]>=0.0)        dt_x[tid] = ((-(vx[tid]) + sqrt(abs(((vx[tid])*(vx[tid]))+(2*x_wall_dist[tid]*(-*fa_x/mm)))))/(-*fa_x/mm));
-                else if(vx[tid]<0.0)    dt_x[tid] == 10000;
-              }
-            }
-              
-
+            
         }  
 
-        if(wall_sign_y[tid] == 0 ) dt_y[tid] == 10000;//a big number because next step is to consider the minimum of dt .
+        if(wall_sign_y[tid] == 0 ){
+
+            dt_y[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            
+        }
         else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
             
-            if(*fa_y/mm  == 0.0)   dt_y[tid] = abs(y_wall_dist[tid]/(vy[tid]));
+            dt_y[tid] = abs(y_wall_dist[tid]/vy[tid]);
+            
+            
+        }  
 
-            else if (*fa_y/mm != 0.0){
-              if(*fa_y > 0.0){
-                if(vy[tid]>=0.0)          dt_y[tid] = ((-(vy[tid])+sqrt(abs(((vy[tid])*(vy[tid]))+(2*y_wall_dist[tid]*(*fa_y/mm )))))/(*fa_y/mm ));
-                else if(vy[tid]<0.0)      dt_y[tid] = ((-(vy[tid])+sqrt(abs(((vy[tid])*(vy[tid]))+(2*y_wall_dist[tid]*(*fa_y/mm )))))/(*fa_y/mm ));
-                }
-              else if(*fa_y < 0.0){
-                if(vy[tid]>=0.0)          dt_y[tid] = ((-(vy[tid])+sqrt(abs(((vy[tid])*(vy[tid]))+(2*y_wall_dist[tid]*(*fa_y/mm )))))/(*fa_y/mm ));
-                else if(vy[tid]<0.0)      dt_y[tid] == 10000;
-              }
-            }
+        if(wall_sign_z[tid] == 0 ){
+
+            dt_z[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            
         }
-
-        if(wall_sign_z[tid] == 0 ) dt_z[tid] == 10000;//a big number because next step is to consider the minimum of dt .
         else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
             
-            if(*fa_z/mm == 0.0)   dt_z[tid] = abs(z_wall_dist[tid]/(vz[tid]));
+            dt_z[tid] = abs(z_wall_dist[tid]/vz[tid]);
 
-            else if (*fa_z/mm != 0.0){
-              if(*fa_z > 0.0){
-                if(vz[tid]>=0.0)        dt_z[tid] = ((-(vz[tid])+sqrt(abs(((vz[tid])*(vz[tid]))+(2*z_wall_dist[tid]*(*fa_z/mm)))))/(*fa_z/mm));
-                else if(vz[tid]<0.0)    dt_z[tid] = ((-(vz[tid])+sqrt(abs(((vz[tid])*(vz[tid]))+(2*z_wall_dist[tid]*(*fa_z/mm)))))/(*fa_z/mm));
-
-                }
-              else if(*fa_z < 0.0){
-                if(vz[tid]>=0.0)        dt_z[tid] = ((-(vz[tid])+sqrt(abs(((vz[tid])*(vz[tid]))+(2*z_wall_dist[tid]*(*fa_z/mm)))))/(*fa_z/mm));
-                else if(vz[tid]<0.0)    dt_z[tid] == 10000;
-              }
-            }
-
-        }
             
-            
-         
+        }  
 
-        
-    //printf("dt_x[%i]=%f, dt_y[%i]=%f, dt_z[%i]=%f\n", tid, dt_x[tid], tid, dt_y[tid] ,tid, dt_z[tid]);
 
 
     }
@@ -167,7 +144,7 @@ __global__ void Active_CM_noslip_mpcd_deltaT(double *vx, double *vy, double *vz,
 
 
 //a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
-__global__ void Active_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid, double *L){
+__global__ void Active_CM_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x, double *dt_y, double *dt_z, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid, double *L){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     double delta_x;
