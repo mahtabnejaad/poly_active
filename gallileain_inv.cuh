@@ -192,7 +192,7 @@ __global__ void shift_index_backward(double* x,double* y,double* z, double *L, i
 
 //let's shift cells instead of shifting the particles
 
-__global__ void cell_index_shift_forward(double *d_x , double *d_y , double *d_z ,double *d_vx, double *d_vy, double *d_vz, int *d_index ,
+__host__ void cell_index_shift_forward(double *d_x , double *d_y , double *d_z ,double *d_vx, double *d_vy, double *d_vz, int *d_index ,
     double *d_mdX , double *d_mdY , double *d_mdZ , double *d_mdVx, double *d_mdVy, double *d_mdVz, int *d_mdIndex , double ux,
     double *d_L , double *d_r , int N, int Nmd, double real_time, int grid_size){
 
@@ -216,7 +216,7 @@ __global__ void cell_index_shift_forward(double *d_x , double *d_y , double *d_z
 }
 
 
-__global__ void cell_index_shift_backward(double *d_x , double *d_y , double *d_z ,double *d_vx, double *d_vy, double *d_vz, int *d_index ,
+__host__ void cell_index_shift_backward(double *d_x , double *d_y , double *d_z ,double *d_vx, double *d_vy, double *d_vz, int *d_index ,
     double *d_mdX , double *d_mdY , double *d_mdZ , double *d_mdVx, double *d_mdVy, double *d_mdVz, int *d_mdIndex , double ux,
     double *d_L , double *d_r , int N, int Nmd, double real_time, int grid_size){
 
