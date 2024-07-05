@@ -92,7 +92,31 @@ __host__ void Sort_finish(double *d_x , double *d_y , double *d_z ,double *d_vx,
     
 }
 
+__global__ void noslip_grid_shift(double *x , double *y , double *z , double *r, int N, double *L)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+    if (tid<N)
+    {
+        x[tid] += r[0];
+        y[tid] += r[1];
+        z[tid] += r[2];
+    }
+}
+__global__ void noslip_de_grid_shift(double *x , double *y , double *z , double *r , int N, double *L )
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+    if (tid<N)
+    {
+        x[tid] -= r[0];
+        y[tid] -= r[1];
+        z[tid] -= r[2];
 
+        if(x[tid] > L[0]/2 || x[tid]< -L[0]/2 || y[tid] > L[1]/2 || y[tid]< -L[1]/2 || z[tid] > L[2]/2 || z[tid]< -L[2]/2 ){
+
+            printf(" after noslip degrid shift still is out x[%i]=%f, y[%i]=%f, z[%i]=%f\n", tid, x[tid], tid, y[tid], tid, z[tid]);
+        }
+    }
+}
 
 
 __host__ void noslip_Sort_begin(double *d_x , double *d_y , double *d_z ,double *d_vx, double *d_vy, double *d_vz, int *d_index ,
