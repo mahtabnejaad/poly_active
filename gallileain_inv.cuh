@@ -168,7 +168,7 @@ __host__ void noslip_Sort_finish(double *d_x , double *d_y , double *d_z ,double
 }
 
 
-__global__ void shift_index_forward(double* x,double* y,double* z, double *L, int* index, double *r, int N)
+__global__ void shift_index_forward(double* x, double* y, double* z, double *L, int* index, double *r, int N)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N)
@@ -178,7 +178,7 @@ __global__ void shift_index_forward(double* x,double* y,double* z, double *L, in
 
 } //Output: The index array will be updated with the computed unique IDs.
 
-__global__ void shift_index_backward(double* x,double* y,double* z, double *L, int* index, double *r int N)
+__global__ void shift_index_backward(double* x,double* y,double* z, double *L, int* index, double *r, int N)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N)
