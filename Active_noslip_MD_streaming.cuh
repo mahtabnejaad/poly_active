@@ -521,9 +521,9 @@ double *L, int size, int m, int topology, double real_time, int grid_size, doubl
 {
   
 
-    /*Active_noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux, mass, real_time , m , topology);
+    Active_noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux, mass, real_time , m , topology);
     gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );*/
+    gpuErrchk( cudaDeviceSynchronize() );
 
 
     sum_kernel<<<grid_size,blockSize>>>(Fx , Fy, Fz, Ax , Ay, Az, size);
