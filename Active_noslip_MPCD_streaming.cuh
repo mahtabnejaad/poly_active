@@ -1061,7 +1061,7 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out, double h_mpcd, int N, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_,
 double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *ex, double *ey, double *ez,double *block_sum_ex, double *block_sum_ey, double *block_sum_ez,
 double *L, int Nmd , double ux, double mass, double mass_fluid, double real_time, int m, int topology, double *dt_x, double *dt_y, double *dt_z, double *dt_min, double *dt_x_opp, double *dt_y_opp, double *dt_z_opp, double *dt_min_opp,
-double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_o_opp, double *y_o_opp, double *z_o_opp, double *vx_o_opp, double *vy_o_opp, double *vz_o_opp, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_tot, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md,  int *hostErrorFlag, int *n_out_flag, int *n_out_flag_opp, double *d_zero)
+double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_o_opp, double *y_o_opp, double *z_o_opp, double *vx_o_opp, double *vy_o_opp, double *vz_o_opp, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_tot, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md, int *hostErrorFlag, int *hostErrorFlag_opp, int *n_out_flag, int *n_out_flag_opp, double *d_zero)
 
 {
 
@@ -1144,6 +1144,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     cudaMalloc(&d_errorFlag_mpcd, sizeof(int));
     cudaMemcpy(d_errorFlag_mpcd, hostErrorFlag, sizeof(int), cudaMemcpyHostToDevice);
 
+
     double *Axcm, *Aycm, *Azcm;
     cudaMalloc(&Axcm, sizeof(double));
     cudaMalloc(&Aycm, sizeof(double));
@@ -1162,15 +1163,6 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    
-    mpcd_particles_on_opposite_crossing_points<<<grid_size,blockSize>>>(d_x, d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, dt_min, dt_min_opp, h_mpcd, L, N, n_out_flag_opp);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-
-    Active_CM_mpcd_opposite_bounceback_velocityverlet1<<<grid_size,blockSize>>>(d_x , d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, fax, fay, faz, zeroo, zeroo, zeroo, dt_min, dt_min_opp, h_mpcd, L, N, zeroo, zeroo, zeroo, d_errorFlag_mpcd, n_out_flag_opp, Nmd, mass, mass_fluid);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
-
     // Check for kernel errors and sync
     cudaDeviceSynchronize();
     cudaError_t err = cudaGetLastError();
@@ -1184,7 +1176,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     // Check the error flag
     cudaMemcpy(hostErrorFlag, d_errorFlag_mpcd, sizeof(int), cudaMemcpyDeviceToHost);
     if (*hostErrorFlag) {
-        printf("Error condition met in kernel. Exiting.\n");
+        printf("Error condition met in kernel (first bounceback). Exiting.\n");
         // Clean up and exit
         cudaFree(d_errorFlag_mpcd);
         *hostErrorFlag = -1;  // Set error flag
@@ -1192,10 +1184,46 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     }
 
 
+    int *d_errorFlag_mpcd_opp;
+    *hostErrorFlag_opp = 0;
+    cudaMalloc(&d_errorFlag_mpcd_opp, sizeof(int));
+    cudaMemcpy(d_errorFlag_mpcd_opp, hostErrorFlag_opp, sizeof(int), cudaMemcpyHostToDevice);
+
+
+    
+    mpcd_particles_on_opposite_crossing_points<<<grid_size,blockSize>>>(d_x, d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, dt_min, dt_min_opp, h_mpcd, L, N, n_out_flag_opp);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    Active_CM_mpcd_opposite_bounceback_velocityverlet1<<<grid_size,blockSize>>>(d_x , d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, fax, fay, faz, zeroo, zeroo, zeroo, dt_min, dt_min_opp, h_mpcd, L, N, zeroo, zeroo, zeroo, d_errorFlag_mpcd, n_out_flag_opp, Nmd, mass, mass_fluid);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    // Check for kernel errors and sync
+    cudaDeviceSynchronize();
+    cudaError_t err2 = cudaGetLastError();
+    if (err2 != cudaSuccess) {
+        printf("CUDA Error: %s\n", cudaGetErrorString(err));
+        cudaFree(d_errorFlag_mpcd_opp);
+        *hostErrorFlag_opp = -1;  // Set error flag
+        return;
+    }
+
+    // Check the error flag
+    cudaMemcpy(hostErrorFlag_opp, d_errorFlag_mpcd_opp, sizeof(int), cudaMemcpyDeviceToHost);
+    if (*hostErrorFlag_opp) {
+        printf("Error condition met in kernel (second bounceback). Exiting.\n");
+        // Clean up and exit
+        cudaFree(d_errorFlag_mpcd_opp);
+        *hostErrorFlag_opp = -1;  // Set error flag
+        return;
+    }
+
+
     
     
 
-    cudaFree(d_errorFlag_mpcd);
+    //cudaFree(d_errorFlag_mpcd);
     cudaFree(Axcm); cudaFree(Aycm); cudaFree(Azcm);
     cudaFree(zeroo);
 
