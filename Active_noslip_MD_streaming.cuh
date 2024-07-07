@@ -839,6 +839,30 @@ __global__ void md_particles_on_crossing_points(double *mdx, double *mdy, double
 
 }
 
+__global__ void md_particles_on_opposite_crossing_points(double *mdx, double *mdy, double *mdz, double *mdx_o_opp, double *mdy_o_opp, double *mdz_o_opp, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o_opp, double *mdvy_o_opp, double *mdvz_o_opp, double *md_dt_min, double *md_dt_min_opp, double md_dt, double *L, int Nmd, int *n_out_flag_opp){
+
+
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<Nmd){
+
+        //if(md_dt_min_opp[tid] < (md_dt - 2*md_dt_min[tid]) ){
+        if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
+            //make the position of particle equal to (xo, yo, zo):
+            mdx[tid] = mdx_o_opp[tid];
+            mdy[tid] = mdy_o_opp[tid];
+            mdz[tid] = mdz_o_opp[tid];
+            //make the velocity equal to the reverse of the velocity in crossing point.
+            mdvx[tid] = -mdvx_o_opp[tid];
+            mdvy[tid] = -mdvy_o_opp[tid];
+            mdvz[tid] = -mdvz_o_opp[tid];
+            n_out_flag_opp[tid] = 1;
+        }
+        else  n_out_flag_opp[tid]=0;
+    }
+
+}
+
 //Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1
 __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *Ax_cm, double *Ay_cm, double *Az_cm, double *md_dt_min, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag){
 
