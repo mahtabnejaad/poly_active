@@ -937,9 +937,9 @@ __global__ void Active_CM_md_opposite_bounceback_velocityverlet1(double *mdx, do
                 return;  // Early exit
             }
             //let the particle move during dt-dt1 with the reversed velocity:
-            mdx[tid] += (md_dt - 2*(dt_min[tid])-md_dt_min_opp[tid]) * mdvx[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Ax_cm);// QQ3 * *fa_x in CM or 0 in lab;
-            mdy[tid] += (md_dt - 2*(dt_min[tid])-md_dt_min_opp[tid]) * mdvy[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Ay_cm);// QQ3 * *fa_y in CM or 0 in lab;
-            mdz[tid] += (md_dt - 2*(dt_min[tid])-md_dt_min_opp[tid]) * mdvz[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md-dt_min[tid])-md_dt_min_opp[tid])) * (-*Az_cm);// QQ3 * *fa_z in CM or 0 in lab;
+            mdx[tid] += (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * mdvx[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Ax_cm);// QQ3 * *fa_x in CM or 0 in lab;
+            mdy[tid] += (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * mdvy[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Ay_cm);// QQ3 * *fa_y in CM or 0 in lab;
+            mdz[tid] += (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * mdvz[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md-dt_min[tid])-md_dt_min_opp[tid])) * (-*Az_cm);// QQ3 * *fa_z in CM or 0 in lab;
             mdvx[tid]= mdvx[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Ax_cm);// Q3 * *fa_x in CM or 0 in lab;// * 0.5;
             mdvy[tid]= mdvy[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Ay_cm);// Q3 * *fa_y in CM or 0 in lab;// * 0.5;
             mdvz[tid]= mdvz[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Az_cm);// Q3 * *fa_z in CM or 0 in lab;// * 0.5;
