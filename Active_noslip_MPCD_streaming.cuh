@@ -140,6 +140,63 @@ __global__ void Active_noslip_mpcd_deltaT(double *vx, double *vy, double *vz, do
 }
 
 
+//a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
+__global__ void Active_noslip_mpcd_deltaT_opposite(double *vx, double *vy, double *vz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *dt_x_opp, double *dt_y_opp, double *dt_z_opp, int N, double *fa_x, double *fa_y, double *fa_z, int Nmd, double mass, double mass_fluid, double *L){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    //printf("---fa_x=%f, fa_y=%f, fa_z=%f\n", *fa_x, *fa_y, *fa_z);
+    if (tid<N){
+        
+        
+
+        if(wall_sign_x[tid] == 0 ){
+
+            dt_x[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+           
+        }
+        else if(wall_sign_x[tid] == 1 || wall_sign_x[tid] == -1){
+            
+           if(vx[tid]>0) dt_x_opp[tid] = abs((x_wall_dist[tid]-L[0])/(-vx[tid]));
+           else if(vx[tid]<0) dt_x_opp[tid] = abs((x_wall_dist[tid]+L[0])/(-vx[tid]));
+
+            
+        }  
+
+        if(wall_sign_y[tid] == 0 ){
+
+            dt_y[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            
+        }
+        else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
+            
+            if(vy[tid]>0)  dt_y_opp[tid] = abs((y_wall_dist[tid]-L[1])/(-vy[tid]));
+            else if(vy[tid]<0)  dt_y_opp[tid] = abs((y_wall_dist[tid]+L[1])/(-vy[tid]));
+            
+            
+        }  
+
+        if(wall_sign_z[tid] == 0 ){
+
+            dt_z[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            
+        }
+        else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
+            
+            if(vz[tid]>0)  dt_z_opp[tid] = abs((z_wall_dist[tid]-L[2])/(-vz[tid]));
+            else if(vz[tid]<0)  dt_z_opp[tid] = abs((z_wall_dist[tid]+L[2])/(-vz[tid]));
+
+            
+        }  
+
+
+
+    }
+
+
+}
+
+
 
 
 
@@ -417,6 +474,30 @@ __global__ void mpcd_particles_on_crossing_points(double *x, double *y, double *
 
 }
 
+__global__ void mpcd_particles_on_opposite_crossing_points(double *x, double *y, double *z, double *x_o_opp, double *y_o_opp, double *z_o_opp, double *vx, double *vy, double *vz, double *vx_o, double *vy_o_opp, double *vz_o_opp, double *dt_min, double *dt_min_opp, double dt, double *L, int N, int *n_out_flag_opp){
+
+
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N){
+
+        //if(dt_min_opp[tid] < (dt - 2*dt_min[tid]) ){
+        if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
+            //make the position of particle equal to (xo, yo, zo):
+            x[tid] = x_o_opp[tid];
+            y[tid] = y_o_opp[tid];
+            z[tid] = z_o_opp[tid];
+            //make the velocity equal to the reverse of the velocity in crossing point.
+            vx[tid] = -vx_o_opp[tid];
+            vy[tid] = -vy_o_opp[tid];
+            vz[tid] = -vz_o_opp[tid];
+            n_out_flag_opp[tid] = 1;
+        }
+        else  n_out_flag_opp[tid]=0;
+    }
+
+}
+
 //Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1
 __global__ void Active_CM_mpcd_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *fa_x, double *fa_y, double *fa_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double dt, double *L, int N, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag, int Nmd, double mass, double mass_fluid){
 
@@ -428,6 +509,9 @@ __global__ void Active_CM_mpcd_bounceback_velocityverlet1(double *x, double *y, 
     double Mtot = (N * mass_fluid + Nmd * mass); 
     double QQ2=-((dt - (dt_min[tid]))*(dt - (dt_min[tid])))/(2*(Nmd*mass+mass_fluid*N));
     double Q2=-(dt - (dt_min[tid]))/(Nmd*mass+mass_fluid*N);
+
+    
+
 
     //if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
     if((x[tid]+*Xcm)>L[0]/2 || (x[tid]+*Xcm)<-L[0]/2 || (y[tid]+*Ycm)>L[1]/2 || (y[tid]+*Ycm)<-L[1]/2 || (z[tid]+*Zcm)>L[2]/2 || (z[tid]+*Zcm)<-L[2]/2){
@@ -455,7 +539,62 @@ __global__ void Active_CM_mpcd_bounceback_velocityverlet1(double *x, double *y, 
             printf("velocity after bounceback in lab vx[%i]=%f, vy[%i]=%f, vz[%i]=%f\n ", tid, (vx[tid] ), tid, (vy[tid] ), tid, (vz[tid] ));
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
+        /*if((x[tid] + *Xcm )>L[0]/2 || (x[tid] + *Xcm)<-L[0]/2 || (y[tid] + *Ycm )>L[1]/2 || (y[tid] + *Ycm )<-L[1]/2 || (z[tid] + *Zcm )>L[2]/2 || (z[tid] + *Zcm )<-L[2]/2){
+
+
+
+            *errorFlag = 1;  // Set the error flag
+            return;  // Early exit
+        }*/
+        
+    }
+
+}
+
+}
+
+
+__global__ void Active_CM_mpcd_opposite_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o_opp, double *y_o_opp, double *z_o_opp, double *vx, double *vy, double *vz, double *vx_o_opp, double *vy_o_opp, double *vz_o_opp, double *fa_x, double *fa_y, double *fa_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double *dt_min_opp, double dt, double *L, int N, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag_opp, int Nmd, double mass, double mass_fluid){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (tid<N){
+
+  
+
+    double QQ3=-((dt - 2*(dt_min[tid])-dt_min_opp[tid])*(dt - 2*(dt_min[tid])-dt_min_opp[tid])/(2*(Nmd*mass+mass_fluid*N)));
+    double Q3=-((dt - 2*(dt_min[tid])-dt_min_opp[tid])/(Nmd*mass+mass_fluid*N));
+
+
+    //if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
+    if((x[tid]+*Xcm)>L[0]/2 || (x[tid]+*Xcm)<-L[0]/2 || (y[tid]+*Ycm)>L[1]/2 || (y[tid]+*Ycm)<-L[1]/2 || (z[tid]+*Zcm)>L[2]/2 || (z[tid]+*Zcm)<-L[2]/2){
+        
+        if(n_out_flag_opp[tid] == 1){
+            
+            if (dt_min_opp[tid] > (dt - 2* dt_min[tid])) {
+                printf("*********************md_dt_min[%i]=%f\n", tid, dt_min_opp[tid]);
+                dt_min_opp[tid]=dt-2*dt_min[tid];
+                
+                *errorFlag = 1;  // Set the error flag
+                return;  // Early exit
+            }
+            //let the particle move during dt-dt1 with the reversed velocity:
+            x[tid] += (dt - 2*(dt_min[tid])-dt_min_opp[tid]) * vx[tid] + 0.5 * ((dt - 2*(dt_min[tid])-dt_min_opp[tid])*(dt - 2*(dt_min[tid])-dt_min_opp[tid])) * (-*Ax_cm);// QQ2 * *fa_x in CM or 0 in lab;
+            y[tid] += (dt - 2*(dt_min[tid])-dt_min_opp[tid]) * vy[tid] + 0.5 * ((dt - 2*(dt_min[tid])-dt_min_opp[tid])*(dt - 2*(dt_min[tid])-dt_min_opp[tid])) * (-*Ay_cm);// QQ2 * *fa_y in CM or 0 in lab;
+            z[tid] += (dt - 2*(dt_min[tid])-dt_min_opp[tid]) * vz[tid] + 0.5 * ((dt - 2*(dt_min[tid])-dt_min_opp[tid])*(dt - 2*(dt_min[tid])-dt_min_opp[tid])) * (-*Az_cm);// QQ2 * *fa_z in CM or 0 in lab;
+            vx[tid]= vx[tid] +   (dt - 2*(dt_min[tid])-dt_min_opp[tid]) * (-*Ax_cm);// Q2 * *fa_x in CM or 0 in lab;// * 0.5;
+            vy[tid]= vy[tid] +   (dt - 2*(dt_min[tid])-dt_min_opp[tid]) * (-*Ay_cm);// Q2 * *fa_y in CM or 0 in lab;// * 0.5;
+            vz[tid]= vz[tid] +   (dt - 2*(dt_min[tid])-dt_min_opp[tid]) * (-*Az_cm);// Q2 * *fa_z in CM or 0 in lab;// * 0.5;
+        
+            if((x_o_opp[tid] + *Xcm )>L[0]/2 || (x_o_opp[tid] + *Xcm)<-L[0]/2 || (y_o_opp[tid] + *Ycm )>L[1]/2 || (y_o_opp[tid] + *Ycm )<-L[1]/2 || (z_o_opp[tid] + *Zcm )>L[2]/2 || (z_o_opp[tid] + *Zcm )<-L[2]/2)  printf("wrong x_o_opp[%i]=%f, y_o_opp[%i]=%f, z_o_opp[%i]=%f\n", tid, (x_o_opp[tid] + *Xcm), tid, (y_o_opp[tid] + *Ycm), tid, (z_o_opp[tid] + *Zcm));
+
+            printf("location after bounceback in lab x[%i]=%f, y[%i]=%f, z[%i]=%f\n ", tid, (x[tid] + *Xcm), tid, (y[tid] + *Ycm), tid, (z[tid] + *Zcm));
+            printf("velocity after bounceback in lab vx[%i]=%f, vy[%i]=%f, vz[%i]=%f\n ", tid, (vx[tid] ), tid, (vy[tid] ), tid, (vz[tid] ));
+        }
+        //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
         if((x[tid] + *Xcm )>L[0]/2 || (x[tid] + *Xcm)<-L[0]/2 || (y[tid] + *Ycm )>L[1]/2 || (y[tid] + *Ycm )<-L[1]/2 || (z[tid] + *Zcm )>L[2]/2 || (z[tid] + *Zcm )<-L[2]/2){
+
+            
 
             *errorFlag = 1;  // Set the error flag
             return;  // Early exit
@@ -962,7 +1101,23 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     
+
+    Active_noslip_mpcd_deltaT_opposite<<<grid_size,blockSize>>>(d_vx, d_vy, d_vz, wall_sign_x, wall_sign_y, wall_sign_z, x_wall_dist, y_wall_dist, z_wall_dist, dt_x_opp, dt_y_opp, dt_z_opp, N, fax, fay, faz, Nmd, mass, mass_fluid, L);
+    gpuErrchk( cudaPeekAtLastError() );                
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    deltaT_min<<<grid_size,blockSize>>>(dt_x_opp, dt_y_opp, dt_z_opp, dt_min_opp, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
     
+    mpcd_opposite_crossing_location<<<grid_size,blockSize>>>(d_x , d_y , d_z , d_vx , d_vy , d_vz, x_o_opp, y_o_opp, z_o_opp, dt_min_opp, h_mpcd, L, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    mpcd_opposite_crossing_velocity<<<grid_size,blockSize>>>(d_vx ,d_vy ,d_vz , vx_o_opp, vy_o_opp, vz_o_opp, N);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
     
 
     Active_mpcd_velocityverlet<<<grid_size,blockSize>>>(d_x , d_y , d_z , d_vx , d_vy , d_vz, h_mpcd, N, L, T, Nmd, mass, mass_fluid);
@@ -971,7 +1126,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
 
     
     
-        //we put the particles that had gone outside the box, on the box's boundaries and set its velocity equal to the negative of the crossing velocity in Lab system.
+    //we put the particles that had gone outside the box, on the box's boundaries and set its velocity equal to the negative of the crossing velocity in Lab system.
     mpcd_particles_on_crossing_points<<<grid_size,blockSize>>>(d_x, d_y, d_z, x_o, y_o, z_o, d_vx, d_vy, d_vz, vx_o, vy_o, vz_o, dt_min, h_mpcd, L, N, n_out_flag);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
@@ -1007,6 +1162,15 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
+    
+    mpcd_particles_on_opposite_crossing_points<<<grid_size,blockSize>>>(d_x, d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, dt_min, dt_min_opp, h_mpcd, L, N, n_out_flag_opp);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    Active_CM_mpcd_opposite_bounceback_velocityverlet1<<<grid_size,blockSize>>>(d_x , d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, fax, fay, faz, zeroo, zeroo, zeroo, dt_min, dt_min_opp, h_mpcd, L, N, zeroo, zeroo, zeroo, d_errorFlag_mpcd, n_out_flag_opp, Nmd, mass, mass_fluid);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
     // Check for kernel errors and sync
     cudaDeviceSynchronize();
     cudaError_t err = cudaGetLastError();
@@ -1026,6 +1190,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
         *hostErrorFlag = -1;  // Set error flag
         return;
     }
+
 
     
     
