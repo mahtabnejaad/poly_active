@@ -519,7 +519,7 @@ __global__ void Active_CM_mpcd_bounceback_velocityverlet1(double *x, double *y, 
         if(n_out_flag[tid] == 1){
             
             if (dt_min[tid] > dt) {
-                printf("*********************md_dt_min[%i]=%f\n", tid, dt_min[tid]);
+                printf("*********************dt_min[%i]=%f\n", tid, dt_min[tid]);
                 dt_min[tid]=dt;
                 
                 //*errorFlag = 1;  // Set the error flag
@@ -572,7 +572,7 @@ __global__ void Active_CM_mpcd_opposite_bounceback_velocityverlet1(double *x, do
         if(n_out_flag_opp[tid] == 1){
             
             if (dt_min_opp[tid] > (dt - 2* dt_min[tid])) {
-                printf("*********************md_dt_min[%i]=%f\n", tid, dt_min_opp[tid]);
+                printf("*********************dt_min[%i]=%f\n", tid, dt_min_opp[tid]);
                 dt_min_opp[tid]=dt-2*dt_min[tid];
                 
                 *errorFlag = 1;  // Set the error flag
