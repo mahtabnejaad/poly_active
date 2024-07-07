@@ -14,7 +14,7 @@ int random_flag = 0;
 int BC = 1; //I added this to determine the kind of boundary condition that we have.
 std::default_random_engine generator(time(0));
 std::uniform_real_distribution<float> realdistribution(0, 1);
-static const int blockSize = 512;
+static const int blockSize = 256;
 //this is a function for error checking in kernels:
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
