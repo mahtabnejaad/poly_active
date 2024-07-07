@@ -1231,6 +1231,7 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     //cudaFree(d_errorFlag_mpcd);
     cudaFree(Axcm); cudaFree(Aycm); cudaFree(Azcm);
     cudaFree(zeroo);
+    cudaFree(zerooo);
 
     
    
