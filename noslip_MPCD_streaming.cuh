@@ -114,6 +114,23 @@ __global__ void mpcd_opposite_crossing_location(double *x, double *y, double *z,
 
 
 
+
+
+__global__ void mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, int N){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N){
+
+        //calculate v(t+dt1) : in this case that we don't have acceleration it is equal to v(t).
+        //then we put the velocity equal to v(t+dt1):
+        //this part in this case is not necessary but we do it for generalization.
+        vx_o[tid] = vx[tid];
+        vy_o[tid] = vy[tid];
+        vz_o[tid] = vz[tid];
+    }
+    
+}
+
 __global__ void mpcd_opposite_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o_opp, double *vy_o_opp, double *vz_o_opp, int N){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -125,21 +142,6 @@ __global__ void mpcd_opposite_crossing_velocity(double *vx, double *vy, double *
         vx_o_opp[tid] = -vx[tid];
         vy_o_opp[tid] = -vy[tid];
         vz_o_opp[tid] = -vz[tid];
-    }
-    
-}
-
-__global__ void mpcd_opposite_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, int N){
-
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    if (tid<N){
-
-        //calculate v(t+dt1) : in this case that we don't have acceleration it is equal to v(t).
-        //then we put the velocity equal to v(t+dt1):
-        //this part in this case is not necessary but we do it for generalization.
-        vx_o[tid] = vx[tid];
-        vy_o[tid] = vy[tid];
-        vz_o[tid] = vz[tid];
     }
     
 }
