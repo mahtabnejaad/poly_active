@@ -484,8 +484,8 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&d_x_o_opp, sizeof(double) * N);  cudaMalloc((void**)&d_y_o_opp, sizeof(double) * N);  cudaMalloc((void**)&d_z_o_opp, sizeof(double) * N);
     double  *d_Vx_o_opp, *d_Vy_o_opp, *d_Vz_o_opp; //the VELOCITY of the point where a mpcd particle crosses the box walls.
     cudaMalloc((void**)&d_Vx_o_opp, sizeof(double) * N);  cudaMalloc((void**)&d_Vy_o_opp, sizeof(double) * N);  cudaMalloc((void**)&d_Vz_o_opp, sizeof(double) * N);
-    double *totalT;
-    cudaMalloc((void**)&totalT, sizeof(double) * N);
+    //double *totalT;
+    //cudaMalloc((void**)&totalT, sizeof(double) * N);
 
 
     double  *d_mdX_o_opp, *d_mdY_o_opp, *d_mdZ_o_opp;//the x, y and z of the point where a md particle crosses the box walls.
