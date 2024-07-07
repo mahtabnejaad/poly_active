@@ -284,10 +284,16 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&d_n_outbox_md, sizeof(int) * Nmd);
 
     int *n_out_flag_md;
-    cudaMalloc((void**)&n_out_flag_md, sizeof(int) * Nmd);
+    cudaMalloc((void**)&n_out_flag_md, sizeof(int) * N);
 
     int *n_out_flag_mpcd;
     cudaMalloc((void**)&n_out_flag_mpcd, sizeof(int) * Nmd);
+
+    int *n_out_flag_md_opp;
+    cudaMalloc((void**)&n_out_flag_md_opp, sizeof(int) * N);
+
+    int *n_out_flag_mpcd_opp;
+    cudaMalloc((void**)&n_out_flag_mpcd_opp, sizeof(int) * Nmd);
     
 
 /////////////////////////////////////////////// I'd maximize the performance by adjusting new grid_size_ amd blockSize_ this way:
@@ -944,7 +950,7 @@ int main(int argc, const char* argv[])
                 h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_ex, d_ey, d_ez, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez,
                 d_L, Nmd, ux, density, 1, real_time, m_md, topology, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_dt_x_opp, d_dt_y_opp, d_dt_z_opp, d_dt_min_opp, 
                 d_x_o, d_y_o, d_z_o, d_Vx_o , d_Vy_o , d_Vz_o, d_x_o_opp, d_y_o_opp, d_z_o_opp, d_Vx_o_opp, d_Vy_o_opp, d_Vz_o_opp, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z, totalT,
-                d_n_outbox_mpcd, d_n_outbox_md, h_dn_mpcd_tot, h_dn_md_tot, CMsumblock_n_outbox_mpcd, CMsumblock_n_outbox_md, &ErrorFlag_mpcd, n_out_flag_mpcd, &d_zero_mpcd);
+                d_n_outbox_mpcd, d_n_outbox_md, h_dn_mpcd_tot, h_dn_md_tot, CMsumblock_n_outbox_mpcd, CMsumblock_n_outbox_md, &ErrorFlag_mpcd, n_out_flag_mpcd_opp, &d_zero_mpcd);
                 if (ErrorFlag_mpcd != 0){
                 // Handle error
                 return ErrorFlag_mpcd;
