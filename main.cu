@@ -475,7 +475,33 @@ int main(int argc, const char* argv[])
 
     double *d_mdX_wall_dist, *d_mdY_wall_dist, *d_mdZ_wall_dist, *d_wall_sign_mdX, *d_wall_sign_mdY, *d_wall_sign_mdZ;
     cudaMalloc((void**)&d_mdX_wall_dist, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdY_wall_dist, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdZ_wall_dist, sizeof(double) * Nmd);
-    cudaMalloc((void**)&d_wall_sign_mdX, sizeof(double) * Nmd);  cudaMalloc((void**)&d_wall_sign_mdY, sizeof(double) * Nmd);  cudaMalloc((void**)&d_wall_sign_mdZ, sizeof(double) * Nmd);    
+    cudaMalloc((void**)&d_wall_sign_mdX, sizeof(double) * Nmd);  cudaMalloc((void**)&d_wall_sign_mdY, sizeof(double) * Nmd);  cudaMalloc((void**)&d_wall_sign_mdZ, sizeof(double) * Nmd);  
+
+
+    //////////////////////opposite crossing point attributes:
+
+    double  *d_x_o_opp, *d_y_o_opp, *d_z_o_opp; //the x, y and z of the point where a mpcd particle crosses the box walls.
+    cudaMalloc((void**)&d_x_o_opp, sizeof(double) * N);  cudaMalloc((void**)&d_y_o_opp, sizeof(double) * N);  cudaMalloc((void**)&d_z_o_opp, sizeof(double) * N);
+    double  *d_Vx_o_opp, *d_Vy_o_opp, *d_Vz_o_opp; //the VELOCITY of the point where a mpcd particle crosses the box walls.
+    cudaMalloc((void**)&d_Vx_o_opp, sizeof(double) * N);  cudaMalloc((void**)&d_Vy_o_opp, sizeof(double) * N);  cudaMalloc((void**)&d_Vz_o_opp, sizeof(double) * N);
+    double *totalT;
+    cudaMalloc((void**)&totalT, sizeof(double) * N);
+
+
+    double  *d_mdX_o_opp, *d_mdY_o_opp, *d_mdZ_o_opp;//the x, y and z of the point where a md particle crosses the box walls.
+    cudaMalloc((void**)&d_mdX_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdY_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdZ_o_opp, sizeof(double) * Nmd);
+    double  *d_mdVx_o_opp, *d_mdVy_o_opp, *d_mdVz_o_opp;//the x, y and z of the point where a md particle crosses the box walls.
+    cudaMalloc((void**)&d_mdVx_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdVy_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdVz_o_opp, sizeof(double) * Nmd);
+
+
+
+    double *d_dt_min_opp , *d_dt_x_opp, *d_dt_y_opp, *d_dt_z_opp;//crossing point with box for MPCD paricles
+    cudaMalloc((void**)&d_dt_min_opp, sizeof(double) * N);  cudaMalloc((void**)&d_dt_x_opp, sizeof(double) * N);  cudaMalloc((void**)&d_dt_y_opp, sizeof(double) * N);  cudaMalloc((void**)&d_dt_z_opp, sizeof(double) * N);
+    
+
+    double *d_md_dt_min_opp, *d_md_dt_x_opp, *d_md_dt_y_opp, *d_md_dt_z_opp;//crossing point with box for MD paricles
+    cudaMalloc((void**)&d_md_dt_min_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_md_dt_x_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_md_dt_y_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_md_dt_z_opp, sizeof(double) * Nmd);
+  
     ///////////////////////////////////////////////////////////////////////////////////
 
     if(Activity==0 && BC == 1){
@@ -916,8 +942,8 @@ int main(int argc, const char* argv[])
                 mdX_tot, mdY_tot, mdZ_tot, mdVx_tot, mdVy_tot, mdVz_tot, CMsumblock_x, CMsumblock_y, CMsumblock_z, CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz,
                 h_Xcm, h_Ycm, h_Zcm, h_Vxcm, h_Vycm, h_Vzcm, h_Xcm_out, h_Ycm_out, h_Zcm_out, h_Vxcm_out, h_Vycm_out, h_Vzcm_out, h_mpcd , N, grid_size, shared_mem_size, shared_mem_size_ , blockSize_, grid_size_, 
                 h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_ex, d_ey, d_ez, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez,
-                d_L, Nmd, ux, density, 1, real_time, m_md, topology, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_x_o, d_y_o, d_z_o, 
-                d_Vx_o , d_Vy_o , d_Vz_o, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z, totalT,
+                d_L, Nmd, ux, density, 1, real_time, m_md, topology, d_dt_x, d_dt_y, d_dt_z, d_dt_min, d_dt_x_opp, d_dt_y_opp, d_dt_z_opp, d_dt_min_opp, 
+                d_x_o, d_y_o, d_z_o, d_Vx_o , d_Vy_o , d_Vz_o, d_x_o_opp, d_y_o_opp, d_z_o_opp, d_Vx_o_opp, d_Vy_o_opp, d_Vz_o_opp, d_x_wall_dist, d_y_wall_dist, d_z_wall_dist, d_wall_sign_x, d_wall_sign_y, d_wall_sign_z, totalT,
                 d_n_outbox_mpcd, d_n_outbox_md, h_dn_mpcd_tot, h_dn_md_tot, CMsumblock_n_outbox_mpcd, CMsumblock_n_outbox_md, &ErrorFlag_mpcd, n_out_flag_mpcd, &d_zero_mpcd);
                 if (ErrorFlag_mpcd != 0){
                 // Handle error
@@ -1063,6 +1089,14 @@ int main(int argc, const char* argv[])
         cudaFree(d_dt_x); cudaFree(d_md_dt_x);
         cudaFree(d_dt_y); cudaFree(d_md_dt_y);
         cudaFree(d_dt_z); cudaFree(d_md_dt_z);
+        cudaFree(d_x_o_opp); cudaFree(d_y_o_opp); cudaFree(d_z_o_opp);
+        cudaFree(d_mdX_o_opp); cudaFree(d_mdY_o_opp); cudaFree(d_mdZ_o_opp);
+        cudaFree(d_Vx_o_opp); cudaFree(d_Vy_o_opp); cudaFree(d_Vz_o_opp);
+         cudaFree(d_mdVx_o_opp); cudaFree(d_mdVy_o_opp); cudaFree(d_mdVz_o_opp);
+        cudaFree(d_dt_min_opp); cudaFree(d_md_dt_min_opp);
+        cudaFree(d_dt_x_opp); cudaFree(d_md_dt_x_opp);
+        cudaFree(d_dt_y_opp); cudaFree(d_md_dt_y_opp);
+        cudaFree(d_dt_z_opp); cudaFree(d_md_dt_z_opp);
         cudaFree(d_x_wall_dist); cudaFree(d_y_wall_dist); cudaFree(d_z_wall_dist);
         cudaFree(d_wall_sign_x); cudaFree(d_wall_sign_y); cudaFree(d_wall_sign_z);
         cudaFree(d_mdX_wall_dist); cudaFree(d_mdY_wall_dist); cudaFree(d_mdZ_wall_dist);
