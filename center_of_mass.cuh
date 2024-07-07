@@ -587,7 +587,7 @@ double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumb
 
 ////////////////////////////////// outer particles part:
 
-__global__ void reduceKernel_outbox(double *input_X, double *output_X, double *input_V, double *output_V, double *x, double *y, double *z, int N, double *L, double *Xcm, double *Ycm, double *Zcm){
+/*__global__ void reduceKernel_outbox(double *input_X, double *output_X, double *input_V, double *output_V, double *x, double *y, double *z, int N, double *L, double *Xcm, double *Ycm, double *Zcm){
     extern __shared__ double sssdata_x[];
     extern __shared__ double sssdata_v[];
     int tid = threadIdx.x;
@@ -1070,4 +1070,4 @@ double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, double *CMs
 
 
 
-}
+}*/
