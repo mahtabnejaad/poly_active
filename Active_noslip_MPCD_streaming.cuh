@@ -1195,7 +1195,12 @@ double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o,
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_CM_mpcd_opposite_bounceback_velocityverlet1<<<grid_size,blockSize>>>(d_x , d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, fax, fay, faz, zeroo, zeroo, zeroo, dt_min, dt_min_opp, h_mpcd, L, N, zeroo, zeroo, zeroo, d_errorFlag_mpcd, n_out_flag_opp, Nmd, mass, mass_fluid);
+    double *zerooo;
+    cudaMalloc(&zerooo, sizeof(double));
+    *d_zero = 0.0;
+    cudaMemcpy(zerooo, d_zero, sizeof(double), cudaMemcpyHostToDevice);
+
+    Active_CM_mpcd_opposite_bounceback_velocityverlet1<<<grid_size,blockSize>>>(d_x , d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, fax, fay, faz, zerooo, zerooo, zerooo, dt_min, dt_min_opp, h_mpcd, L, N, zerooo, zerooo, zerooo, d_errorFlag_mpcd, n_out_flag_opp, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
