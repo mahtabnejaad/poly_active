@@ -912,6 +912,59 @@ __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy
 }
 
 
+__global__ void Active_CM_md_opposite_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o_opp, double *mdy_o_opp, double *mdz_o_opp, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o_opp, double *mdvy_o_opp, double *mdvz_o_opp, double *fa_x, double *fa_y, double *fa_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *md_dt_min, double *md_dt_min_opp, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag_opp, int N, double mass, double mass_fluid){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (tid<Nmd){
+
+  
+
+    //double QQ3=-((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])/(2*(Nmd*mass+mass_fluid*N)));
+    //double Q3=-((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])/(Nmd*mass+mass_fluid*N));
+
+
+    //if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
+    if((mdx[tid]+*Xcm)>L[0]/2 || (mdx[tid]+*Xcm)<-L[0]/2 || (mdy[tid]+*Ycm)>L[1]/2 || (mdy[tid]+*Ycm)<-L[1]/2 || (mdz[tid]+*Zcm)>L[2]/2 || (mdz[tid]+*Zcm)<-L[2]/2){
+        
+        if(n_out_flag_opp[tid] == 1){
+            
+            if (md_dt_min_opp[tid] > (md_dt - 2* md_dt_min[tid])) {
+                printf("*********************md_dt_min[%i]=%f\n", tid, md_dt_min_opp[tid]);
+                md_dt_min_opp[tid]=dt-2*md_dt_min[tid];
+                
+                *errorFlag = 1;  // Set the error flag
+                return;  // Early exit
+            }
+            //let the particle move during dt-dt1 with the reversed velocity:
+            mdx[tid] += (md_dt - 2*(dt_min[tid])-md_dt_min_opp[tid]) * mdvx[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Ax_cm);// QQ3 * *fa_x in CM or 0 in lab;
+            mdy[tid] += (md_dt - 2*(dt_min[tid])-md_dt_min_opp[tid]) * mdvy[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Ay_cm);// QQ3 * *fa_y in CM or 0 in lab;
+            mdz[tid] += (md_dt - 2*(dt_min[tid])-md_dt_min_opp[tid]) * mdvz[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md-dt_min[tid])-md_dt_min_opp[tid])) * (-*Az_cm);// QQ3 * *fa_z in CM or 0 in lab;
+            mdvx[tid]= mdvx[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Ax_cm);// Q3 * *fa_x in CM or 0 in lab;// * 0.5;
+            mdvy[tid]= mdvy[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Ay_cm);// Q3 * *fa_y in CM or 0 in lab;// * 0.5;
+            mdvz[tid]= mdvz[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Az_cm);// Q3 * *fa_z in CM or 0 in lab;// * 0.5;
+        
+            if((mdx_o_opp[tid] + *Xcm )>L[0]/2 || (mdx_o_opp[tid] + *Xcm)<-L[0]/2 || (mdy_o_opp[tid] + *Ycm )>L[1]/2 || (mdy_o_opp[tid] + *Ycm )<-L[1]/2 || (mdz_o_opp[tid] + *Zcm )>L[2]/2 || (mdz_o_opp[tid] + *Zcm )<-L[2]/2)  printf("wrong mdx_o_opp[%i]=%f, mdy_o_opp[%i]=%f, mdz_o_opp[%i]=%f\n", tid, (mdx_o_opp[tid] + *Xcm), tid, (mdy_o_opp[tid] + *Ycm), tid, (mdz_o_opp[tid] + *Zcm));
+
+            printf("location after the second bounceback in lab mdx[%i]=%f, mdy[%i]=%f, mdz[%i]=%f\n ", tid, (mdx[tid] + *Xcm), tid, (mdy[tid] + *Ycm), tid, (mdz[tid] + *Zcm));
+            printf("velocity after the second bounceback in lab mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n ", tid, (mdvx[tid] ), tid, (mdvy[tid] ), tid, (mdvz[tid] ));
+        }
+        //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
+        if((mdx[tid] + *Xcm )>L[0]/2 || (mdx[tid] + *Xcm)<-L[0]/2 || (mdy[tid] + *Ycm )>L[1]/2 || (mdy[tid] + *Ycm )<-L[1]/2 || (mdz[tid] + *Zcm )>L[2]/2 || (mdz[tid] + *Zcm )<-L[2]/2){
+
+            
+
+            *errorFlag = 1;  // Set the error flag
+            return;  // Early exit
+        }
+        
+    }
+
+}
+
+}
+
+
 //Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1
 __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *md_dt_min, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag){
 
