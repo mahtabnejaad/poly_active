@@ -474,7 +474,7 @@ __global__ void mpcd_particles_on_crossing_points(double *x, double *y, double *
 
 }
 
-__global__ void mpcd_particles_on_opposite_crossing_points(double *x, double *y, double *z, double *x_o_opp, double *y_o_opp, double *z_o_opp, double *vx, double *vy, double *vz, double *vx_o, double *vy_o_opp, double *vz_o_opp, double *dt_min, double *dt_min_opp, double dt, double *L, int N, int *n_out_flag_opp){
+__global__ void mpcd_particles_on_opposite_crossing_points(double *x, double *y, double *z, double *x_o_opp, double *y_o_opp, double *z_o_opp, double *vx, double *vy, double *vz, double *vx_o_opp, double *vy_o_opp, double *vz_o_opp, double *dt_min, double *dt_min_opp, double dt, double *L, int N, int *n_out_flag_opp){
 
 
 
