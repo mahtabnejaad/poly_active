@@ -507,8 +507,8 @@ __global__ void Active_CM_mpcd_bounceback_velocityverlet1(double *x, double *y, 
 
    
     double Mtot = (N * mass_fluid + Nmd * mass); 
-    double QQ2=-((dt - (dt_min[tid]))*(dt - (dt_min[tid])))/(2*(Nmd*mass+mass_fluid*N));
-    double Q2=-(dt - (dt_min[tid]))/(Nmd*mass+mass_fluid*N);
+    //double QQ2=-((dt - (dt_min[tid]))*(dt - (dt_min[tid])))/(2*(Nmd*mass+mass_fluid*N));
+    //double Q2=-(dt - (dt_min[tid]))/(Nmd*mass+mass_fluid*N);
 
     
 
@@ -562,8 +562,8 @@ __global__ void Active_CM_mpcd_opposite_bounceback_velocityverlet1(double *x, do
 
   
 
-    double QQ3=-((dt - 2*(dt_min[tid])-dt_min_opp[tid])*(dt - 2*(dt_min[tid])-dt_min_opp[tid])/(2*(Nmd*mass+mass_fluid*N)));
-    double Q3=-((dt - 2*(dt_min[tid])-dt_min_opp[tid])/(Nmd*mass+mass_fluid*N));
+    //double QQ3=-((dt - 2*(dt_min[tid])-dt_min_opp[tid])*(dt - 2*(dt_min[tid])-dt_min_opp[tid])/(2*(Nmd*mass+mass_fluid*N)));
+    //double Q3=-((dt - 2*(dt_min[tid])-dt_min_opp[tid])/(Nmd*mass+mass_fluid*N));
 
 
     //if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
