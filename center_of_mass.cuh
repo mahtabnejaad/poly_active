@@ -1,4 +1,4 @@
-__device__ void warp_Reduce(volatile double *ssdata, int tid) {
+/*__device__ void warp_Reduce(volatile double *ssdata, int tid) {
     ssdata[tid] += ssdata[tid + 32];
     ssdata[tid] += ssdata[tid + 16];
     ssdata[tid] += ssdata[tid + 8];
@@ -14,10 +14,10 @@ __device__ void warp_Reduce_int(volatile int *ssdata, int tid) {
     ssdata[tid] += ssdata[tid + 4];
     ssdata[tid] += ssdata[tid + 2];
     ssdata[tid] += ssdata[tid + 1];
-}
+}*/
 
 //this kernel is used to sum array components on block level in a parallel way
-__global__ void reduce_kernel(double *FF1 ,double *FF2 , double *FF3,
+/*__global__ void reduce_kernel(double *FF1 ,double *FF2 , double *FF3,
  double *AA1 ,double *AA2 , double *AA3,
   int size)
 {
@@ -85,7 +85,7 @@ __global__ void reduce_kernel(double *FF1 ,double *FF2 , double *FF3,
         //printf("BLOCKSUM1[1]=%f\n",A1[1]);
     }
    
-}
+}*/
 
 //this kernel is used to sum array components on block level in a parallel way
 __global__ void reduce_kernel_var(double *FF1 ,double *FF2 , double *FF3,
