@@ -99,9 +99,37 @@ __global__ void mpcd_crossing_location(double *x, double *y, double *z, double *
 
 }
 
+//calculate the crossing location where the particles intersect with one wall:
+__global__ void mpcd_opposite_crossing_location(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *x_o_opp, double *y_o_opp, double *z_o_opp, double *dt_min_opp, double dt, double *L, int N){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N){
+        //if( ((x[tid] + dt * vx[tid]) >L[0]/2 || (x[tid] + dt * vx[tid])<-L[0]/2 || (y[tid] + dt * vy[tid])>L[1]/2 || (y[tid] + dt * vy[tid])<-L[1]/2 || (z[tid]+dt * vz[tid])>L[2]/2 || (z[tid] + dt * vz[tid])<-L[2]/2) && dt_min[tid]>0.1) printf("dt_min[%i] = %f\n", tid, dt_min[tid]);
+        x_o_opp[tid] = x[tid] + (-vx[tid])*dt_min_opp[tid];
+        y_o_opp[tid] = y[tid] + (-vy[tid])*dt_min_opp[tid];
+        z_o_opp[tid] = z[tid] + (-vz[tid])*dt_min_opp[tid];
+    }
+
+}
 
 
-__global__ void mpcd_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, int N){
+
+__global__ void mpcd_opposite_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o_opp, double *vy_o_opp, double *vz_o_opp, int N){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N){
+
+        //calculate v(t+dt1) : in this case that we don't have acceleration it is equal to v(t).
+        //then we put the velocity equal to v(t+dt1):
+        //this part in this case is not necessary but we do it for generalization.
+        vx_o_opp[tid] = -vx[tid];
+        vy_o_opp[tid] = -vy[tid];
+        vz_o_opp[tid] = -vz[tid];
+    }
+    
+}
+
+__global__ void mpcd_opposite_crossing_velocity(double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, int N){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N){
