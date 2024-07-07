@@ -152,7 +152,7 @@ __global__ void Active_noslip_mpcd_deltaT_opposite(double *vx, double *vy, doubl
 
         if(wall_sign_x[tid] == 0 ){
 
-            dt_x[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            dt_x_opp[tid] = 10000;//a big number because next step is to consider the minimum of dt .
            
         }
         else if(wall_sign_x[tid] == 1 || wall_sign_x[tid] == -1){
@@ -165,7 +165,7 @@ __global__ void Active_noslip_mpcd_deltaT_opposite(double *vx, double *vy, doubl
 
         if(wall_sign_y[tid] == 0 ){
 
-            dt_y[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            dt_y_opp[tid] = 10000;//a big number because next step is to consider the minimum of dt .
             
         }
         else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
@@ -178,7 +178,7 @@ __global__ void Active_noslip_mpcd_deltaT_opposite(double *vx, double *vy, doubl
 
         if(wall_sign_z[tid] == 0 ){
 
-            dt_z[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            dt_z_opp[tid] = 10000;//a big number because next step is to consider the minimum of dt .
             
         }
         else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
