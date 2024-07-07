@@ -159,7 +159,7 @@ __global__ void reduce_kernel_var(double *FF1 ,double *FF2 , double *FF3,
    
 
 
-__global__ void reduceKernel_(double *input, double *output, int N) {
+/*__global__ void reduceKernel_(double *input, double *output, int N) {
     extern __shared__ double sssdata[];
     int tid = threadIdx.x;
     int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -181,7 +181,7 @@ __global__ void reduceKernel_(double *input, double *output, int N) {
     if (tid == 0) {
         output[blockIdx.x] = sssdata[0];
     }
-}
+}*/
 
 __global__ void reduceKernel_var(double *input_X, double *output_X, int N){
     
@@ -221,7 +221,7 @@ __global__ void reduceKernel_var(double *input_X, double *output_X, int N){
     }
 }
 
-__global__ void intreduceKernel_(int *input, int *output, int N) {
+/*__global__ void intreduceKernel_(int *input, int *output, int N) {
     extern __shared__ int sssdata_int[];
     int tid = threadIdx.x;
     int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -243,7 +243,7 @@ __global__ void intreduceKernel_(int *input, int *output, int N) {
     if (tid == 0) {
         output[blockIdx.x] = sssdata_int[0];
     }
-}
+}*/
 
 __global__ void intreduceKernel_var(int *input_X, int *output_X, int N){
     
