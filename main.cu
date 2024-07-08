@@ -494,10 +494,10 @@ int main(int argc, const char* argv[])
     //cudaMalloc((void**)&totalT, sizeof(double) * N);
 
 
-    //double  *d_mdX_o_opp, *d_mdY_o_opp, *d_mdZ_o_opp;//the x, y and z of the point where a md particle crosses the box walls.
-    //cudaMalloc((void**)&d_mdX_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdY_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdZ_o_opp, sizeof(double) * Nmd);
-    //double  *d_mdVx_o_opp, *d_mdVy_o_opp, *d_mdVz_o_opp;//the x, y and z of the point where a md particle crosses the box walls.
-    //cudaMalloc((void**)&d_mdVx_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdVy_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdVz_o_opp, sizeof(double) * Nmd);
+    double  *d_mdX_o_opp, *d_mdY_o_opp, *d_mdZ_o_opp;//the x, y and z of the point where a md particle crosses the box walls.
+    cudaMalloc((void**)&d_mdX_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdY_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdZ_o_opp, sizeof(double) * Nmd);
+    double  *d_mdVx_o_opp, *d_mdVy_o_opp, *d_mdVz_o_opp;//the x, y and z of the point where a md particle crosses the box walls.
+    cudaMalloc((void**)&d_mdVx_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdVy_o_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_mdVz_o_opp, sizeof(double) * Nmd);
 
 
 
@@ -505,8 +505,8 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&d_dt_min_opp, sizeof(double) * N);  cudaMalloc((void**)&d_dt_x_opp, sizeof(double) * N);  cudaMalloc((void**)&d_dt_y_opp, sizeof(double) * N);  cudaMalloc((void**)&d_dt_z_opp, sizeof(double) * N);
     
 
-    //double *d_md_dt_min_opp, *d_md_dt_x_opp, *d_md_dt_y_opp, *d_md_dt_z_opp;//crossing point with box for MD paricles
-    //cudaMalloc((void**)&d_md_dt_min_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_md_dt_x_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_md_dt_y_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_md_dt_z_opp, sizeof(double) * Nmd);
+    double *d_md_dt_min_opp, *d_md_dt_x_opp, *d_md_dt_y_opp, *d_md_dt_z_opp;//crossing point with box for MD paricles
+    cudaMalloc((void**)&d_md_dt_min_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_md_dt_x_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_md_dt_y_opp, sizeof(double) * Nmd);  cudaMalloc((void**)&d_md_dt_z_opp, sizeof(double) * Nmd);
   
     ///////////////////////////////////////////////////////////////////////////////////
 
@@ -975,7 +975,8 @@ int main(int argc, const char* argv[])
                     h_md, Nmd, m_md, N, density, 1, d_L, ux, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, delta, real_time, 
                     gama_T, d_random_array, d_seed, topology, d_flag_array, u_scale, 
                     d_md_dt_min, d_md_dt_x, d_md_dt_y, d_md_dt_z, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdVx_o, d_mdVy_o, d_mdVz_o, 
-                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag_md, n_out_flag_md, &d_zero_md);
+                    d_md_dt_min_opp, d_md_dt_x_opp, d_md_dt_y_opp, d_md_dt_z_opp, d_mdX_o_opp, d_mdY_o_opp, d_mdZ_o_opp, d_mdVx_o_opp, d_mdVy_o_opp, d_mdVz_o_opp,
+                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag_md, &ErrorFlag_md_opp, n_out_flag_md, n_out_flag_md_opp, &d_zero_md);
                 
                 if (ErrorFlag_md != 0){
                 // Handle error
