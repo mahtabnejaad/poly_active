@@ -780,13 +780,13 @@ __global__ void Active_noslip_md_deltaT_opposite(double *mdvx, double *mdvy, dou
         else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
             
             if(mdAy_tot[tid]  == 0.0){
-                if(mdvy[tid] > 0.0)   md_dt_y[tid] = abs(y_wall_dist[tid]/mdvy[tid]);
-                else if() 
-            
+                if(mdvy[tid] > 0.0)   md_dt_y_opp[tid] = abs((y_wall_dist[tid] - L[1])/mdvy[tid]);
+                else if(mdvy[tid] < 0.0)  md_dt_y_opp[tid] = abs((y_wall_dist[tid] + L[1])/mdvy[tid]);
+            }
             else if (mdAy_tot[tid] != 0.0){
 
-                delta_y_plus = (mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid] + L[0])*(mdAy_tot[tid]));
-                delta_y_minus = (mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid] - L[0])*(mdAy_tot[tid]));
+                delta_y_plus = (mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid] + L[1])*(mdAy_tot[tid]));
+                delta_y_minus = (mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid] - L[1])*(mdAy_tot[tid]));
 
                 delta_y = (mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid]));
 
@@ -814,15 +814,15 @@ __global__ void Active_noslip_md_deltaT_opposite(double *mdvx, double *mdvy, dou
         else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
             
             if(mdAz_tot[tid] == 0.0){
-              if(mdvz[tid]>0) md_dt_z_opp[tid] = abs((z_wall_dist[tid]-L[0])/(-mdvz[tid]));
+              if(mdvz[tid]>0) md_dt_z_opp[tid] = abs((z_wall_dist[tid]-L[2])/(-mdvz[tid]));
 
-              else if(mdvz[tid]<0) md_dt_z_opp[tid] = abs((z_wall_dist[tid]+L[0])/(-mdvz[tid]));
+              else if(mdvz[tid]<0) md_dt_z_opp[tid] = abs((z_wall_dist[tid]+L[2])/(-mdvz[tid]));
             }
 
             else if (mdAz_tot[tid] != 0.0){
 
-                delta_z_plus = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]+L[0])*(mdAz_tot[tid])));
-                delta_z_minus = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]-L[0])*(mdAz_tot[tid])));
+                delta_z_plus = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]+L[2])*(mdAz_tot[tid])));
+                delta_z_minus = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]-L[2])*(mdAz_tot[tid])));
 
                 delta_z = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid])*(mdAz_tot[tid])));
 
