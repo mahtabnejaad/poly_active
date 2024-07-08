@@ -765,7 +765,7 @@ __global__ void Active_noslip_md_deltaT_opposite(double *mdvx, double *mdvy, dou
                 else if(delta_x_plus < 0.0 && mdvx[tid] < 0.0){
 
                     md_dt_x_opp[tid] = ((mdvx[tid] - sqrt(delta_x))/(mdAx_tot[tid]));
-                    
+
                 }
                 
             }
@@ -773,71 +773,82 @@ __global__ void Active_noslip_md_deltaT_opposite(double *mdvx, double *mdvy, dou
 
         if(wall_sign_y[tid] == 0 ){
             if(mdAy_tot[tid] == 0) md_dt_y[tid] = 10000;//a big number because next step is to consider the minimum of dt .
-            else if(mdAy_tot[tid] > 0.0)  md_dt_y[tid] = sqrt(2*y_wall_dist[tid]/mdAy_tot[tid]);
-            else if(mdAy_tot[tid] < 0.0)  md_dt_y[tid] = sqrt(2*(y_wall_dist[tid]-L[1])/mdAy_tot[tid]);
+            else if(mdAy_tot[tid] > 0.0)  md_dt_y_opp[tid] = sqrt(2*y_wall_dist[tid]/mdAy_tot[tid]);
+            else if(mdAy_tot[tid] < 0.0)  md_dt_y_opp[tid] = sqrt(2*(y_wall_dist[tid]-L[1])/mdAy_tot[tid]);
         }
 
         else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
             
-            if(mdAy_tot[tid]  == 0.0)   md_dt_y[tid] = abs(y_wall_dist[tid]/mdvy[tid]);
+            if(mdAy_tot[tid]  == 0.0){
+                if(mdvy[tid] > 0.0)   md_dt_y[tid] = abs(y_wall_dist[tid]/mdvy[tid]);
+                else if() 
             
             else if (mdAy_tot[tid] != 0.0){
 
+                delta_y_plus = (mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid] + L[0])*(mdAy_tot[tid]));
+                delta_y_minus = (mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid] - L[0])*(mdAy_tot[tid]));
+
                 delta_y = (mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid]));
 
-                if (delta_y >= 0){
+                if(mdvy[tid] > 0.0 && delta_y_minus >= 0.0)    md_dt_y_opp[tid] = ((mdvy[tid] - sqrt(delta_y_minus))/(mdAy_tot[tid]));
+                            
+                else if(mdvy[tid] < 0.0 && delta_y_plus >= 0.0)      md_dt_y_opp[tid] = ((mdvy[tid] + sqrt(delta_y_plus))/(mdAy_tot[tid]));
+                        
+                
+                else if(delta_y_minus < 0.0 && mdvy[tid] > 0.0){
+                    
+                    md_dt_y_opp[tid] = ((mdvy[tid] + sqrt(delta_y))/(mdAy_tot[tid]));
 
-                    if(mdvy[tid] > 0.0)              md_dt_y[tid] = ((-mdvy[tid] + sqrt(delta_y))/(mdAy_tot[tid]));
-                    else if (mdvy[tid] < 0.0)        md_dt_y[tid] = ((-mdvy[tid] - sqrt(delta_y))/(mdAy_tot[tid]));
+                } 
+                else if(delta_y_plus < 0.0 && mdvy[tid] < 0.0){
+
+                    md_dt_y_opp[tid] = ((mdvy[tid] - sqrt(delta_y))/(mdAy_tot[tid]));
+
                 }
-                else if(delta_y < 0){
 
-                    delta_y_p = ((mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid]-L[1])*(mdAy_tot[tid])));
-                    delta_y_n = ((mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid]+L[1])*(mdAy_tot[tid])));
-
-                    if(mdvy[tid] > 0.0)        md_dt_y[tid] = ((-mdvy[tid] - sqrt(delta_y_p))/(mdAy_tot[tid]));
-                    else if(mdvy[tid] < 0.0)   md_dt_y[tid] = ((-mdvy[tid] + sqrt(delta_y_n))/(mdAy_tot[tid]));
-
-                }        
+                    
             }
         }
   
 
-        if(wall_sign_z[tid] == 0 ){
-            if(mdAz_tot[tid] == 0)        md_dt_z[tid] = 10000;//a big number because next step is to consider the minimum of dt .
-            else if(mdAz_tot[tid] > 0.0)  md_dt_z[tid] = sqrt(2*z_wall_dist[tid]/mdAz_tot[tid]);
-            else if(mdAz_tot[tid] < 0.0)  md_dt_z[tid] = sqrt(2*(z_wall_dist[tid]-L[2])/mdAz_tot[tid]);
-        }
         else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
             
-            if(mdAz_tot[tid] == 0.0)   md_dt_z[tid] = abs(z_wall_dist[tid]/mdvz[tid]);
+            if(mdAz_tot[tid] == 0.0){
+              if(mdvz[tid]>0) md_dt_z_opp[tid] = abs((z_wall_dist[tid]-L[0])/(-mdvz[tid]));
+
+              else if(mdvz[tid]<0) md_dt_z_opp[tid] = abs((z_wall_dist[tid]+L[0])/(-mdvz[tid]));
+            }
 
             else if (mdAz_tot[tid] != 0.0){
 
-                delta_z = (mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid]));
+                delta_z_plus = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]+L[0])*(mdAz_tot[tid])));
+                delta_z_minus = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]-L[0])*(mdAz_tot[tid])));
 
-                if (delta_z >= 0.0){
-                    
-                    if(mdvz[tid] > 0.0)             md_dt_z[tid] = ((-mdvz[tid] + sqrt(delta_z))/(mdAz_tot[tid]));
-                    else if(mdvz[tid] < 0.0)        md_dt_z[tid] = ((-mdvz[tid] - sqrt(delta_z))/(mdAz_tot[tid]));  
-                }
+                delta_z = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid])*(mdAz_tot[tid])));
 
-                else if (delta_z < 0.0){
+                if(mdvz[tid] > 0.0 && delta_z_minus >= 0.0)    md_dt_z_opp[tid] = ((mdvz[tid] - sqrt(delta_z_minus))/(mdAz_tot[tid]));
+                            
+                else if(mdvz[tid] < 0.0 && delta_z_plus >= 0.0)      md_dt_z_opp[tid] = ((mdvz[tid] + sqrt(delta_z_plus))/(mdAz_tot[tid]));
+                        
                 
-                    delta_z_p = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]-L[2])*(mdAz_tot[tid])));
-                    delta_z_n = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]+L[2])*(mdAz_tot[tid])));
-
-                    if(mdvz[tid] > 0.0)        md_dt_z[tid] = ((-mdvz[tid] - sqrt(delta_z_p))/(mdAz_tot[tid]));
-                    else if(mdvz[tid] < 0.0)   md_dt_z[tid] = ((-mdvz[tid] + sqrt(delta_z_n))/(mdAz_tot[tid]));
+                else if(delta_z_minus < 0.0 && mdvz[tid] > 0.0){
                     
+                    md_dt_z_opp[tid] = ((mdvz[tid] + sqrt(delta_z))/(mdAz_tot[tid]));
+
+                } 
+                else if(delta_z_plus < 0.0 && mdvz[tid] < 0.0){
+
+                    md_dt_z_opp[tid] = ((mdvz[tid] - sqrt(delta_z))/(mdAz_tot[tid]));
+
                 }
                 
             }
-        }
-    printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
+        }  
+
+    printf("md_dt_x_opp[%i]=%f, md_dt_y_opp[%i]=%f, md_dt_z_opp[%i]=%f\n", tid, md_dt_x_opp[tid], tid, md_dt_y_opp[tid], tid, md_dt_z_opp[tid]);
     printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n", tid, mdvx[tid], tid, mdvy[tid], tid, mdvz[tid]);
     printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", tid, mdAx_tot[tid], tid, mdAy_tot[tid], tid, mdAz_tot[tid]);
-    if (md_dt_x[tid] <0.002 || md_dt_y[tid] < 0.002 || md_dt_z[tid]< 0.002)  printf("the %i th particle will go out of box\n", tid);
+    //if (md_dt_x_opp[tid] <0.002 || md_dt_y_opp[tid] < 0.002 || md_dt_z_opp[tid]< 0.002)  printf("the %i th particle will go out of box\n", tid);
    
     }
 }
