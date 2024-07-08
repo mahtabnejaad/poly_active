@@ -1082,17 +1082,13 @@ __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy
 }
 
 
-__global__ void Active_CM_md_opposite_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o_opp, double *mdy_o_opp, double *mdz_o_opp, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o_opp, double *mdvy_o_opp, double *mdvz_o_opp, double *fa_x, double *fa_y, double *fa_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *md_dt_min, double *md_dt_min_opp, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag_opp, int N, double mass, double mass_fluid){
+__global__ void Active_CM_md_opposite_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o_opp, double *mdy_o_opp, double *mdz_o_opp, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o_opp, double *mdvy_o_opp, double *mdvz_o_opp, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *Ax_cm, double *Ay_cm, double *Az_cm, double *md_dt_min, double *md_dt_min_opp, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag_opp){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     
     if (tid<Nmd){
 
   
-
-    //double QQ3=-((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])/(2*(Nmd*mass+mass_fluid*N)));
-    //double Q3=-((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])/(Nmd*mass+mass_fluid*N));
-
 
     //if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
     if((mdx[tid]+*Xcm)>L[0]/2 || (mdx[tid]+*Xcm)<-L[0]/2 || (mdy[tid]+*Ycm)>L[1]/2 || (mdy[tid]+*Ycm)<-L[1]/2 || (mdz[tid]+*Zcm)>L[2]/2 || (mdz[tid]+*Zcm)<-L[2]/2){
@@ -1107,12 +1103,12 @@ __global__ void Active_CM_md_opposite_bounceback_velocityverlet1(double *mdx, do
                 return;  // Early exit
             }
             //let the particle move during dt-dt1 with the reversed velocity:
-            mdx[tid] += (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * mdvx[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Ax_cm);// QQ3 * *fa_x in CM or 0 in lab;
-            mdy[tid] += (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * mdvy[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Ay_cm);// QQ3 * *fa_y in CM or 0 in lab;
-            mdz[tid] += (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * mdvz[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Az_cm);// QQ3 * *fa_z in CM or 0 in lab;
-            mdvx[tid]= mdvx[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Ax_cm);// Q3 * *fa_x in CM or 0 in lab;// * 0.5;
-            mdvy[tid]= mdvy[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Ay_cm);// Q3 * *fa_y in CM or 0 in lab;// * 0.5;
-            mdvz[tid]= mdvz[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Az_cm);// Q3 * *fa_z in CM or 0 in lab;// * 0.5;
+            mdx[tid] += (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * mdvx[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Ax_cm);// mdAx_tot[tid] in CM or in lab;
+            mdy[tid] += (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * mdvy[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Ay_cm);// mdAy_tot[tid] in CM or in lab;
+            mdz[tid] += (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * mdvz[tid] + 0.5 * ((md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])*(md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid])) * (-*Az_cm);// mdAz_tot[tid] in CM or in lab;
+            mdvx[tid]= mdvx[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Ax_cm);// mdAx_tot[tid] in CM or in lab;// * 0.5;
+            mdvy[tid]= mdvy[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Ay_cm);// mdAy_tot[tid] in CM or in lab;// * 0.5;
+            mdvz[tid]= mdvz[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Az_cm);// mdAz_tot[tid] in CM or in lab;// * 0.5;
         
             if((mdx_o_opp[tid] + *Xcm )>L[0]/2 || (mdx_o_opp[tid] + *Xcm)<-L[0]/2 || (mdy_o_opp[tid] + *Ycm )>L[1]/2 || (mdy_o_opp[tid] + *Ycm )<-L[1]/2 || (mdz_o_opp[tid] + *Zcm )>L[2]/2 || (mdz_o_opp[tid] + *Zcm )<-L[2]/2)  printf("wrong mdx_o_opp[%i]=%f, mdy_o_opp[%i]=%f, mdz_o_opp[%i]=%f\n", tid, (mdx_o_opp[tid] + *Xcm), tid, (mdy_o_opp[tid] + *Ycm), tid, (mdz_o_opp[tid] + *Zcm));
 
@@ -1693,7 +1689,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaDeviceSynchronize() );
 
     Active_CM_md_opposite_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o_opp, mdY_o_opp, mdZ_o_opp, mdvx, mdvy, mdvz, mdvx_o_opp, mdvy_o_opp, mdvz_o_opp, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, zer, zer, zer, md_dt_min, md_dt_min_opp, h_md, L, Nmd, zer, zer, zer, d_errorFlag_md_opp, n_out_flag_opp);
-    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaPeekAtLastError() );               
     gpuErrchk( cudaDeviceSynchronize() );
 
     // Check for kernel errors and sync
