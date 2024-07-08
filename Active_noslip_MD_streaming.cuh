@@ -717,6 +717,127 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
     }
 }
 
+
+//a function to calculate dt1 dt2 and dt3 which are dts calculated with the help of particle's velocities and distances from corresponding walls 
+__global__ void Active_noslip_md_deltaT_opposite(double *mdvx, double *mdvy, double *mdvz, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *md_dt_x_opp, double *md_dt_y_opp, double *md_dt_z_opp, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, int Nmd, double *L){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    double delta_x;
+    double delta_y;
+    double delta_z;
+    double delta_x_p; double delta_x_n; double delta_y_p; double delta_y_n; double delta_z_p; double delta_z_n;
+    if (tid<Nmd){
+        
+        
+
+        if(wall_sign_x[tid] == 0 ){
+            if(mdAx_tot[tid] == 0) md_dt_x_opp[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(mdAx_tot[tid] > 0.0)  md_dt_x_opp[tid] = sqrt(2*x_wall_dist[tid]/mdAx_tot[tid]);
+            else if(mdAx_tot[tid] < 0.0)  md_dt_x_opp[tid] = sqrt(2*(x_wall_dist[tid]-L[0])/mdAx_tot[tid]);
+        }
+
+
+        else if(wall_sign_x[tid] == 1 || wall_sign_x[tid] == -1){
+            
+            if(mdAx_tot[tid] == 0.0){
+              if(mdvx[tid]>0) md_dt_x_opp[tid] = abs((x_wall_dist[tid]-L[0])/(-mdvx[tid]));
+
+              else if(mdvx[tid]<0) md_dt_x_opp[tid] = abs((x_wall_dist[tid]+L[0])/(-mdvx[tid]));
+            }
+
+            else if (mdAx_tot[tid] != 0.0){
+
+                delta_x_plus = ((mdvx[tid]*mdvx[tid])+(2*(x_wall_dist[tid]+L[0])*(mdAx_tot[tid])));
+                delta_x_minus = ((mdvx[tid]*mdvx[tid])+(2*(x_wall_dist[tid]-L[0])*(mdAx_tot[tid])));
+
+                if(delta_x >= 0.0){
+                        if(mdvx[tid] > 0.0)         md_dt_x_opp[tid] = ((mdvx[tid] - sqrt(delta_x_minus))/(mdAx_tot[tid]));
+                        else if(mdvx[tid] < 0.0)    md_dt_x_opp[tid] = ((mdvx[tid] + sqrt(delta_x_plus))/(mdAx_tot[tid]));
+                        
+                } 
+                else if (delta_x < 0.0){
+                        delta_x_p = ((mdvx[tid]*mdvx[tid])+(2*(x_wall_dist[tid]-L[0])*(mdAx_tot[tid])));
+                        delta_x_n = ((mdvx[tid]*mdvx[tid])+(2*(x_wall_dist[tid]+L[0])*(mdAx_tot[tid])));
+
+                        if(mdvx[tid] > 0.0)        md_dt_x[tid] = ((mdvx[tid] - sqrt(delta_x_p))/(mdAx_tot[tid]));
+                        else if(mdvx[tid] < 0.0)   md_dt_x[tid] = ((mdvx[tid] + sqrt(delta_x_n))/(mdAx_tot[tid]));
+                }
+                
+            }
+        }  
+
+        if(wall_sign_y[tid] == 0 ){
+            if(mdAy_tot[tid] == 0) md_dt_y[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(mdAy_tot[tid] > 0.0)  md_dt_y[tid] = sqrt(2*y_wall_dist[tid]/mdAy_tot[tid]);
+            else if(mdAy_tot[tid] < 0.0)  md_dt_y[tid] = sqrt(2*(y_wall_dist[tid]-L[1])/mdAy_tot[tid]);
+        }
+
+        else if(wall_sign_y[tid] == 1 || wall_sign_y[tid] == -1){
+            
+            if(mdAy_tot[tid]  == 0.0)   md_dt_y[tid] = abs(y_wall_dist[tid]/mdvy[tid]);
+            
+            else if (mdAy_tot[tid] != 0.0){
+
+                delta_y = (mdvy[tid]*mdvy[tid])+(2*y_wall_dist[tid]*(mdAy_tot[tid]));
+
+                if (delta_y >= 0){
+
+                    if(mdvy[tid] > 0.0)              md_dt_y[tid] = ((-mdvy[tid] + sqrt(delta_y))/(mdAy_tot[tid]));
+                    else if (mdvy[tid] < 0.0)        md_dt_y[tid] = ((-mdvy[tid] - sqrt(delta_y))/(mdAy_tot[tid]));
+                }
+                else if(delta_y < 0){
+
+                    delta_y_p = ((mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid]-L[1])*(mdAy_tot[tid])));
+                    delta_y_n = ((mdvy[tid]*mdvy[tid])+(2*(y_wall_dist[tid]+L[1])*(mdAy_tot[tid])));
+
+                    if(mdvy[tid] > 0.0)        md_dt_y[tid] = ((-mdvy[tid] - sqrt(delta_y_p))/(mdAy_tot[tid]));
+                    else if(mdvy[tid] < 0.0)   md_dt_y[tid] = ((-mdvy[tid] + sqrt(delta_y_n))/(mdAy_tot[tid]));
+
+                }        
+            }
+        }
+  
+
+        if(wall_sign_z[tid] == 0 ){
+            if(mdAz_tot[tid] == 0)        md_dt_z[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(mdAz_tot[tid] > 0.0)  md_dt_z[tid] = sqrt(2*z_wall_dist[tid]/mdAz_tot[tid]);
+            else if(mdAz_tot[tid] < 0.0)  md_dt_z[tid] = sqrt(2*(z_wall_dist[tid]-L[2])/mdAz_tot[tid]);
+        }
+        else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
+            
+            if(mdAz_tot[tid] == 0.0)   md_dt_z[tid] = abs(z_wall_dist[tid]/mdvz[tid]);
+
+            else if (mdAz_tot[tid] != 0.0){
+
+                delta_z = (mdvz[tid]*mdvz[tid])+(2*z_wall_dist[tid]*(mdAz_tot[tid]));
+
+                if (delta_z >= 0.0){
+                    
+                    if(mdvz[tid] > 0.0)             md_dt_z[tid] = ((-mdvz[tid] + sqrt(delta_z))/(mdAz_tot[tid]));
+                    else if(mdvz[tid] < 0.0)        md_dt_z[tid] = ((-mdvz[tid] - sqrt(delta_z))/(mdAz_tot[tid]));  
+                }
+
+                else if (delta_z < 0.0){
+                
+                    delta_z_p = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]-L[2])*(mdAz_tot[tid])));
+                    delta_z_n = ((mdvz[tid]*mdvz[tid])+(2*(z_wall_dist[tid]+L[2])*(mdAz_tot[tid])));
+
+                    if(mdvz[tid] > 0.0)        md_dt_z[tid] = ((-mdvz[tid] - sqrt(delta_z_p))/(mdAz_tot[tid]));
+                    else if(mdvz[tid] < 0.0)   md_dt_z[tid] = ((-mdvz[tid] + sqrt(delta_z_n))/(mdAz_tot[tid]));
+                    
+                }
+                
+            }
+        }
+    printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
+    printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n", tid, mdvx[tid], tid, mdvy[tid], tid, mdvz[tid]);
+    printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", tid, mdAx_tot[tid], tid, mdAy_tot[tid], tid, mdAz_tot[tid]);
+    if (md_dt_x[tid] <0.002 || md_dt_y[tid] < 0.002 || md_dt_z[tid]< 0.002)  printf("the %i th particle will go out of box\n", tid);
+   
+    }
+}
+
+
 //Active_md_crossing_location
 //calculate the crossing location where the particles intersect with one wall:
 __global__ void Active_md_crossing_location(double *mdx, double *mdy, double *mdz, double *mdvx, double *mdvy, double *mdvz, double *mdx_o, double *mdy_o, double *mdz_o, double *md_dt_min, double md_dt, double *L, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, int Nmd){
@@ -733,6 +854,22 @@ __global__ void Active_md_crossing_location(double *mdx, double *mdy, double *md
 
 }
 
+//calculate the crossing location where the particles intersect with one wall:
+__global__ void Active_md_opposite_crossing_location(double *mdx, double *mdy, double *mdz, double *mdvx, double *mdvy, double *mdvz, double *mdx_o_opp, double *mdy_o_opp, double *mdz_o_opp, double *md_dt_min_opp, double md_dt, double *L, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, int Nmd){
+
+    
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<Nmd){
+        //if( ((mdx[tid] + md_dt * mdvx[tid]) >L[0]/2 || (mdx[tid] + md_dt * mdvx[tid])<-L[0]/2 || (mdy[tid] + md_dt * mdvy[tid])>L[1]/2 || (mdy[tid] + md_dt * mdvy[tid])<-L[1]/2 || (mdz[tid]+ md_dt * mdvz[tid])>L[2]/2 || (mdz[tid] + md_dt * mdvz[tid])<-L[2]/2) && md_dt_min[tid]>0.1) printf("dt_min_opp[%i] = %f\n", tid, md_dt_min_opp[tid]);
+        mdx_o_opp[tid] = mdx[tid] + (-mdvx[tid]) * md_dt_min_opp[tid] + 0.5 * mdAx_tot[tid] * md_dt_min_opp[tid] * md_dt_min_opp[tid];
+        mdy_o_opp[tid] = mdy[tid] + (-mdvy[tid]) * md_dt_min_opp[tid] + 0.5 * mdAy_tot[tid] * md_dt_min_opp[tid] * md_dt_min_opp[tid];
+        mdz_o_opp[tid] = mdz[tid] + (-mdvz[tid]) * md_dt_min_opp[tid] + 0.5 * mdAz_tot[tid] * md_dt_min_opp[tid] * md_dt_min_opp[tid];
+    }
+
+}
+
+
 
 //Active_md_crossing_velocity
 __global__ void Active_md_crossing_velocity(double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *md_dt_min, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, int Nmd){
@@ -747,6 +884,23 @@ __global__ void Active_md_crossing_velocity(double *mdvx, double *mdvy, double *
         mdvx_o[tid] = mdvx[tid] + md_dt_min[tid] * mdAx_tot[tid];
         mdvy_o[tid] = mdvy[tid] + md_dt_min[tid] * mdAy_tot[tid];
         mdvz_o[tid] = mdvz[tid] + md_dt_min[tid] * mdAz_tot[tid];
+    }
+    
+}
+
+//Active_md_crossing_velocity
+__global__ void Active_md_opposite_crossing_velocity(double *mdvx, double *mdvy, double *mdvz, double *mdvx_o_opp, double *mdvy_o_opp, double *mdvz_o_opp, double *md_dt_min_opp, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, int Nmd){
+
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<Nmd){
+
+        //calculate v(t+dt1) : in this case that we don't have acceleration it is equal to v(t).
+        //then we put the velocity equal to v(t+dt1):
+        //this part in this case is not necessary but we do it for generalization.
+        mdvx_o_opp[tid] = -mdvx[tid] + md_dt_min_opp[tid] * mdAx_tot[tid];
+        mdvy_o_opp[tid] = -mdvy[tid] + md_dt_min_opp[tid] * mdAy_tot[tid];
+        mdvz_o_opp[tid] = -mdvz[tid] + md_dt_min_opp[tid] * mdAz_tot[tid];
     }
     
 }
