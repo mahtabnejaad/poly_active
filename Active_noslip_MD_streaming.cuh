@@ -1720,8 +1720,9 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     
     
 
-    cudaFree(d_errorFlag);
+    //cudaFree(d_errorFlag_md);
     cudaFree(Axcm); cudaFree(Aycm); cudaFree(Azcm);
+    cudaFree(zero); cudaFree(zer);
 
     
    
