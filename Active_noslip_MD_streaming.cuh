@@ -810,6 +810,12 @@ __global__ void Active_noslip_md_deltaT_opposite(double *mdvx, double *mdvy, dou
             }
         }
   
+        if(wall_sign_z[tid] == 0 ){
+            if(mdAz_tot[tid] == 0) md_dt_z_opp[tid] = 10000;//a big number because next step is to consider the minimum of dt .
+            else if(mdAz_tot[tid] > 0.0)  md_dt_z_opp[tid] = sqrt(2*z_wall_dist[tid]/mdAz_tot[tid]);
+            else if(mdAz_tot[tid] < 0.0)  md_dt_z_opp[tid] = sqrt(2*(z_wall_dist[tid]-L[2])/mdAz_tot[tid]);
+        }
+
 
         else if(wall_sign_z[tid] == 1 || wall_sign_z[tid] == -1){
             
@@ -831,12 +837,12 @@ __global__ void Active_noslip_md_deltaT_opposite(double *mdvx, double *mdvy, dou
                 else if(mdvz[tid] < 0.0 && delta_z_plus >= 0.0)      md_dt_z_opp[tid] = ((mdvz[tid] + sqrt(delta_z_plus))/(mdAz_tot[tid]));
                         
                 
-                else if(delta_z_minus < 0.0 && mdvz[tid] > 0.0){
+                else if(mdvz[tid] > 0.0 && delta_z_minus < 0.0 ){
                     
                     md_dt_z_opp[tid] = ((mdvz[tid] + sqrt(delta_z))/(mdAz_tot[tid]));
 
                 } 
-                else if(delta_z_plus < 0.0 && mdvz[tid] < 0.0){
+                else if(mdvz[tid] < 0.0 && delta_z_plus < 0.0 ){
 
                     md_dt_z_opp[tid] = ((mdvz[tid] - sqrt(delta_z))/(mdAz_tot[tid]));
 
