@@ -580,6 +580,7 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States)
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
+            ///////////////////////////////////virtual particle part:
             unsigned long long seed = 1234; // Choose a seed
             //initializeCurandStates<<<grid_size, blockSize>>>(States, seed, Nc);
             gpuErrchk( cudaPeekAtLastError() );
@@ -592,6 +593,8 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States)
             //virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, 1, density, d_n, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
+
+            //////////////////////////////////////////////////////////
 
             //This launches the RotationStep1 kernel with the specified grid size and block size.
             // The kernel calculates the rotation matrices (d_rot) for each cell based on the angle values (d_phi, d_theta) and the mass (d_m) of particles in each cell.
