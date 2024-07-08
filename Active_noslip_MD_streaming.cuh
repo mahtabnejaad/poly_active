@@ -725,7 +725,7 @@ __global__ void Active_noslip_md_deltaT_opposite(double *mdvx, double *mdvy, dou
     double delta_x;
     double delta_y;
     double delta_z;
-    double delta_x_p; double delta_x_n; double delta_y_p; double delta_y_n; double delta_z_p; double delta_z_n;
+    double delta_x_plus; double delta_x_minus; double delta_y_plus; double delta_y_minus; double delta_z_plus; double delta_z_minus;
     if (tid<Nmd){
         
         
@@ -750,17 +750,22 @@ __global__ void Active_noslip_md_deltaT_opposite(double *mdvx, double *mdvy, dou
                 delta_x_plus = ((mdvx[tid]*mdvx[tid])+(2*(x_wall_dist[tid]+L[0])*(mdAx_tot[tid])));
                 delta_x_minus = ((mdvx[tid]*mdvx[tid])+(2*(x_wall_dist[tid]-L[0])*(mdAx_tot[tid])));
 
-                if(delta_x >= 0.0){
-                        if(mdvx[tid] > 0.0)         md_dt_x_opp[tid] = ((mdvx[tid] - sqrt(delta_x_minus))/(mdAx_tot[tid]));
-                        else if(mdvx[tid] < 0.0)    md_dt_x_opp[tid] = ((mdvx[tid] + sqrt(delta_x_plus))/(mdAx_tot[tid]));
-                        
-                } 
-                else if (delta_x < 0.0){
-                        delta_x_p = ((mdvx[tid]*mdvx[tid])+(2*(x_wall_dist[tid]-L[0])*(mdAx_tot[tid])));
-                        delta_x_n = ((mdvx[tid]*mdvx[tid])+(2*(x_wall_dist[tid]+L[0])*(mdAx_tot[tid])));
+                delta_x = ((mdvx[tid]*mdvx[tid])+(2*(x_wall_dist[tid])*(mdAx_tot[tid])));
 
-                        if(mdvx[tid] > 0.0)        md_dt_x[tid] = ((mdvx[tid] - sqrt(delta_x_p))/(mdAx_tot[tid]));
-                        else if(mdvx[tid] < 0.0)   md_dt_x[tid] = ((mdvx[tid] + sqrt(delta_x_n))/(mdAx_tot[tid]));
+                if(mdvx[tid] > 0.0 && delta_x_minus >= 0.0)    md_dt_x_opp[tid] = ((mdvx[tid] - sqrt(delta_x_minus))/(mdAx_tot[tid]));
+                            
+                else if(mdvx[tid] < 0.0 && delta_x_plus >= 0.0)      md_dt_x_opp[tid] = ((mdvx[tid] + sqrt(delta_x_plus))/(mdAx_tot[tid]));
+                        
+                
+                else if(delta_x_minus < 0.0 && mdvx[tid] > 0.0){
+                    
+                    md_dt_x_opp[tid] = ((mdvx[tid] + sqrt(delta_x))/(mdAx_tot[tid]));
+
+                } 
+                else if(delta_x_plus < 0.0 && mdvx[tid] < 0.0){
+
+                    md_dt_x_opp[tid] = ((mdvx[tid] - sqrt(delta_x))/(mdAx_tot[tid]));
+                    
                 }
                 
             }
