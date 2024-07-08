@@ -1551,8 +1551,8 @@ double *mdX_tot, double *mdY_tot, double *mdZ_tot, double *X_tot, double *Y_tot,
 double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz, double *CMsumblock_x, double *CMsumblock_y, double *CMsumblock_z, double *CMsumblock_mdVx, double *CMsumblock_mdVy, double *CMsumblock_mdVz, double *CMsumblock_Vx, double *CMsumblock_Vy, double *CMsumblock_Vz, int *CMsumblock_n_outbox_md, int *CMsumblock_n_outbox_mpcd,
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out,
 double h_md, int Nmd, int N, int *n_outbox_md, int *n_outbox_mpcd, double mass, double mass_fluid, double *L, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *md_dt_min ,
-double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *d_Ax_tot, double *d_Ay_tot, double *d_Az_tot, double *d_Ax_tot_lab, double *d_Ay_tot_lab, double *d_Az_tot_lab, 
-double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, int *hostErrorFlag, int *n_out_flag, double *d_zero){
+double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdX_o_opp, double *mdY_o_opp, double *mdZ_o_opp, double *mdvx_o_opp, double *mdvy_o_opp, double *mdvz_o_opp, double *d_Ax_tot, double *d_Ay_tot, double *d_Az_tot, double *d_Ax_tot_lab, double *d_Ay_tot_lab, double *d_Az_tot_lab, 
+double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, int *hostErrorFlag, int *hostErrorFlag_opp, int *n_out_flag, int *n_out_flag_opp, double *d_zero){
 
     //CM_system : calculate CM of the whole system.
     //CM_system(mdX, mdY, mdZ, x, y, z, mdvx, mdvy, mdvz, vx, vy, vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid,
@@ -1590,6 +1590,27 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
+
+    Active_noslip_md_deltaT_opposite<<<grid_size,blockSize>>>(mdvx , mdvy , mdvz, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ , mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, md_dt_x_opp, md_dt_y_opp, md_dt_z_opp, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Nmd, L);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    Active_deltaT_min<<<grid_size,blockSize>>>(md_dt_x_opp, md_dt_y_opp, md_dt_z_opp, md_dt_min_opp, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+
+    //crossing location is calculated in Lab frame bacause we're using the accelerations in Lab system (A_tot_lab which is the particle's acceleration in lab system)
+    Active_md_opposite_crossing_location<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdvx , mdvy , mdvz, mdX_o_opp, mdY_o_opp, mdZ_o_opp, md_dt_min_opp, h_md, L, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    //crossing velocity is calculated in Lab frame bacause we're using the accelerations in Lab system (A_tot_lab)
+    Active_md_opposite_crossing_velocity<<<grid_size,blockSize>>>(mdvx, mdvy, mdvz, mdvx_o_opp, mdvy_o_opp, mdvz_o_opp, md_dt_min_opp, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, Nmd);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+
     double *zero;
     cudaMalloc(&zero, sizeof(double));
     *d_zero = 0.0;
@@ -1616,10 +1637,10 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
 
     
 
-    int *d_errorFlag;
+    int *d_errorFlag_md;
     *hostErrorFlag = 0;
-    cudaMalloc(&d_errorFlag, sizeof(int));
-    cudaMemcpy(d_errorFlag, hostErrorFlag, sizeof(int), cudaMemcpyHostToDevice);
+    cudaMalloc(&d_errorFlag_md, sizeof(int));
+    cudaMemcpy(d_errorFlag_md, hostErrorFlag, sizeof(int), cudaMemcpyHostToDevice);
 
     double *Axcm, *Aycm, *Azcm;
     cudaMalloc(&Axcm, sizeof(double));
@@ -1632,7 +1653,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     
 
     //after putting the particles that had traveled outside of the box on its boundaries, we let them stream in the opposite direction for the time they had spent outside the box. 
-    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, zero, zero, zero, md_dt_min, h_md, L, Nmd, zero, zero, zero, d_errorFlag, n_out_flag);
+    Active_CM_md_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, zero, zero, zero, md_dt_min, h_md, L, Nmd, zero, zero, zero, d_errorFlag_md, n_out_flag);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -1641,20 +1662,60 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess) {
         printf("CUDA Error: %s\n", cudaGetErrorString(err));
-        cudaFree(d_errorFlag);
+        cudaFree(d_errorFlag_md);
         *hostErrorFlag = -1;  // Set error flag
         return;
     }
 
     // Check the error flag
-    cudaMemcpy(hostErrorFlag, d_errorFlag, sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(hostErrorFlag, d_errorFlag_md, sizeof(int), cudaMemcpyDeviceToHost);
     if (*hostErrorFlag) {
-        printf("Error condition met in kernel. Exiting.\n");
+        printf("Error condition met in kernel (MPCD). Exiting.\n");
         // Clean up and exit
-        cudaFree(d_errorFlag);
+        cudaFree(d_errorFlag_md);
         *hostErrorFlag = -1;  // Set error flag
         return;
     }
+
+
+     int *d_errorFlag_md_opp;
+    *hostErrorFlag_opp = 0;
+    cudaMalloc(&d_errorFlag_md_opp, sizeof(int));
+    cudaMemcpy(d_errorFlag_md_opp, hostErrorFlag_opp, sizeof(int), cudaMemcpyHostToDevice);
+
+    double *zer;
+    cudaMalloc(&zer, sizeof(double));
+    *d_zero = 0.0;
+    cudaMemcpy(zer, d_zero, sizeof(double), cudaMemcpyHostToDevice); 
+
+    md_particles_on_opposite_crossing_points<<<grid_size,blockSize>>>(mdX, mdY, mdZ, mdX_o_opp, mdY_o_opp, mdZ_o_opp, mdvx, mdvy, mdvz, mdvx_o_opp, mdvy_o_opp, mdvz_o_opp, md_dt_min, md_dt_min_opp, h_md, L, Nmd, n_out_flag_opp);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    Active_CM_md_opposite_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o_opp, mdY_o_opp, mdZ_o_opp, mdvx, mdvy, mdvz, mdvx_o_opp, mdvy_o_opp, mdvz_o_opp, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, zer, zer, zer, md_dt_min, md_dt_min_opp, h_md, L, Nmd, zer, zer, zer, d_errorFlag_md_opp, n_out_flag_opp);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    // Check for kernel errors and sync
+    cudaDeviceSynchronize();
+    cudaError_t err2 = cudaGetLastError();
+    if (err2 != cudaSuccess) {
+        printf("CUDA Error: %s\n", cudaGetErrorString(err));
+        cudaFree(d_errorFlag_md_opp);
+        *hostErrorFlag_opp = -1;  // Set error flag
+        return;
+    }
+
+    // Check the error flag
+    cudaMemcpy(hostErrorFlag_opp, d_errorFlag_md_opp, sizeof(int), cudaMemcpyDeviceToHost);
+    if (*hostErrorFlag_opp) {
+        printf("Error condition met in kernel (second bounceback MD). Exiting.\n");
+        // Clean up and exit
+        cudaFree(d_errorFlag_md_opp);
+        *hostErrorFlag_opp = -1;  // Set error flag
+        return;
+    }
+
 
     
     
