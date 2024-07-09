@@ -317,7 +317,7 @@ int ID = blockIdx.x * blockDim.x + threadIdx.x;
 
             }
         }
-    printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", ID, md_dt_x[ID], ID, md_dt_y[ID], ID, md_dt_z[ID]);
+    //printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", ID, md_dt_x[ID], ID, md_dt_y[ID], ID, md_dt_z[ID]);
     }    
 }
 
