@@ -119,8 +119,8 @@ int main(int argc, const char* argv[])
     *scalefactor = 1.0;
     int NN = int (N/skipfactor);
 
-    /*double *d_xx; double *d_yy; double *d_zz;
-    double *d_xx_lim1; double *d_yy_lim1; double *d_zz_lim1;
+    double *d_xx; double *d_yy; double *d_zz;
+    /*double *d_xx_lim1; double *d_yy_lim1; double *d_zz_lim1;
     double *d_xx_lim2; double *d_yy_lim2; double *d_zz_lim2;
     double *d_xx_lim3; double *d_yy_lim3; double *d_zz_lim3;
     double *d_xx_lim4; double *d_yy_lim4; double *d_zz_lim4;
@@ -147,7 +147,7 @@ int main(int argc, const char* argv[])
 
     //Allocate device memory for reduced mpcd velocity files:
     double *d_vxx; double *d_vyy; double *d_vzz;
-    double *d_vxx_lim1; double *d_vyy_lim1; double *d_vzz_lim1;
+    /*double *d_vxx_lim1; double *d_vyy_lim1; double *d_vzz_lim1;
     double *d_vxx_lim2; double *d_vyy_lim2; double *d_vzz_lim2;
     double *d_vxx_lim3; double *d_vyy_lim3; double *d_vzz_lim3;
     double *d_vxx_lim4; double *d_vyy_lim4; double *d_vzz_lim4;
@@ -161,7 +161,7 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&d_vxx_lim4,sizeof(double)*NN); cudaMalloc((void**)&d_vyy_lim4,sizeof(double)*NN); cudaMalloc((void**)&d_vzz_lim4,sizeof(double)*NN);
     cudaMalloc((void**)&d_vxx_lim5,sizeof(double)*NN); cudaMalloc((void**)&d_vyy_lim5,sizeof(double)*NN); cudaMalloc((void**)&d_vzz_lim5,sizeof(double)*NN);
     cudaMalloc((void**)&d_vxx_lim6,sizeof(double)*NN); cudaMalloc((void**)&d_vyy_lim6,sizeof(double)*NN); cudaMalloc((void**)&d_vzz_lim6,sizeof(double)*NN);
-    cudaMalloc((void**)&d_vxx_lim7,sizeof(double)*NN); cudaMalloc((void**)&d_vyy_lim7,sizeof(double)*NN); cudaMalloc((void**)&d_vzz_lim7,sizeof(double)*NN);
+    cudaMalloc((void**)&d_vxx_lim7,sizeof(double)*NN); cudaMalloc((void**)&d_vyy_lim7,sizeof(double)*NN); cudaMalloc((void**)&d_vzz_lim7,sizeof(double)*NN);*/
     
     //int decimalPlacess = 3; // Number of decimal places to keep
     double *roundedNumber_vx; double *roundedNumber_vy; double *roundedNumber_vz;
@@ -856,9 +856,9 @@ int main(int argc, const char* argv[])
         cudaFree(CMsumblock_mdx); cudaFree(CMsumblock_mdy); cudaFree(CMsumblock_mdz);
         //cudaFree(gama_T);
         cudaFree(d_flag_array);
-        //cudaFree(d_xx); cudaFree(d_yy); cudaFree(d_zz);
+        cudaFree(d_xx); cudaFree(d_yy); cudaFree(d_zz);
         cudaFree(d_endp_x); cudaFree(d_endp_y); cudaFree(d_endp_z);
-        //cudaFree(d_vxx); cudaFree(d_vyy); cudaFree(d_vzz);
+        cudaFree(d_vxx); cudaFree(d_vyy); cudaFree(d_vzz);
         cudaFree(roundedNumber_x); cudaFree(roundedNumber_y); cudaFree(roundedNumber_z);
         cudaFree(roundedNumber_vx); cudaFree(roundedNumber_vy); cudaFree(roundedNumber_vz);
         //cudaFree(zerofactor);  cudaFree(zerofactorr);
@@ -897,7 +897,7 @@ int main(int argc, const char* argv[])
         int delta = h_mpcd / h_md;
       
         xyz_trj(basename + "_traj.xyz", d_mdX, d_mdY , d_mdZ, Nmd);
-        //xyz_trj(basename + "_mpcdtraj.xyz", d_x, d_y , d_z, N);
+        xyz_trj(basename + "_mpcdtraj.xyz", d_x, d_y , d_z, N);
         /*reducetraj(basename, d_x, d_y , d_z, d_xx, d_yy, d_zz, d_vx, d_vy, d_vz, d_vxx, d_vyy, d_vzz, N, skipfactor, grid_size, roundedNumber_x, roundedNumber_y, roundedNumber_z, zerofactorr, roundedNumber_vx, roundedNumber_vy, roundedNumber_vz, zerofactor, zerofactorrsumblock, blockSize_, grid_size_,
         d_xx_lim1, d_yy_lim1, d_zz_lim1, zerofactorr1,
         d_xx_lim2, d_yy_lim2, d_zz_lim2, zerofactorr2,
@@ -1087,9 +1087,9 @@ int main(int argc, const char* argv[])
 
         //cudaFree(gama_T);
         cudaFree(d_flag_array);
-        //cudaFree(d_xx); cudaFree(d_yy); cudaFree(d_zz);
+        cudaFree(d_xx); cudaFree(d_yy); cudaFree(d_zz);
         cudaFree(d_endp_x); cudaFree(d_endp_y); cudaFree(d_endp_z);
-        //cudaFree(d_vxx); cudaFree(d_vyy); cudaFree(d_vzz);
+        cudaFree(d_vxx); cudaFree(d_vyy); cudaFree(d_vzz);
         cudaFree(roundedNumber_x); cudaFree(roundedNumber_y); cudaFree(roundedNumber_z);
         cudaFree(roundedNumber_vx); cudaFree(roundedNumber_vy); cudaFree(roundedNumber_vz);
         //cudaFree(zerofactor);  cudaFree(zerofactorr);
