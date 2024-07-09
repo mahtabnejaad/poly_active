@@ -126,9 +126,9 @@ int main(int argc, const char* argv[])
     double *d_xx_lim4; double *d_yy_lim4; double *d_zz_lim4;
     double *d_xx_lim5; double *d_yy_lim5; double *d_zz_lim5;
     double *d_xx_lim6; double *d_yy_lim6; double *d_zz_lim6;
-    double *d_xx_lim7; double *d_yy_lim7; double *d_zz_lim7;
+    double *d_xx_lim7; double *d_yy_lim7; double *d_zz_lim7;*/
     cudaMalloc((void**)&d_xx,sizeof(double)*NN); cudaMalloc((void**)&d_yy,sizeof(double)*NN); cudaMalloc((void**)&d_zz,sizeof(double)*NN);
-    cudaMalloc((void**)&d_xx_lim1,sizeof(double)*NN); cudaMalloc((void**)&d_yy_lim1,sizeof(double)*NN); cudaMalloc((void**)&d_zz_lim1,sizeof(double)*NN);
+    /*cudaMalloc((void**)&d_xx_lim1,sizeof(double)*NN); cudaMalloc((void**)&d_yy_lim1,sizeof(double)*NN); cudaMalloc((void**)&d_zz_lim1,sizeof(double)*NN);
     cudaMalloc((void**)&d_xx_lim2,sizeof(double)*NN); cudaMalloc((void**)&d_yy_lim2,sizeof(double)*NN); cudaMalloc((void**)&d_zz_lim2,sizeof(double)*NN);
     cudaMalloc((void**)&d_xx_lim3,sizeof(double)*NN); cudaMalloc((void**)&d_yy_lim3,sizeof(double)*NN); cudaMalloc((void**)&d_zz_lim3,sizeof(double)*NN);
     cudaMalloc((void**)&d_xx_lim4,sizeof(double)*NN); cudaMalloc((void**)&d_yy_lim4,sizeof(double)*NN); cudaMalloc((void**)&d_zz_lim4,sizeof(double)*NN);
@@ -153,9 +153,9 @@ int main(int argc, const char* argv[])
     double *d_vxx_lim4; double *d_vyy_lim4; double *d_vzz_lim4;
     double *d_vxx_lim5; double *d_vyy_lim5; double *d_vzz_lim5;
     double *d_vxx_lim6; double *d_vyy_lim6; double *d_vzz_lim6;
-    double *d_vxx_lim7; double *d_vyy_lim7; double *d_vzz_lim7;
+    double *d_vxx_lim7; double *d_vyy_lim7; double *d_vzz_lim7;*/
     cudaMalloc((void**)&d_vxx,sizeof(double)*NN); cudaMalloc((void**)&d_vyy,sizeof(double)*NN); cudaMalloc((void**)&d_vzz,sizeof(double)*NN);
-    cudaMalloc((void**)&d_vxx_lim1,sizeof(double)*NN); cudaMalloc((void**)&d_vyy_lim1,sizeof(double)*NN); cudaMalloc((void**)&d_vzz_lim1,sizeof(double)*NN);
+    /*cudaMalloc((void**)&d_vxx_lim1,sizeof(double)*NN); cudaMalloc((void**)&d_vyy_lim1,sizeof(double)*NN); cudaMalloc((void**)&d_vzz_lim1,sizeof(double)*NN);
     cudaMalloc((void**)&d_vxx_lim2,sizeof(double)*NN); cudaMalloc((void**)&d_vyy_lim2,sizeof(double)*NN); cudaMalloc((void**)&d_vzz_lim2,sizeof(double)*NN);
     cudaMalloc((void**)&d_vxx_lim3,sizeof(double)*NN); cudaMalloc((void**)&d_vyy_lim3,sizeof(double)*NN); cudaMalloc((void**)&d_vzz_lim3,sizeof(double)*NN);
     cudaMalloc((void**)&d_vxx_lim4,sizeof(double)*NN); cudaMalloc((void**)&d_vyy_lim4,sizeof(double)*NN); cudaMalloc((void**)&d_vzz_lim4,sizeof(double)*NN);
