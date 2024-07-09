@@ -70,7 +70,7 @@ int main(int argc, const char* argv[])
     BC = atoi(argv[18]); //a parameter called BC which is ether 1 or 2 or 3( either we have periodic BC or no-slip BC Or combined.)
       
     double ux = shear_rate * L[2];
-    double u_scale = 1.0;
+    double u_scale = 10.0;
     double DR = 0.001; //Rotational friction coefficient
     double Rh = 1.0;
     double delta_ratio = 0.33; 
