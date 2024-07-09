@@ -119,7 +119,7 @@ int main(int argc, const char* argv[])
     *scalefactor = 1.0;
     int NN = int (N/skipfactor);
 
-    double *d_xx; double *d_yy; double *d_zz;
+    /*double *d_xx; double *d_yy; double *d_zz;
     double *d_xx_lim1; double *d_yy_lim1; double *d_zz_lim1;
     double *d_xx_lim2; double *d_yy_lim2; double *d_zz_lim2;
     double *d_xx_lim3; double *d_yy_lim3; double *d_zz_lim3;
@@ -134,7 +134,7 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&d_xx_lim4,sizeof(double)*NN); cudaMalloc((void**)&d_yy_lim4,sizeof(double)*NN); cudaMalloc((void**)&d_zz_lim4,sizeof(double)*NN);
     cudaMalloc((void**)&d_xx_lim5,sizeof(double)*NN); cudaMalloc((void**)&d_yy_lim5,sizeof(double)*NN); cudaMalloc((void**)&d_zz_lim5,sizeof(double)*NN);
     cudaMalloc((void**)&d_xx_lim6,sizeof(double)*NN); cudaMalloc((void**)&d_yy_lim6,sizeof(double)*NN); cudaMalloc((void**)&d_zz_lim6,sizeof(double)*NN);
-    cudaMalloc((void**)&d_xx_lim7,sizeof(double)*NN); cudaMalloc((void**)&d_yy_lim7,sizeof(double)*NN); cudaMalloc((void**)&d_zz_lim7,sizeof(double)*NN);
+    cudaMalloc((void**)&d_xx_lim7,sizeof(double)*NN); cudaMalloc((void**)&d_yy_lim7,sizeof(double)*NN); cudaMalloc((void**)&d_zz_lim7,sizeof(double)*NN);*/
     double *d_endp_x; double *d_endp_y; double *d_endp_z;
     cudaMalloc((void**)&d_endp_x,sizeof(double)*NN); cudaMalloc((void**)&d_endp_y,sizeof(double)*NN); cudaMalloc((void**)&d_endp_z,sizeof(double)*NN);
     
@@ -324,7 +324,7 @@ int main(int argc, const char* argv[])
 
     //allocate memory for counting zero factors in reducing and limiting the data to a specific box around the MD particles. 
 
-    int *zerofactorsumblock; //an array to sum over all zero blocks. 
+    /*int *zerofactorsumblock; //an array to sum over all zero blocks. 
     int *zerofactorsumblock1, *zerofactorsumblock2, *zerofactorsumblock3, *zerofactorsumblock4, *zerofactorsumblock5, *zerofactorsumblock6, *zerofactorsumblock7;
     cudaMalloc((void**)&zerofactorsumblock, sizeof(int) * grid_size_);
     cudaMalloc((void**)&zerofactorsumblock1, sizeof(int) * grid_size_);
@@ -333,7 +333,7 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&zerofactorsumblock4, sizeof(int) * grid_size_);
     cudaMalloc((void**)&zerofactorsumblock5, sizeof(int) * grid_size_);
     cudaMalloc((void**)&zerofactorsumblock6, sizeof(int) * grid_size_);
-    cudaMalloc((void**)&zerofactorsumblock7, sizeof(int) * grid_size_); 
+    cudaMalloc((void**)&zerofactorsumblock7, sizeof(int) * grid_size_);
     int *zerofactor; //a 0/1 array 
     int *zerofactor1,*zerofactor2, *zerofactor3, *zerofactor4, *zerofactor5, *zerofactor6, *zerofactor7;
     cudaMalloc((void**)&zerofactor, sizeof(int) * N);
@@ -363,7 +363,7 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&zerofactorr4, sizeof(int) * N);
     cudaMalloc((void**)&zerofactorr5, sizeof(int) * N);
     cudaMalloc((void**)&zerofactorr6, sizeof(int) * N);
-    cudaMalloc((void**)&zerofactorr7, sizeof(int) * N);
+    cudaMalloc((void**)&zerofactorr7, sizeof(int) * N);*/
 
 //////////////////////////////////////////////////////////////////////
     //center of mass attributes:
@@ -705,8 +705,8 @@ int main(int argc, const char* argv[])
         int delta = h_mpcd / h_md;
       
         xyz_trj(basename + "_traj.xyz", d_mdX, d_mdY , d_mdZ, Nmd);
-        //xyz_trj(basename + "_mpcdtraj.xyz", d_x, d_y , d_z, N);
-        reducetraj(basename, d_x, d_y , d_z, d_xx, d_yy, d_zz, d_vx, d_vy, d_vz, d_vxx, d_vyy, d_vzz, N, skipfactor, grid_size, roundedNumber_x, roundedNumber_y, roundedNumber_z, zerofactorr, roundedNumber_vx, roundedNumber_vy, roundedNumber_vz, zerofactor, zerofactorrsumblock, blockSize_, grid_size_,
+        xyz_trj(basename + "_mpcdtraj.xyz", d_x, d_y , d_z, N);
+        /*reducetraj(basename, d_x, d_y , d_z, d_xx, d_yy, d_zz, d_vx, d_vy, d_vz, d_vxx, d_vyy, d_vzz, N, skipfactor, grid_size, roundedNumber_x, roundedNumber_y, roundedNumber_z, zerofactorr, roundedNumber_vx, roundedNumber_vy, roundedNumber_vz, zerofactor, zerofactorrsumblock, blockSize_, grid_size_,
         d_xx_lim1, d_yy_lim1, d_zz_lim1, zerofactorr1,
         d_xx_lim2, d_yy_lim2, d_zz_lim2, zerofactorr2,
         d_xx_lim3, d_yy_lim3, d_zz_lim3, zerofactorr3,
@@ -721,7 +721,7 @@ int main(int argc, const char* argv[])
         d_vxx_lim5, d_vyy_lim5, d_vzz_lim5,
         d_vxx_lim6, d_vyy_lim6, d_vzz_lim6,  
         d_vxx_lim7, d_vyy_lim7, d_vzz_lim7, 
-        zerofactorrsumblock1,zerofactorrsumblock2,zerofactorrsumblock3,zerofactorrsumblock4,zerofactorrsumblock5,zerofactorrsumblock6,zerofactorrsumblock7);
+        zerofactorrsumblock1,zerofactorrsumblock2,zerofactorrsumblock3,zerofactorrsumblock4,zerofactorrsumblock5,zerofactorrsumblock6,zerofactorrsumblock7);*/
 
  
         for(int t = TIME/swapsize ; t<T; t++) //T is TIME/swapsize + simulationtime/swapsize. it goes 10 steps from TIME/swapsize till end (in case swapsize is 100 and siumlationtime is 1000). 
@@ -791,7 +791,7 @@ int main(int argc, const char* argv[])
 
             xyz_trj(basename + "_traj.xyz", d_mdX, d_mdY , d_mdZ, Nmd);
             xyz_trj(basename + "_vel.xyz", d_mdVx, d_mdVy , d_mdVz, Nmd);
-            reducetraj(basename, d_x, d_y , d_z, d_xx, d_yy, d_zz, d_vx, d_vy, d_vz, d_vxx, d_vyy, d_vzz, N, skipfactor, grid_size, roundedNumber_x, roundedNumber_y, roundedNumber_z, zerofactorr,roundedNumber_vx, roundedNumber_vy, roundedNumber_vz, zerofactor, zerofactorrsumblock, blockSize_, grid_size_,
+            /*reducetraj(basename, d_x, d_y , d_z, d_xx, d_yy, d_zz, d_vx, d_vy, d_vz, d_vxx, d_vyy, d_vzz, N, skipfactor, grid_size, roundedNumber_x, roundedNumber_y, roundedNumber_z, zerofactorr,roundedNumber_vx, roundedNumber_vy, roundedNumber_vz, zerofactor, zerofactorrsumblock, blockSize_, grid_size_,
                 d_xx_lim1,  d_yy_lim1,  d_zz_lim1, zerofactorr1,
                 d_xx_lim2,  d_yy_lim2,  d_zz_lim2, zerofactorr2,
                 d_xx_lim3,  d_yy_lim3,  d_zz_lim3, zerofactorr3,
@@ -815,7 +815,7 @@ int main(int argc, const char* argv[])
                 d_vxx_lim5, d_vyy_lim5, d_vzz_lim5, zerofactor5,
                 d_vxx_lim6, d_vyy_lim6, d_vzz_lim6,  zerofactor6,
                 d_vxx_lim7, d_vyy_lim7, d_vzz_lim7,  zerofactor7,
-                zerofactorsumblock1 ,zerofactorsumblock2 ,zerofactorsumblock3 ,zerofactorsumblock4 ,zerofactorsumblock5 ,zerofactorsumblock6 ,zerofactorsumblock7);
+                zerofactorsumblock1 ,zerofactorsumblock2 ,zerofactorsumblock3 ,zerofactorsumblock4 ,zerofactorsumblock5 ,zerofactorsumblock6 ,zerofactorsumblock7);*/
             xyz_veltraj_both(basename, d_xx, d_yy, d_zz,d_vxx, d_vyy, d_vzz, NN, d_endp_x, d_endp_y, d_endp_z, scalefactor, grid_size);
             //xyz_trj(basename + "_mpcdtraj.xyz", d_x, d_y , d_z, N);
             //xyz_trj(basename + "_mpcdvel.xyz", d_vx, d_vy , d_vz, N);
@@ -856,13 +856,13 @@ int main(int argc, const char* argv[])
         cudaFree(CMsumblock_mdx); cudaFree(CMsumblock_mdy); cudaFree(CMsumblock_mdz);
         //cudaFree(gama_T);
         cudaFree(d_flag_array);
-        cudaFree(d_xx); cudaFree(d_yy); cudaFree(d_zz);
+        //cudaFree(d_xx); cudaFree(d_yy); cudaFree(d_zz);
         cudaFree(d_endp_x); cudaFree(d_endp_y); cudaFree(d_endp_z);
-        cudaFree(d_vxx); cudaFree(d_vyy); cudaFree(d_vzz);
+        //cudaFree(d_vxx); cudaFree(d_vyy); cudaFree(d_vzz);
         cudaFree(roundedNumber_x); cudaFree(roundedNumber_y); cudaFree(roundedNumber_z);
         cudaFree(roundedNumber_vx); cudaFree(roundedNumber_vy); cudaFree(roundedNumber_vz);
-        cudaFree(zerofactor);  cudaFree(zerofactorr);
-        cudaFree(zerofactorsumblock); cudaFree(zerofactorrsumblock);
+        //cudaFree(zerofactor);  cudaFree(zerofactorr);
+        //cudaFree(zerofactorsumblock); cudaFree(zerofactorrsumblock);
         curandDestroyGenerator(gen);
         
         //reducefile_traj();
@@ -898,7 +898,7 @@ int main(int argc, const char* argv[])
       
         xyz_trj(basename + "_traj.xyz", d_mdX, d_mdY , d_mdZ, Nmd);
         //xyz_trj(basename + "_mpcdtraj.xyz", d_x, d_y , d_z, N);
-        reducetraj(basename, d_x, d_y , d_z, d_xx, d_yy, d_zz, d_vx, d_vy, d_vz, d_vxx, d_vyy, d_vzz, N, skipfactor, grid_size, roundedNumber_x, roundedNumber_y, roundedNumber_z, zerofactorr, roundedNumber_vx, roundedNumber_vy, roundedNumber_vz, zerofactor, zerofactorrsumblock, blockSize_, grid_size_,
+        /*reducetraj(basename, d_x, d_y , d_z, d_xx, d_yy, d_zz, d_vx, d_vy, d_vz, d_vxx, d_vyy, d_vzz, N, skipfactor, grid_size, roundedNumber_x, roundedNumber_y, roundedNumber_z, zerofactorr, roundedNumber_vx, roundedNumber_vy, roundedNumber_vz, zerofactor, zerofactorrsumblock, blockSize_, grid_size_,
         d_xx_lim1, d_yy_lim1, d_zz_lim1, zerofactorr1,
         d_xx_lim2, d_yy_lim2, d_zz_lim2, zerofactorr2,
         d_xx_lim3, d_yy_lim3, d_zz_lim3, zerofactorr3,
@@ -913,7 +913,7 @@ int main(int argc, const char* argv[])
         d_vxx_lim5, d_vyy_lim5, d_vzz_lim5,
         d_vxx_lim6, d_vyy_lim6, d_vzz_lim6,  
         d_vxx_lim7, d_vyy_lim7, d_vzz_lim7, 
-        zerofactorrsumblock1,zerofactorrsumblock2,zerofactorrsumblock3,zerofactorrsumblock4,zerofactorrsumblock5,zerofactorrsumblock6,zerofactorrsumblock7);
+        zerofactorrsumblock1,zerofactorrsumblock2,zerofactorrsumblock3,zerofactorrsumblock4,zerofactorrsumblock5,zerofactorrsumblock6,zerofactorrsumblock7);*/
 
  
         for(int t = TIME/swapsize ; t<T; t++) //T is TIME/swapsize + simulationtime/swapsize. it goes 10 steps from TIME/swapsize till end (in case swapsize is 100 and siumlationtime is 1000). 
@@ -1017,7 +1017,7 @@ int main(int argc, const char* argv[])
 
             xyz_trj(basename + "_traj.xyz", d_mdX, d_mdY , d_mdZ, Nmd);
             xyz_trj(basename + "_vel.xyz", d_mdVx, d_mdVy , d_mdVz, Nmd);
-            reducetraj(basename, d_x, d_y , d_z, d_xx, d_yy, d_zz, d_vx, d_vy, d_vz, d_vxx, d_vyy, d_vzz, N, skipfactor, grid_size, roundedNumber_x, roundedNumber_y, roundedNumber_z, zerofactorr,roundedNumber_vx, roundedNumber_vy, roundedNumber_vz, zerofactor, zerofactorrsumblock, blockSize_, grid_size_,
+            /*reducetraj(basename, d_x, d_y , d_z, d_xx, d_yy, d_zz, d_vx, d_vy, d_vz, d_vxx, d_vyy, d_vzz, N, skipfactor, grid_size, roundedNumber_x, roundedNumber_y, roundedNumber_z, zerofactorr,roundedNumber_vx, roundedNumber_vy, roundedNumber_vz, zerofactor, zerofactorrsumblock, blockSize_, grid_size_,
                 d_xx_lim1,  d_yy_lim1,  d_zz_lim1, zerofactorr1,
                 d_xx_lim2,  d_yy_lim2,  d_zz_lim2, zerofactorr2,
                 d_xx_lim3,  d_yy_lim3,  d_zz_lim3, zerofactorr3,
@@ -1041,7 +1041,7 @@ int main(int argc, const char* argv[])
                 d_vxx_lim5, d_vyy_lim5, d_vzz_lim5, zerofactor5,
                 d_vxx_lim6, d_vyy_lim6, d_vzz_lim6,  zerofactor6,
                 d_vxx_lim7, d_vyy_lim7, d_vzz_lim7,  zerofactor7,
-                zerofactorsumblock1 ,zerofactorsumblock2 ,zerofactorsumblock3 ,zerofactorsumblock4 ,zerofactorsumblock5 ,zerofactorsumblock6 ,zerofactorsumblock7);
+                zerofactorsumblock1 ,zerofactorsumblock2 ,zerofactorsumblock3 ,zerofactorsumblock4 ,zerofactorsumblock5 ,zerofactorsumblock6 ,zerofactorsumblock7);*/
             xyz_veltraj_both(basename, d_xx, d_yy, d_zz,d_vxx, d_vyy, d_vzz, NN, d_endp_x, d_endp_y, d_endp_z, scalefactor, grid_size);
             //xyz_trj(basename + "_mpcdtraj.xyz", d_x, d_y , d_z, N);
             //xyz_trj(basename + "_mpcdvel.xyz", d_vx, d_vy , d_vz, N);
@@ -1087,13 +1087,13 @@ int main(int argc, const char* argv[])
 
         //cudaFree(gama_T);
         cudaFree(d_flag_array);
-        cudaFree(d_xx); cudaFree(d_yy); cudaFree(d_zz);
+        //cudaFree(d_xx); cudaFree(d_yy); cudaFree(d_zz);
         cudaFree(d_endp_x); cudaFree(d_endp_y); cudaFree(d_endp_z);
-        cudaFree(d_vxx); cudaFree(d_vyy); cudaFree(d_vzz);
+        //cudaFree(d_vxx); cudaFree(d_vyy); cudaFree(d_vzz);
         cudaFree(roundedNumber_x); cudaFree(roundedNumber_y); cudaFree(roundedNumber_z);
         cudaFree(roundedNumber_vx); cudaFree(roundedNumber_vy); cudaFree(roundedNumber_vz);
-        cudaFree(zerofactor);  cudaFree(zerofactorr);
-        cudaFree(zerofactorsumblock); cudaFree(zerofactorrsumblock);
+        //cudaFree(zerofactor);  cudaFree(zerofactorr);
+        //cudaFree(zerofactorsumblock); cudaFree(zerofactorrsumblock);
         cudaFree(d_x_o); cudaFree(d_y_o); cudaFree(d_z_o);
         cudaFree(d_mdX_o); cudaFree(d_mdY_o); cudaFree(d_mdZ_o);
         cudaFree(d_Vx_o); cudaFree(d_Vy_o); cudaFree(d_Vz_o);
@@ -1117,18 +1117,18 @@ int main(int argc, const char* argv[])
         curandDestroyGenerator(gen);
 
         //cudaFree(d_xx); cudaFree(d_yy); cudaFree(d_zz);
-        cudaFree(d_xx_lim1); cudaFree(d_yy_lim1); cudaFree(d_zz_lim1);
+        /*cudaFree(d_xx_lim1); cudaFree(d_yy_lim1); cudaFree(d_zz_lim1);
         cudaFree(d_xx_lim2); cudaFree(d_yy_lim2); cudaFree(d_zz_lim2);
         cudaFree(d_xx_lim3); cudaFree(d_yy_lim3); cudaFree(d_zz_lim3);
         cudaFree(d_xx_lim4); cudaFree(d_yy_lim4); cudaFree(d_zz_lim4);
         cudaFree(d_xx_lim5); cudaFree(d_yy_lim5); cudaFree(d_zz_lim5);
         cudaFree(d_xx_lim6); cudaFree(d_yy_lim6); cudaFree(d_zz_lim6);
-        cudaFree(d_xx_lim7); cudaFree(d_yy_lim7); cudaFree(d_zz_lim7);
+        cudaFree(d_xx_lim7); cudaFree(d_yy_lim7); cudaFree(d_zz_lim7);*/
 
-        cudaFree(zerofactorr1); cudaFree(zerofactorr2); cudaFree(zerofactorr3); cudaFree(zerofactorr4); cudaFree(zerofactorr5); cudaFree(zerofactorr6); cudaFree(zerofactorr7);
+        //cudaFree(zerofactorr1); cudaFree(zerofactorr2); cudaFree(zerofactorr3); cudaFree(zerofactorr4); cudaFree(zerofactorr5); cudaFree(zerofactorr6); cudaFree(zerofactorr7);
 
         //cudaFree(d_vxx); cudaFree(d_vyy); cudaFree(d_vzz);
-        cudaFree(d_vxx_lim1); cudaFree(d_vyy_lim1); cudaFree(d_vzz_lim1);
+        /*cudaFree(d_vxx_lim1); cudaFree(d_vyy_lim1); cudaFree(d_vzz_lim1);
         cudaFree(d_vxx_lim2); cudaFree(d_vyy_lim2); cudaFree(d_vzz_lim2);
         cudaFree(d_vxx_lim3); cudaFree(d_vyy_lim3); cudaFree(d_vzz_lim3);
         cudaFree(d_vxx_lim4); cudaFree(d_vyy_lim4); cudaFree(d_vzz_lim4);
@@ -1142,15 +1142,17 @@ int main(int argc, const char* argv[])
         cudaFree(zerofactorsumblock4); cudaFree(zerofactorrsumblock4);
         cudaFree(zerofactorsumblock5); cudaFree(zerofactorrsumblock5);
         cudaFree(zerofactorsumblock6); cudaFree(zerofactorrsumblock6);
-        cudaFree(zerofactorsumblock7); cudaFree(zerofactorrsumblock7);
+        cudaFree(zerofactorsumblock7); cudaFree(zerofactorrsumblock7);*/
 
-        cudaFree(zerofactor); cudaFree(zerofactor); cudaFree(zerofactor); cudaFree(zerofactor); cudaFree(zerofactor); cudaFree(zerofactor); cudaFree(zerofactor);
+        //cudaFree(zerofactor); cudaFree(zerofactor); cudaFree(zerofactor); cudaFree(zerofactor); cudaFree(zerofactor); cudaFree(zerofactor); cudaFree(zerofactor);
 
         cudaFree(dn_tot); cudaFree(N_avg); cudaFree(sumblock_n);
         cudaFree(dm_tot); cudaFree(M_avg); cudaFree(sumblock_m);
 
         cudaFree(a_x); cudaFree(a_y); cudaFree(a_z);
         cudaFree(d_variance); cudaFree(d_States); 
+
+        free(Ax_cm); free(Ay_cm); free(Az_cm);
 
         free(dX_tot); free(dY_tot); free(dZ_tot); 
         free(mdX_tot); free(mdY_tot); free(mdZ_tot);
