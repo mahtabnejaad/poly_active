@@ -393,7 +393,7 @@ __global__ void MeanNumCell(int *index, int *n, double *m, double mass, int N)
         const unsigned int idxx = index[tid];//Retrieves the index idxx of the cell to which the particle belongs.
         //Atomically increments the counters n[idxx] and m[idxx] by 1 and mass, respectively. 
         //These counters are used to keep track of the number of particles and the total mass within each cell.
-        if(index[tid]>307918)  printf(" index[%i]=%f an error\n", tid, index[tid]);
+        //if(index[tid]>307918)  printf(" index[%i]=%f an error\n", tid, index[tid]);
         atomicAdd(&n[idxx] , 1 );
         atomicAdd(&m[idxx], mass);
     }
