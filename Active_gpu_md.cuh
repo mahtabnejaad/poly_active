@@ -183,7 +183,7 @@ __global__ void totalActive_calc_acceleration(double *Ax, double *Ay, double *Az
             Ay_tot[tid]=Ay[tid]+(Aa_ky[tid]+Ab_ky[tid])*random_array[tid];
             Az_tot[tid]=Az[tid]+(Aa_kz[tid]+Ab_kz[tid])*random_array[tid];
             //printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Aa_kx[tid], tid, Aa_ky[tid], tid, Aa_kz[tid]);
-            printf("Ax_tot[%i]=%f, Ay_tot[%i]=%f, Az_tot[%i]=%f\n", tid, Ax_tot[tid], tid, Ay_tot[tid], tid, Az_tot[tid]);
+            //printf("Ax_tot[%i]=%f, Ay_tot[%i]=%f, Az_tot[%i]=%f\n", tid, Ax_tot[tid], tid, Ay_tot[tid], tid, Az_tot[tid]);
         }
     }
    
