@@ -76,7 +76,7 @@ __global__ void CM_totalActive_calc_acceleration(double *Ax, double *Ay, double 
             Ay_tot[tid]=Ay[tid]+(Aa_ky[tid]+Ab_ky[tid])*random_array[tid];
             Az_tot[tid]=Az[tid]+(Aa_kz[tid]+Ab_kz[tid])*random_array[tid];
             //printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Aa_kx[tid], tid, Aa_ky[tid], tid, Aa_kz[tid]);
-            printf("Ax_tot[%i]=%f, Ay_tot[%i]=%f, Az_tot[%i]=%f\n", tid, Ax_tot[tid], tid, Ay_tot[tid], tid, Az_tot[tid]);
+            //printf("Ax_tot[%i]=%f, Ay_tot[%i]=%f, Az_tot[%i]=%f\n", tid, Ax_tot[tid], tid, Ay_tot[tid], tid, Az_tot[tid]);
         }
     }
    
@@ -107,7 +107,7 @@ __global__ void Lab_totalActive_calc_acceleration(double *Ax, double *Ay, double
             Ay_tot_lab[tid]=Ay[tid]+(Aa_ky[tid])*random_array[tid];
             Az_tot_lab[tid]=Az[tid]+(Aa_kz[tid])*random_array[tid];
             //printf("Aa_kx[%i]=%f, Aa_ky[%i]=%f, Aa_kz[%i]=%f\n", tid, Aa_kx[tid], tid, Aa_ky[tid], tid, Aa_kz[tid]);
-            printf("Ax_tot_lab[%i]=%f, Ay_tot_lab[%i]=%f, Az_tot_lab[%i]=%f\n", tid, Ax_tot_lab[tid], tid, Ay_tot_lab[tid], tid, Az_tot_lab[tid]);
+            //printf("Ax_tot_lab[%i]=%f, Ay_tot_lab[%i]=%f, Az_tot_lab[%i]=%f\n", tid, Ax_tot_lab[tid], tid, Ay_tot_lab[tid], tid, Az_tot_lab[tid]);
         }
     }
    
@@ -709,10 +709,10 @@ __global__ void Active_noslip_md_deltaT(double *mdvx, double *mdvy, double *mdvz
                 
             }
         }
-    printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
-    printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n", tid, mdvx[tid], tid, mdvy[tid], tid, mdvz[tid]);
-    printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", tid, mdAx_tot[tid], tid, mdAy_tot[tid], tid, mdAz_tot[tid]);
-    if (md_dt_x[tid] <0.002 || md_dt_y[tid] < 0.002 || md_dt_z[tid]< 0.002)  printf("the %i th particle will go out of box\n", tid);
+    //printf("md_dt_x[%i]=%f, md_dt_y[%i]=%f, md_dt_z[%i]=%f\n", tid, md_dt_x[tid], tid, md_dt_y[tid], tid, md_dt_z[tid]);
+    //printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n", tid, mdvx[tid], tid, mdvy[tid], tid, mdvz[tid]);
+    //printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", tid, mdAx_tot[tid], tid, mdAy_tot[tid], tid, mdAz_tot[tid]);
+    //if (md_dt_x[tid] <0.002 || md_dt_y[tid] < 0.002 || md_dt_z[tid]< 0.002)  printf("the %i th particle will go out of box\n", tid);
    
     }
 }
@@ -851,9 +851,9 @@ __global__ void Active_noslip_md_deltaT_opposite(double *mdvx, double *mdvy, dou
             }
         }  
 
-    printf("md_dt_x_opp[%i]=%f, md_dt_y_opp[%i]=%f, md_dt_z_opp[%i]=%f\n", tid, md_dt_x_opp[tid], tid, md_dt_y_opp[tid], tid, md_dt_z_opp[tid]);
-    printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n", tid, mdvx[tid], tid, mdvy[tid], tid, mdvz[tid]);
-    printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", tid, mdAx_tot[tid], tid, mdAy_tot[tid], tid, mdAz_tot[tid]);
+    //printf("md_dt_x_opp[%i]=%f, md_dt_y_opp[%i]=%f, md_dt_z_opp[%i]=%f\n", tid, md_dt_x_opp[tid], tid, md_dt_y_opp[tid], tid, md_dt_z_opp[tid]);
+    //printf("mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n", tid, mdvx[tid], tid, mdvy[tid], tid, mdvz[tid]);
+    //printf("mdAx_tot[%i]=%f, mdAy_tot[%i]=%f, mdAz_tot[%i]=%f\n", tid, mdAx_tot[tid], tid, mdAy_tot[tid], tid, mdAz_tot[tid]);
     //if (md_dt_x_opp[tid] <0.002 || md_dt_y_opp[tid] < 0.002 || md_dt_z_opp[tid]< 0.002)  printf("the %i th particle will go out of box\n", tid);
    
     }
