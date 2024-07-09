@@ -284,16 +284,16 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&d_n_outbox_md, sizeof(int) * Nmd);
 
     int *n_out_flag_md;
-    cudaMalloc((void**)&n_out_flag_md, sizeof(int) * N);
+    cudaMalloc((void**)&n_out_flag_md, sizeof(int) * Nmd);
 
     int *n_out_flag_mpcd;
-    cudaMalloc((void**)&n_out_flag_mpcd, sizeof(int) * Nmd);
+    cudaMalloc((void**)&n_out_flag_mpcd, sizeof(int) * N);
 
     int *n_out_flag_md_opp;
-    cudaMalloc((void**)&n_out_flag_md_opp, sizeof(int) * N);
+    cudaMalloc((void**)&n_out_flag_md_opp, sizeof(int) * Nmd);
 
     int *n_out_flag_mpcd_opp;
-    cudaMalloc((void**)&n_out_flag_mpcd_opp, sizeof(int) * Nmd);
+    cudaMalloc((void**)&n_out_flag_mpcd_opp, sizeof(int) * N);
     
 
 /////////////////////////////////////////////// I'd maximize the performance by adjusting new grid_size_ amd blockSize_ this way:
