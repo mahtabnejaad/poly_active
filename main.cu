@@ -76,7 +76,7 @@ int main(int argc, const char* argv[])
     double delta_ratio = 0.6; 
     double *gama_T;
     gama_T = (double*) malloc(sizeof(double));
-    *gama_T = 464.49;
+    *gama_T = 464.49; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter.
     
 
     double *temperature;
@@ -84,7 +84,7 @@ int main(int argc, const char* argv[])
     *temperature = 1.0;
     double Pe = 10.0; //peclet number
     double l_eq = 1.0; // equilibrium length
-    u_scale = Pe/(2*Rh*delta_ratio*gama_T); 
+    u_scale = Pe/(2*Rh*delta_ratio*gama_T); //u_scale is u0 which measures activity.
     //int Nc = L[0]*L[1]*L[2]; //number of cells 
     int Nc = (L[0]+2)*(L[1]+2)*(L[2]+2); //number of cells
     //int N =density* Nc; //number of particles
