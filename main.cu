@@ -70,7 +70,7 @@ int main(int argc, const char* argv[])
     BC = atoi(argv[18]); //a parameter called BC which is ether 1 or 2 or 3( either we have periodic BC or no-slip BC Or combined.)
       
     double ux = shear_rate * L[2];
-    double u_scale = 10.0;
+    double u_scale;
     double DR = 100; //Rotational friction coefficient
     double Rh = 1.0;
     double delta_ratio = 0.6; 
@@ -84,7 +84,7 @@ int main(int argc, const char* argv[])
     *temperature = 1.0;
     double Pe = 10.0; //peclet number
     double l_eq = 1.0; // equilibrium length
-    u_scale = Pe * l_eq *DR ; 
+    u_scale = Pe/(2*Rh*delta_ratio*gama_T); 
     //int Nc = L[0]*L[1]*L[2]; //number of cells 
     int Nc = (L[0]+2)*(L[1]+2)*(L[2]+2); //number of cells
     //int N =density* Nc; //number of particles
