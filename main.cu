@@ -84,7 +84,7 @@ int main(int argc, const char* argv[])
     *temperature = 1.0;
     double Pe = 10.0; //peclet number
     double l_eq = 1.0; // equilibrium length
-    u_scale = Pe/(2*Rh*delta_ratio*gama_T); //u_scale is u0 which measures activity.
+    u_scale = Pe/(2*Rh*delta_ratio* *gama_T); //u_scale is u0 which measures activity.
     //int Nc = L[0]*L[1]*L[2]; //number of cells 
     int Nc = (L[0]+2)*(L[1]+2)*(L[2]+2); //number of cells
     //int N =density* Nc; //number of particles
