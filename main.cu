@@ -71,7 +71,7 @@ int main(int argc, const char* argv[])
       
     double ux = shear_rate * L[2];
     double u_scale = 10.0;
-    double DR = 0.001; //Rotational friction coefficient
+    double DR = 100; //Rotational friction coefficient
     double Rh = 1.0;
     double delta_ratio = 0.33; 
     double *gama_T;
