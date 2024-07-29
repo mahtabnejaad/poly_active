@@ -76,7 +76,7 @@ int main(int argc, const char* argv[])
     double delta_ratio = 0.6; 
     double *gama_T;
     gama_T = (double*) malloc(sizeof(double));
-    *gama_T = 0.8;
+    *gama_T = 464.49;
     
 
     double *temperature;
