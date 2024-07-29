@@ -73,7 +73,7 @@ int main(int argc, const char* argv[])
     double u_scale = 10.0;
     double DR = 100; //Rotational friction coefficient
     double Rh = 1.0;
-    double delta_ratio = 0.33; 
+    double delta_ratio = 0.6; 
     double *gama_T;
     gama_T = (double*) malloc(sizeof(double));
     *gama_T = 0.8;
