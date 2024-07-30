@@ -47,7 +47,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
                 double r14 = r8 *r8; //r^{-16}
                 r14 *= r_sqr; //r^{-14}
                 double sigma6 = sigma * sigma * sigma* sigma * sigma * sigma;
-                double sigma12 = sigma6 * sigam6;
+                double sigma12 = sigma6 * sigma6;
                 //f = 24 * (2 * r14 - r8);
                 f = 24 * (2 * sigma12* r14 - sigma6 * r8);
         }
