@@ -478,17 +478,22 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         LeeEdwNearestImage(mdX[ID1], mdY[ID1], mdZ[ID1], mdX[ID2], mdY[ID2], mdZ[ID2], r, L, m, real_time);
         double r_sqr = r[0] * r[0] + r[1] * r[1] + r[2] * r[2];//r_sqr calculates the squared distance between the particles.
         double f =0;//initialize the force to zero.
-
+        double sigma = 0.8;
+        double limit = 1.122462 * sigma;
  
         //lennard jones:
        
-        if (r_sqr < 1.258884)
+        //if (r_sqr < 1.258884)
+        if(r_sqr < limit)
         {
                 double r8 = 1/r_sqr* 1/r_sqr; //r^{-4}
                 r8 *= r8; //r^{-8}
                 double r14 = r8 *r8; //r^{-16}
                 r14 *= r_sqr; //r^{-14}
-                f = 24 * (2 * r14 - r8);
+                double sigma6 = sigma * sigma * sigma* sigma * sigma * sigma;
+                double sigma12 = sigma6 * sigma6;
+                //f = 24 * (2 * r14 - r8);
+                f = 24 * (2 * sigma12* r14 - sigma6 * r8);
         }
         
         //FENE:
