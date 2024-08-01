@@ -123,7 +123,7 @@ double *Fx , double *Fy , double *Fz,
 double *Ax , double *Ay , double *Az,
 double *L,int size ,int m ,int topology, double ux,double real_time, int grid_size, double K_FENE)
 {
-    noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux,density, real_time , m , topology, K_FNE);
+    noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux,density, real_time , m , topology, K_FENE);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     sum_kernel<<<grid_size,blockSize>>>(Fx ,Fy,Fz, Ax ,Ay, Az, size);
@@ -546,7 +546,7 @@ __host__ void noslip_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
         
         //The function calc_accelaration is called to compute the new accelerations for each particle based on their positions and interactions.
         //These accelerations are used in the subsequent time step to update particle velocities.
-        noslip_calc_acceleration(d_mdX, d_mdY , d_mdZ , d_Fx , d_Fy , d_Fz , d_mdAx , d_mdAy , d_mdAz, d_L , Nmd ,m_md ,topology, ux ,real_time, grid_size);
+        noslip_calc_acceleration(d_mdX, d_mdY , d_mdZ , d_Fx , d_Fy , d_Fz , d_mdAx , d_mdAy , d_mdAz, d_L , Nmd ,m_md ,topology, ux ,real_time, grid_size, K_FENE);
         
         
         //velocityverletKernel2 is called to complete the velocity verlet algorithm by updating particle velocities using the second half of the time step. 
