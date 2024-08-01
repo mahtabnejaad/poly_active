@@ -69,7 +69,7 @@ int main(int argc, const char* argv[])
     random_flag = atoi(argv[17]);//a flag to see if we have random activity or not
     BC = atoi(argv[18]); //a parameter called BC which is ether 1 or 2 or 3( either we have periodic BC or no-slip BC Or combined.)
     Pe = atoi(argv[19]); //pe number
-    K_FENE = atoi(argv[20]); //K_FENE
+    K_bend = atoi(argv[20]); //K_bending or K_b
 
     double ux = shear_rate * L[2];
     double u_scale;
@@ -79,6 +79,7 @@ int main(int argc, const char* argv[])
     double *gama_T;
     gama_T = (double*) malloc(sizeof(double));
     *gama_T = 464.49; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter.
+    double K_FENE = 2250*(10+2*Pe);
     
 
     double *temperature;
@@ -540,7 +541,7 @@ int main(int argc, const char* argv[])
 
                 MD_streaming(d_mdX , d_mdY , d_mdZ , d_mdVx , d_mdVy , d_mdVz ,
                     d_mdAx , d_mdAy , d_mdAz ,md_Fx_holder, md_Fy_holder, md_Fz_holder,
-                    h_md , Nmd , density , d_L , ux , grid_size, delta,real_time, K_FENE);
+                    h_md , Nmd , density , d_L , ux , grid_size, delta,real_time, K_FENE, K_bend);
 
                 Sort_begin(d_x , d_y , d_z , d_vx, d_vy, d_vz, d_index , d_mdX , d_mdY , d_mdZ ,
                     d_mdVx, d_mdVy, d_mdVz, d_mdIndex ,ux , d_L , d_r , N , Nmd , real_time, grid_size);
@@ -766,7 +767,7 @@ int main(int argc, const char* argv[])
                     d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_ex, d_ey, d_ez,
                     h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, 
                     h_md ,Nmd ,density , d_L, ux, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, delta, real_time, m_md, N, 
-                    density, 1, gama_T, d_random_array, d_seed, topology, h_Xcm, h_Ycm, h_Zcm, h_Vxcm, h_Vycm, h_Vzcm, d_flag_array, u_scale, K_FENE);
+                    density, 1, gama_T, d_random_array, d_seed, topology, h_Xcm, h_Ycm, h_Zcm, h_Vxcm, h_Vycm, h_Vzcm, d_flag_array, u_scale, K_FENE, K_bend);
                 
                 Sort_begin(d_x , d_y , d_z ,d_vx, d_vy, d_vz, d_index , d_mdX , d_mdY , d_mdZ ,
                     d_mdVx, d_mdVy, d_mdVz, d_mdIndex ,ux , d_L , d_r , N , Nmd , real_time, grid_size);
