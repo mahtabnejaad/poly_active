@@ -9,9 +9,9 @@ input="1"
 basename="0.1"
 
 # Dimension of the simulation
-L0=30
-L1=30
-L2=30
+L0=50
+L1=50
+L2=50
 
 # density of mpcd particles:
 d=10
