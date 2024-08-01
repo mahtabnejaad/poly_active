@@ -395,7 +395,7 @@ double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double
 __global__ void Active_noslip_nb_b_interaction( 
 double *mdX, double *mdY , double *mdZ ,
 double *fx , double *fy , double *fz, 
-double *L,int size , double ux, double mass, double real_time, int m , int topology)
+double *L,int size , double ux, double mass, double real_time, int m , int topology, double K_FENE)
 {
     int size2 = size*(size); //size2 calculates the total number of particle pairs for the interaction.
 
@@ -522,12 +522,12 @@ __host__ void Active_noslip_calc_acceleration( double *x ,double *y , double *z 
 double *Fx , double *Fy , double *Fz, 
 double *Ax , double *Ay , double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
 double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T, 
-double *L, int size, int m, int topology, double real_time, int grid_size, double mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale)
+double *L, int size, int m, int topology, double real_time, int grid_size, double mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale, double K_FENE)
 
 {
   
 
-    Active_noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux, mass, real_time , m , topology);
+    Active_noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux, mass, real_time , m , topology, K_FENE);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
