@@ -13,6 +13,7 @@ int Activity = 1;//I added this variable to determine whether we have activity o
 int random_flag = 0; 
 int BC = 1; //I added this to determine the kind of boundary condition that we have.
 double Pe = 1;//peclet number
+double K_FENE = 30;
 std::default_random_engine generator(time(0));
 std::uniform_real_distribution<float> realdistribution(0, 1);
 static const int blockSize = 256;
