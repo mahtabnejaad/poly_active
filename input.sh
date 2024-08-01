@@ -54,7 +54,10 @@ BC=2
 # peclet number
 Pe=1
 
-./main.run  $input $basename $L0 $L1 $L2 $d $n $m $s $hmd $hmpcd $Tout $Tsim $t $topology $Activity $random_flag $BC $Pe
+# K(FENE)
+K_FENE=30
+
+./main.run  $input $basename $L0 $L1 $L2 $d $n $m $s $hmd $hmpcd $Tout $Tsim $t $topology $Activity $random_flag $BC $Pe $K_FENE
 
 
 
