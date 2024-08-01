@@ -237,7 +237,7 @@ __global__ void sum_kernel(double *F1 ,double *F2 , double *F3,
 __global__ void nb_b_interaction( 
 double *mdX, double *mdY , double *mdZ ,
 double *fx , double *fy , double *fz, 
-double *L,int size , double ux, double mass, double real_time, int m , int topology)
+double *L,int size , double ux, double mass, double real_time, int m , int topology, double K_FENE)
 {
     int size2 = size*(size); //size2 calculates the total number of particle pairs for the interaction.
 
@@ -348,9 +348,9 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 __host__ void calc_accelaration( double *x ,double *y , double *z , 
 double *Fx , double *Fy , double *Fz,
 double *Ax , double *Ay , double *Az,
-double *L,int size ,int m ,int topology, double ux,double real_time, int grid_size)
+double *L,int size ,int m ,int topology, double ux,double real_time, int grid_size, double K_FENE)
 {
-    nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux,density, real_time , m , topology);
+    nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux,density, real_time , m , topology, K_FENE);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     sum_kernel<<<grid_size,blockSize>>>(Fx ,Fy,Fz, Ax ,Ay, Az, size);
@@ -408,7 +408,7 @@ __host__ void MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
     double *d_mdVx, double *d_mdVy, double *d_mdVz,
     double *d_mdAx, double *d_mdAy, double *d_mdAz,
     double *d_Fx, double *d_Fy, double *d_Fz,
-    double h_md ,int Nmd, int density, double *d_L ,double ux,int grid_size ,int delta, double real_time)
+    double h_md ,int Nmd, int density, double *d_L ,double ux,int grid_size ,int delta, double real_time, double K_FENE)
 {
     for (int tt = 0 ; tt < delta ; tt++)
     {
@@ -431,7 +431,7 @@ __host__ void MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
         
         //The function calc_accelaration is called to compute the new accelerations for each particle based on their positions and interactions.
         //These accelerations are used in the subsequent time step to update particle velocities.
-        calc_accelaration(d_mdX, d_mdY , d_mdZ , d_Fx , d_Fy , d_Fz , d_mdAx , d_mdAy , d_mdAz, d_L , Nmd ,m_md ,topology, ux ,real_time, grid_size);
+        calc_accelaration(d_mdX, d_mdY , d_mdZ , d_Fx , d_Fy , d_Fz , d_mdAx , d_mdAy , d_mdAz, d_L , Nmd ,m_md ,topology, ux ,real_time, grid_size, K_FENE);
         
         
         //velocityVerletKernel2 is called to complete the velocity Verlet algorithm by updating particle velocities using the second half of the time step. 
