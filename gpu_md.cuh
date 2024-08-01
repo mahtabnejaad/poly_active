@@ -287,12 +287,12 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
                 //check if the interacting particles are next to each other in the same chain. If they are, it calculates the FENE interaction contribution,
                 if( ID2 - ID1 == 1 || ID2 - ID1 == m-1 ) 
                 {
-                    f -= 30/(1 - r_sqr/2.25);
+                    f -= K_FENE/(1 - r_sqr/2.25);
                 }
 
                 if( ID1 - ID2 == 1 || ID1 - ID2 == m-1 ) 
                 {
-                    f -= 30/(1 - r_sqr/2.25);
+                    f -= K_FENE/(1 - r_sqr/2.25);
                 }
             }   
         }
@@ -304,24 +304,24 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
             {
                 if( ID2 - ID1 == 1 || ID2 - ID1 == m-1 ) 
                 {
-                    f -= 30/(1 - r_sqr/2.25);
+                    f -= K_FENE/(1 - r_sqr/2.25);
                 }
 
                 if( ID1 - ID2 == 1 || ID1 - ID2 == m-1 ) 
                 {
-                    f -= 30/(1 - r_sqr/2.25);
+                    f -= K_FENE/(1 - r_sqr/2.25);
                 }
             }
             
             if (ID1==int(m/4) && ID2 ==m+int(3*m/4))
             {
                 
-                f -= 30/(1 - r_sqr/2.25);
+                f -= K_FENE/(1 - r_sqr/2.25);
             }
                 
             if (ID2==int(m/4) && ID1 ==m+int(3*m/4))
             {
-                f -= 30/(1 - r_sqr/2.25);
+                f -= K_FENE/(1 - r_sqr/2.25);
             }
         }
         f/=mass; //After the interaction forces are calculated (f), they are divided by the mass of the particles to obtain the correct acceleration.
