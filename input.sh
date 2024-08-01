@@ -55,9 +55,9 @@ BC=2
 Pe=1
 
 # K(FENE)
-K_FENE=1.86*10^-7
+K_bend=1.86*10^-7
 
-./main.run  $input $basename $L0 $L1 $L2 $d $n $m $s $hmd $hmpcd $Tout $Tsim $t $topology $Activity $random_flag $BC $Pe $K_FENE
+./main.run  $input $basename $L0 $L1 $L2 $d $n $m $s $hmd $hmpcd $Tout $Tsim $t $topology $Activity $random_flag $BC $Pe $K_bend
 
 
 
