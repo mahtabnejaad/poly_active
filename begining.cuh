@@ -53,7 +53,7 @@ double *d_mdAx , double *d_mdAy , double *d_mdAz,
 double *_holder , double *d_Fy_holder, double *d_Fz_holder,
 double *d_x , double *d_y , double *d_z ,
 double *d_vx , double *d_vy , double *d_vz,
-curandGenerator_t gen, int grid_size, double *T)
+curandGenerator_t gen, int grid_size, double *T, double K_FENE, double K_bend)
 {
     std::string log_name = file_name + "_log.log";
     std::string trj_name = file_name + "_traj.xyz";
@@ -145,7 +145,7 @@ double *d_mdAx , double *d_mdAy , double *d_mdAz,
 double *_holder , double *d_Fy_holder, double *d_Fz_holder,
 double *d_x , double *d_y , double *d_z ,
 double *d_vx , double *d_vy , double *d_vz, double ux,
-int N, int Nmd, int last_step, int grid_size)
+int N, int Nmd, int last_step, int grid_size, double K_FENE, double K_bend)
 {
 
     cudaMemcpy(d_L, &L, 3*sizeof(double) , cudaMemcpyHostToDevice);
@@ -194,7 +194,7 @@ double *h_fa_x, double *h_fa_y, double *h_fa_z,
 double *h_fb_x, double *h_fb_y, double *h_fb_z,
 double *Ax_cm, double *Ay_cm, double *Az_cm,
 double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
-curandGenerator_t gen, int grid_size, double real_time, double *gama_T, int *d_random_array, unsigned int seed, int *flag_array, double u_scale)
+curandGenerator_t gen, int grid_size, double real_time, double *gama_T, int *d_random_array, unsigned int seed, int *flag_array, double u_scale, double K_FENE, double K_bend)
 {
     std::string log_name = file_name + "_log.log";
     std::string trj_name = file_name + "_traj.xyz";
@@ -336,7 +336,7 @@ double *h_fb_x, double *h_fb_y, double *h_fb_z,
 double *Ax_cm, double *Ay_cm, double *Az_cm,
 double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
 double ux,
-int N, int Nmd, int last_step, int grid_size, double real_time, double *gama_T, int *d_random_array, unsigned int seed, int *flag_array, double u_scale)
+int N, int Nmd, int last_step, int grid_size, double real_time, double *gama_T, int *d_random_array, unsigned int seed, int *flag_array, double u_scale, double K_FENE, double K_bend)
 {
 
     cudaMemcpy(d_L, &L, 3*sizeof(double) , cudaMemcpyHostToDevice);
