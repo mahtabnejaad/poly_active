@@ -560,7 +560,7 @@ int main(int argc, const char* argv[])
 
             }
             double *temperature;
-            logging(basename + "_log.log" , (t+1)*swapsize , d_mdVx , d_mdVy , d_mdVz , d_vx, d_vy , d_vz, N , Nmd, grid_size , temperature, K_FENE, K_bend);
+            logging(basename + "_log.log" , (t+1)*swapsize , d_mdVx , d_mdVy , d_mdVz , d_vx, d_vy , d_vz, N , Nmd, grid_size , temperature);
             xyz_trj(basename + "_traj.xyz", d_mdX, d_mdY , d_mdZ, Nmd);
             xyz_trj(basename + "_vel.xyz", d_mdVx, d_mdVy , d_mdVz, Nmd);
        
@@ -620,7 +620,7 @@ int main(int argc, const char* argv[])
                     d_mdAx , d_mdAy , d_mdAz ,md_Fx_holder, md_Fy_holder, md_Fz_holder,
                     h_md , Nmd , density , d_L , ux , grid_size, delta, real_time,
                     d_md_dt_min, d_md_dt_x, d_md_dt_y, d_md_dt_z, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdVx_o, d_mdVy_o, d_mdVz_o, 
-                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ );
+                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, K_FENE, K_bend);
 
                 noslip_Sort_begin(d_x , d_y , d_z , d_vx, d_vy, d_vz, d_index , d_mdX , d_mdY , d_mdZ ,
                     d_mdVx, d_mdVy, d_mdVz, d_mdIndex ,ux , d_L , d_r , N , Nmd , real_time, grid_size);
@@ -979,7 +979,7 @@ int main(int argc, const char* argv[])
                     gama_T, d_random_array, d_seed, topology, d_flag_array, u_scale, 
                     d_md_dt_min, d_md_dt_x, d_md_dt_y, d_md_dt_z, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdVx_o, d_mdVy_o, d_mdVz_o, 
                     d_md_dt_min_opp, d_md_dt_x_opp, d_md_dt_y_opp, d_md_dt_z_opp, d_mdX_o_opp, d_mdY_o_opp, d_mdZ_o_opp, d_mdVx_o_opp, d_mdVy_o_opp, d_mdVz_o_opp,
-                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag_md, &ErrorFlag_md_opp, n_out_flag_md, n_out_flag_md_opp, &d_zero_md);
+                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag_md, &ErrorFlag_md_opp, n_out_flag_md, n_out_flag_md_opp, &d_zero_md, K_FENE, K_bend);
                 
                 if (ErrorFlag_md != 0){
                 // Handle error
