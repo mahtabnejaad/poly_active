@@ -51,7 +51,10 @@ random_flag=0
 # kind of Boundary condition : 1 is for periodic BC, 2 is for no-slip BC, and 3 is for combined BC(not developed yet).
 BC=2
 
-./main.run  $input $basename $L0 $L1 $L2 $d $n $m $s $hmd $hmpcd $Tout $Tsim $t $topology $Activity $random_flag $BC
+# peclet number
+Pe=1
+
+./main.run  $input $basename $L0 $L1 $L2 $d $n $m $s $hmd $hmpcd $Tout $Tsim $t $topology $Activity $random_flag $BC $Pe
 
 
 
