@@ -9,9 +9,9 @@ input="1"
 basename="0.1"
 
 # Dimension of the simulation
-L0=3
-L1=3
-L2=3
+L0=30
+L1=30
+L2=30
 
 # density of mpcd particles:
 d=10
@@ -19,7 +19,7 @@ d=10
 #number of rings:
 n=1
 #number of monomer in each ring 
-m=5
+m=50
 
 # shear rate
 s=0.0
@@ -34,7 +34,7 @@ hmpcd=0.01
 Tout=1
 
 # simulate time 
-Tsim=100
+Tsim=150
 
 #start time: 
 t=0
