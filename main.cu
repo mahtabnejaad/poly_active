@@ -41,7 +41,7 @@ int main(int argc, const char* argv[])
     //I change this (argc!=16) to argc!=18 . because I added 2 other inputs which are "Activity" and "random_flag".
     // update: now I want to add another input which is boudary condition or BC, so I change argc to 19.
     std::cout<<argc<<"\n";
-    if( argc !=19)
+    if( argc !=20)
     {
         std::cout<<argc<<"\n";
         std::cout<<"Argument parsing failed!\n";
@@ -68,7 +68,8 @@ int main(int argc, const char* argv[])
     Activity = atoi(argv[16]);//I added a parameter called activity which is either 0 or 1 ( either we have activity or we don't)
     random_flag = atoi(argv[17]);//a flag to see if we have random activity or not
     BC = atoi(argv[18]); //a parameter called BC which is ether 1 or 2 or 3( either we have periodic BC or no-slip BC Or combined.)
-      
+    Pe = atoi(argv[19]); //pe number
+
     double ux = shear_rate * L[2];
     double u_scale;
     double DR = 100; //Rotational friction coefficient
@@ -82,7 +83,7 @@ int main(int argc, const char* argv[])
     double *temperature;
     temperature = (double*) malloc(sizeof(double));
     *temperature = 1.0;
-    double Pe = 1.0; //peclet number
+    //double Pe = 1.0; //peclet number
     double l_eq = 1.0; // equilibrium length
     u_scale = Pe/(2*Rh*delta_ratio* *gama_T); //u_scale is u0 which measures activity.
     //int Nc = L[0]*L[1]*L[2]; //number of cells 
