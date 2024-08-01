@@ -41,7 +41,7 @@ int main(int argc, const char* argv[])
     //I change this (argc!=16) to argc!=18 . because I added 2 other inputs which are "Activity" and "random_flag".
     // update: now I want to add another input which is boudary condition or BC, so I change argc to 19.
     std::cout<<argc<<"\n";
-    if( argc !=20)
+    if( argc !=21)
     {
         std::cout<<argc<<"\n";
         std::cout<<"Argument parsing failed!\n";
@@ -69,6 +69,7 @@ int main(int argc, const char* argv[])
     random_flag = atoi(argv[17]);//a flag to see if we have random activity or not
     BC = atoi(argv[18]); //a parameter called BC which is ether 1 or 2 or 3( either we have periodic BC or no-slip BC Or combined.)
     Pe = atoi(argv[19]); //pe number
+    K_FENE = atoi(argv[20]); //K_FENE
 
     double ux = shear_rate * L[2];
     double u_scale;
