@@ -121,9 +121,9 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 __host__ void noslip_calc_acceleration( double *x ,double *y , double *z , 
 double *Fx , double *Fy , double *Fz,
 double *Ax , double *Ay , double *Az,
-double *L,int size ,int m ,int topology, double ux,double real_time, int grid_size)
+double *L,int size ,int m ,int topology, double ux,double real_time, int grid_size, double K_FENE)
 {
-    noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux,density, real_time , m , topology);
+    noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux,density, real_time , m , topology, K_FNE);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     sum_kernel<<<grid_size,blockSize>>>(Fx ,Fy,Fz, Ax ,Ay, Az, size);
