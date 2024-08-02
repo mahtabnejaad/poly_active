@@ -516,10 +516,64 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 }
 
 
+__global__ void Active_noslip_bending_interaction( 
+double *mdX, double *mdY , double *mdZ ,
+double *fx , double *fy , double *fz, 
+double *fx_bend , double *fy_bend , double *fz_bend, 
+double *L,int size , double ux, double mass, double real_time, int m , int topology, double K_FENE, double K_bend)
+{
+    
+    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+    if (tid<size){
+
+        int loop = int(tid/m);
+        int ID = tid%m;
+        double Ri1[3];
+        double Ri[3];
+
+        if(ID == 0){
+
+            regular_distance(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri1, L, ux, real_time);
+            
+            regular_distance(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+
+
+             
+        }
+        else if(ID == (m-1)){
+
+            regular_distance(mdX[tid], mdY[tid], mdZ[tid] , mdX[m*loop] , mdY[m*loop] , mdZ[m*loop] , Ri1, L, ux, real_time);
+            
+            regular_distance(mdX[(loop+1)*m-1], mdY[(loop+1)*m-1], mdZ[(loop+1)*m-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+
+
+        }
+        else if(ID < m-1){
+
+            regular_distance(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri1, L, ux, real_time);
+            
+            regular_distance(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+
+
+
+        }
+
+        fx_bend[tid] = -K_bend*(Ri1[0]-Ri[0]);
+        fy_bend[tid] = -K_bend*(Ri1[1]-Ri[1]);
+        fz_bend[tid] = -K_bend*(Ri1[2]-Ri[2]);
+
+        fx[tid] = fx[tid] + fx_bend[tid];
+        fy[tid] = fy[tid] + fy_bend[tid];
+        fz[tid] = fz[tid] + fz_bend[tid];
+
+    }
+
+}
+
 //Active_noslip_calc_acceleration
 
 __host__ void Active_noslip_calc_acceleration( double *x ,double *y , double *z , 
-double *Fx , double *Fy , double *Fz, 
+double *Fx , double *Fy , double *Fz, double *Fx_bend, double *Fy_bend, double *Fz_bend, 
 double *Ax , double *Ay , double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
 double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T, 
 double *L, int size, int m, int topology, double real_time, int grid_size, double mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale, double K_FENE, double K_bend)
@@ -531,6 +585,11 @@ double *L, int size, int m, int topology, double real_time, int grid_size, doubl
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
+    Active_noslip_bending_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz, Fx_bend, Fy_bend, Fz_bend, L , size , ux, mass, real_time , m , topology, K_FENE, K_bend);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    
 
     sum_kernel<<<grid_size,blockSize>>>(Fx , Fy, Fz, Ax , Ay, Az, size);
     gpuErrchk( cudaPeekAtLastError() );
