@@ -106,7 +106,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         fz[tid] = f * r[2] ;
 
 
-        fx_bend
+        
 
         }
     
