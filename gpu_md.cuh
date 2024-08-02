@@ -470,6 +470,7 @@ __host__ void MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
     double *d_mdVx, double *d_mdVy, double *d_mdVz,
     double *d_mdAx, double *d_mdAy, double *d_mdAz,
     double *d_Fx, double *d_Fy, double *d_Fz,
+    double *d_Fx_bend, double *d_Fy_bend, double *d_Fz_bend,
     double h_md ,int Nmd, int density, double *d_L ,double ux,int grid_size ,int delta, double real_time, double K_FENE, double K_bend)
 {
     for (int tt = 0 ; tt < delta ; tt++)
@@ -493,7 +494,7 @@ __host__ void MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
         
         //The function calc_accelaration is called to compute the new accelerations for each particle based on their positions and interactions.
         //These accelerations are used in the subsequent time step to update particle velocities.
-        calc_accelaration(d_mdX, d_mdY , d_mdZ , d_Fx , d_Fy , d_Fz , d_mdAx , d_mdAy , d_mdAz, d_L , Nmd ,m_md ,topology, ux ,real_time, grid_size, K_FENE, K_bend);
+        calc_accelaration(d_mdX, d_mdY , d_mdZ , d_Fx , d_Fy , d_Fz , d_Fx_bend, d_Fy_bend, d_Fz_bend, d_mdAx , d_mdAy , d_mdAz, d_L , Nmd ,m_md ,topology, ux ,real_time, grid_size, K_FENE, K_bend);
         
         
         //velocityVerletKernel2 is called to complete the velocity Verlet algorithm by updating particle velocities using the second half of the time step. 
