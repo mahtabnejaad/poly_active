@@ -129,7 +129,7 @@ curandGenerator_t gen, int grid_size, double *T, double K_FENE, double K_bend)
 
     double pos[3] ={0,0,0}; //initial position
     //initMD:
-    initMD(d_mdX, d_mdY , d_mdZ , d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , d_Fx_holder , d_Fy_holder , d_Fz_holder, d_Fx_bending , d_Fy_bending , d_Fz_bending , d_L , ux ,pos , n_md , m_md , topology , density);
+    initMD(d_mdX, d_mdY , d_mdZ , d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , d_Fx_holder , d_Fy_holder , d_Fz_holder , d_L , ux ,pos , n_md , m_md , topology , density);
     calc_accelaration(d_mdX , d_mdY, d_mdZ , _holder , d_Fy_holder , d_Fz_holder , d_mdAx , d_mdAy , d_mdAz ,d_L , Nmd , n_md ,topology ,  ux ,h_md, grid_size, K_FENE, K_bend);
     cudaFree(d_tmp);
 
@@ -279,7 +279,7 @@ curandGenerator_t gen, int grid_size, double real_time, double *gama_T, int *d_r
    
     
     //initMD:
-    initMD(d_mdX, d_mdY , d_mdZ , d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , d_Fx_holder , d_Fy_holder , d_Fz_holder, d_Fx_bending , d_Fy_bending , d_Fz_bending , d_L , ux ,pos , n_md , m_md , topology , density);
+    initMD(d_mdX, d_mdY , d_mdZ , d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , d_Fx_holder , d_Fy_holder , d_Fz_holder , d_L , ux ,pos , n_md , m_md , topology , density);
     
     print_kernel<<<grid_size,blockSize>>>(d_mdX, d_mdY, d_mdZ, Nmd);
     print_kernel<<<grid_size,blockSize>>>(d_mdVx, d_mdVy, d_mdVz, Nmd);
