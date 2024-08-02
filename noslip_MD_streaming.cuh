@@ -104,6 +104,10 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         fx[tid] = f * r[0] ;
         fy[tid] = f * r[1] ;
         fz[tid] = f * r[2] ;
+
+
+        fx_bend
+
         }
     
         /*else
@@ -117,6 +121,63 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
     }
 
 }
+
+__global__ void noslip_bending_interaction( 
+double *mdX, double *mdY , double *mdZ ,
+double *fx , double *fy , double *fz,
+double *fx_bend, double *fy_bend, double *fz_bend, 
+double *L,int size , double ux, double mass, double real_time, int m , int topology, double K_FENE, double K_bend)
+{
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+    if (tid<size){
+
+        int loop = int(tid/m);
+        int ID = tid%m;
+        double Ri1[3];
+        double Ri[3];
+
+        if(ID == 0){
+
+            regular_distance(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri1, L, ux, real_time);
+            
+            regular_distance(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+
+
+             
+        }
+        else if(ID == (m-1)){
+
+            regular_distance(mdX[tid], mdY[tid], mdZ[tid] , mdX[m*loop] , mdY[m*loop] , mdZ[m*loop] , Ri1, L, ux, real_time);
+            
+            regular_distance(mdX[(loop+1)*m-1], mdY[(loop+1)*m-1], mdZ[(loop+1)*m-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+
+
+        }
+        else if(ID < m-1){
+
+            regular_distance(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri1, L, ux, real_time);
+            
+            regular_distance(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+
+
+
+        }
+
+        fx_bend[tid] = -K_bend*(Ri1[0]-Ri[0]);
+        fy_bend[tid] = -K_bend*(Ri1[1]-Ri[1]);
+        fz_bend[tid] = -K_bend*(Ri1[2]-Ri[2]);
+
+        fx[tid] = fx[tid] + fx_bend[tid];
+        fy[tid] = fy[tid] + fy_bend[tid];
+        fz[tid] = fz[tid] + fz_bend[tid];
+
+    }
+
+
+}
+
+
 
 __host__ void noslip_calc_acceleration( double *x ,double *y , double *z , 
 double *Fx , double *Fy , double *Fz,
