@@ -599,7 +599,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
 
 __host__ void noslip_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
     double *d_mdvx, double *d_mdvy, double *d_mdvz, double *d_mdAx, double *d_mdAy, double *d_mdAz,
-    double *d_Fx, double *d_Fy, double *d_Fz, double h_md, int Nmd, int density, double *d_L , double ux, int grid_size , int delta, double real_time,
+    double *d_Fx, double *d_Fy, double *d_Fz, double *d_Fx_bend, double *d_Fy_bend, double *d_Fz_bend, double h_md, int Nmd, int density, double *d_L , double ux, int grid_size , int delta, double real_time,
     double *md_dt_min, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, double K_FENE, double K_bend){
 
         for (int tt = 0 ; tt < delta ; tt++)
@@ -613,7 +613,7 @@ __host__ void noslip_MD_streaming(double *d_mdX, double *d_mdY, double *d_mdZ,
         
         //The function calc_accelaration is called to compute the new accelerations for each particle based on their positions and interactions.
         //These accelerations are used in the subsequent time step to update particle velocities.
-        noslip_calc_acceleration(d_mdX, d_mdY , d_mdZ , d_Fx , d_Fy , d_Fz , d_mdAx , d_mdAy , d_mdAz, d_L , Nmd ,m_md ,topology, ux ,real_time, grid_size, K_FENE, K_bend);
+        noslip_calc_acceleration(d_mdX, d_mdY , d_mdZ , d_Fx , d_Fy , d_Fz , d_Fx_bend , d_Fy_bend , d_Fz_bend,  d_mdAx , d_mdAy , d_mdAz, d_L , Nmd ,m_md ,topology, ux ,real_time, grid_size, K_FENE, K_bend);
         
         
         //velocityverletKernel2 is called to complete the velocity verlet algorithm by updating particle velocities using the second half of the time step. 
