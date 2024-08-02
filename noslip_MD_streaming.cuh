@@ -122,6 +122,8 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
 }
 
+// to account for bending potential:
+
 __global__ void noslip_bending_interaction( 
 double *mdX, double *mdY , double *mdZ ,
 double *fx , double *fy , double *fz,
@@ -181,10 +183,14 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
 __host__ void noslip_calc_acceleration( double *x ,double *y , double *z , 
 double *Fx , double *Fy , double *Fz,
+double *Fx_bend , double *Fy_bend , double *Fz_bend,
 double *Ax , double *Ay , double *Az,
 double *L,int size ,int m ,int topology, double ux,double real_time, int grid_size, double K_FENE, double K_bend)
 {
     noslip_nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux,density, real_time , m , topology, K_FENE, K_bend);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    noslip_bending_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz , Fx_bend, Fy_bend, Fz_bend, L , size , ux,density, real_time , m , topology, K_FENE, K_bend);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     sum_kernel<<<grid_size,blockSize>>>(Fx ,Fy,Fz, Ax ,Ay, Az, size);
