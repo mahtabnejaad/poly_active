@@ -143,7 +143,8 @@ __host__ void restarting_simulation(std::string file_name,std::string filename2,
 double *d_mdX , double *d_mdY , double *d_mdZ,
 double *d_mdVx , double *d_mdVy , double *d_mdVz,
 double *d_mdAx , double *d_mdAy , double *d_mdAz,
-double *_holder , double *d_Fy_holder, double *d_Fz_holder,
+double *d_Fx_holder , double *d_Fy_holder, double *d_Fz_holder,
+double *d_Fx_bending , double *d_Fy_bending, double *d_Fz_bending,
 double *d_x , double *d_y , double *d_z ,
 double *d_vx , double *d_vy , double *d_vz, double ux,
 int N, int Nmd, int last_step, int grid_size, double K_FENE, double K_bend)
@@ -162,7 +163,7 @@ int N, int Nmd, int last_step, int grid_size, double K_FENE, double K_bend)
     reset_vector_to_zero<<<grid_size,blockSize>>>(d_mdAx, d_mdAy, d_mdAz, Nmd);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
-    calc_accelaration(d_mdX , d_mdY, d_mdZ , _holder , d_Fy_holder , d_Fz_holder , d_mdAx , d_mdAy , d_mdAz ,d_L , Nmd ,m_md , topology, ux ,h_md, grid_size, K_FENE, K_bend);
+    calc_accelaration(d_mdX , d_mdY, d_mdZ , d_Fx_holder , d_Fy_holder , d_Fz_holder , d_Fx_bending , d_Fy_bending , d_Fz_bending , d_mdAx , d_mdAy , d_mdAz ,d_L , Nmd ,m_md , topology, ux ,h_md, grid_size, K_FENE, K_bend);
     
 }
 
