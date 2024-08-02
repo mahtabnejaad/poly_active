@@ -343,14 +343,76 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
 }
 
+__global__ void bending_interaction( 
+double *mdX, double *mdY , double *mdZ ,
+double *fx , double *fy , double *fz, 
+double *fx_bend, double *fy_bend, double *fz_bend,
+double *L,int size , double ux, double mass, double real_time, int m , int topology, double K_FENE, double K_bend)
+{
+    
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+
+
+        if (tid<size){
+
+        int loop = int(tid/m);
+        int ID = tid%m;
+        double Ri1[3];
+        double Ri[3];
+
+        if(ID == 0){
+
+            LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri1, L, ux, real_time);
+            
+            LeeEdwNearestImage(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+
+
+             
+        }
+        else if(ID == (m-1)){
+
+            LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[m*loop] , mdY[m*loop] , mdZ[m*loop] , Ri1, L, ux, real_time);
+            
+            LeeEdwNearestImage(mdX[(loop+1)*m-1], mdY[(loop+1)*m-1], mdZ[(loop+1)*m-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+
+
+        }
+        else if(ID < m-1){
+
+            LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri1, L, ux, real_time);
+            
+            LeeEdwNearestImage(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+
+
+
+        }
+
+        fx_bend[tid] = -K_bend*(Ri1[0]-Ri[0]);
+        fy_bend[tid] = -K_bend*(Ri1[1]-Ri[1]);
+        fz_bend[tid] = -K_bend*(Ri1[2]-Ri[2]);
+
+        fx[tid] = fx[tid] + fx_bend[tid];
+        fy[tid] = fy[tid] + fy_bend[tid];
+        fz[tid] = fz[tid] + fz_bend[tid];
+
+    }
+
+   
+
+}
 
 
 __host__ void calc_accelaration( double *x ,double *y , double *z , 
 double *Fx , double *Fy , double *Fz,
+double *Fx_bend , double *Fy_bend , double *Fz_bend,
 double *Ax , double *Ay , double *Az,
 double *L,int size ,int m ,int topology, double ux,double real_time, int grid_size, double K_FENE, double K_bend)
 {
     nb_b_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz ,L , size , ux,density, real_time , m , topology, K_FENE, K_bend);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+    bending_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz , Fx_bend, Fy_bend, Fz_bend, L , size , ux,density, real_time , m , topology, K_FENE, K_bend);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
     sum_kernel<<<grid_size,blockSize>>>(Fx ,Fy,Fz, Ax ,Ay, Az, size);
