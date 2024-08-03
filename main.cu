@@ -79,7 +79,7 @@ int main(int argc, const char* argv[])
     double *gama_T;
     gama_T = (double*) malloc(sizeof(double));
     *gama_T = 464.49; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter.
-    double K_FENE = 2250*(10+2*Pe);
+    double K_FENE = 30; // 2250*(10+2*Pe);(?)
     
 
     double *temperature;
