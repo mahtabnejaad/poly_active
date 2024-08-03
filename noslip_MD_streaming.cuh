@@ -156,8 +156,6 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
             regular_distance(mdX[m*loop-2], mdY[m*loop-2], mdZ[m*loop-2] , mdX[m*loop-1] , mdY[m*loop-1] , mdZ[m*loop-1] , Ri_2, L, ux, real_time);
 
 
-            
-
         if(ID == 1){
 
             regular_distance(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[tid+2] , mdY[tid+2] , mdZ[tid+2] , Ri1, L, ux, real_time);
