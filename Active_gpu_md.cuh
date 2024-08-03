@@ -621,6 +621,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
             LeeEdwNearestImage(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri_1, L, ux, real_time);
 
             LeeEdwNearestImage(mdX[tid-2], mdY[tid-2], mdZ[tid-2] , mdX[tid-1] , mdY[tid-1] , mdZ[tid-1] , Ri_2, L, ux, real_time);
+        }
 
         else if(ID == (m-2)){
 
