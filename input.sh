@@ -54,7 +54,7 @@ BC=2
 # peclet number
 Pe=1
 
-# K(FENE)
+# K(FENE) adjusting with desired pL
 K_bend=4.71*10^-7
 
 ./main.run  $input $basename $L0 $L1 $L2 $d $n $m $s $hmd $hmpcd $Tout $Tsim $t $topology $Activity $random_flag $BC $Pe $K_bend
