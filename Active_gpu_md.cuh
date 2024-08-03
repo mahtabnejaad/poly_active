@@ -612,7 +612,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
             LeeEdwNearestImage(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri_1, L, ux, real_time);
 
-            LeeEdwNearestImage(mdX[m*loop-1], mdY[m*loop-1], mdZ[m*loop-1] , mdX[m*loop] , mdY[m*loop] , mdZ[m*loop] , Ri_2, L, ux, real_time);
+            LeeEdwNearestImage(mdX[m*loop-1], mdY[m*loop-1], mdZ[m*loop-1] , mdX[tid-1] , mdY[tid-1] , mdZ[tid-1] , Ri_2, L, ux, real_time);
 
             
         }
