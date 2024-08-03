@@ -577,31 +577,76 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
         int loop = int(tid/m);
         int ID = tid%m;
-        double Ri1[3];
+        double Ri_2[3];
+        double Ri_1[3];
         double Ri[3];
+        double Ri1[3];
+        
 
         if(ID == 0){
 
-            LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri1, L, ux, real_time);
+           LeeEdwNearestImage(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[tid+2] , mdY[tid+2] , mdZ[tid+2] , Ri1, L, ux, real_time);
             
-            LeeEdwNearestImage(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+            LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri, L, ux, real_time);
+
+            LeeEdwNearestImage(mdX[m*loop-1], mdY[m*loop-1], mdZ[m*loop-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri_1, L, ux, real_time);
+
+            LeeEdwNearestImage(mdX[m*loop-2], mdY[m*loop-2], mdZ[m*loop-2] , mdX[m*loop-1] , mdY[m*loop-1] , mdZ[m*loop-1] , Ri_2, L, ux, real_time);
 
 
              
         }
+        else if (ID == 1){
+
+            LeeEdwNearestImage(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[tid+2] , mdY[tid+2] , mdZ[tid+2] , Ri1, L, ux, real_time);
+            
+            LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri, L, ux, real_time);
+
+            LeeEdwNearestImage(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri_1, L, ux, real_time);
+
+            LeeEdwNearestImage(mdX[m*loop-1], mdY[m*loop-1], mdZ[m*loop-1] , mdX[m*loop] , mdY[m*loop] , mdZ[m*loop] , Ri_2, L, ux, real_time);
+
+            
+        }
         else if(ID == (m-1)){
 
-            LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[m*loop] , mdY[m*loop] , mdZ[m*loop] , Ri1, L, ux, real_time);
             
-            LeeEdwNearestImage(mdX[(loop+1)*m-1], mdY[(loop+1)*m-1], mdZ[(loop+1)*m-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+            LeeEdwNearestImage(mdX[m*loop], mdY[m*loop], mdZ[m*loop] , mdX[m*loop+1] , mdY[m*loop+1] , mdZ[m*loop+1] , Ri1, L, ux, real_time);
+            
+            LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[m*loop] , mdY[m*loop] , mdZ[m*loop] , Ri, L, ux, real_time);
+
+            LeeEdwNearestImage(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri_1, L, ux, real_time);
+
+            LeeEdwNearestImage(mdX[tid-2], mdY[tid-2], mdZ[tid-2] , mdX[tid-1] , mdY[tid-1] , mdZ[tid-1] , Ri_2, L, ux, real_time);
+
+        else if(ID == (m-2)){
+
+            
+            LeeEdwNearestImage(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[m*loop] , mdY[m*loop] , mdZ[m*loop] , Ri1, L, ux, real_time);
+            
+            LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri, L, ux, real_time);
+
+            LeeEdwNearestImage(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri_1, L, ux, real_time);
+
+            LeeEdwNearestImage(mdX[tid-2], mdY[tid-2], mdZ[tid-2] , mdX[tid-1] , mdY[tid-1] , mdZ[tid-1] , Ri_2, L, ux, real_time);
+
 
 
         }
-        else if(ID < m-1){
 
-            LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri1, L, ux, real_time);
+
+        }
+        else if(1 < ID < m-2){
+
+            LeeEdwNearestImage(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[tid+2] , mdY[tid+2] , mdZ[tid+2] , Ri1, L, ux, real_time);
             
-            LeeEdwNearestImage(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri, L, ux, real_time);
+            LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri, L, ux, real_time);
+
+            LeeEdwNearestImage(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri_1, L, ux, real_time);
+
+            LeeEdwNearestImage(mdX[tid-2], mdY[tid-2], mdZ[tid-2] , mdX[tid-1] , mdY[tid-1] , mdZ[tid-1] , Ri_2, L, ux, real_time);
+
+
 
 
 
