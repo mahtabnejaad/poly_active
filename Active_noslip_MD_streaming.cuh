@@ -526,8 +526,8 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
     int tid = blockIdx.x * blockDim.x + threadIdx.x ;
     if (tid<size){
 
-        int loop = int(tid/m);
-        loop=0;
+        int loop = int(tid/m) + 1 ;
+      
         int ID = tid%m;
         double Ri_2[3];
         double Ri_1[3];
