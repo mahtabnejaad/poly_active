@@ -527,7 +527,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
     if (tid<size){
 
         int loop;
-        loop= int(tid/m) + 1 ;
+        
       
         int ID = tid%m;
         double Ri_2[3];
