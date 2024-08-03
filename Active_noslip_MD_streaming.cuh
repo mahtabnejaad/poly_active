@@ -526,7 +526,8 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
     int tid = blockIdx.x * blockDim.x + threadIdx.x ;
     if (tid<size){
 
-        int loop = int(tid/m) + 1 ;
+        int loop;
+        loop= int(tid/m) + 1 ;
       
         int ID = tid%m;
         double Ri_2[3];
@@ -539,6 +540,8 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
         if(ID == 0){
             
+            loop= int(tid/m) + 1; //first loop is 1, m*loop is m, 2m ,...
+
             regular_distance(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[tid+2] , mdY[tid+2] , mdZ[tid+2] , Ri1, L, ux, real_time);
             
             regular_distance(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri, L, ux, real_time);
@@ -552,17 +555,21 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
         if(ID == 1){
 
+            loop= int(tid/m) + 1; //first loop is 1, m*loop is m, 2m ,...
+
             regular_distance(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[tid+2] , mdY[tid+2] , mdZ[tid+2] , Ri1, L, ux, real_time);
             
             regular_distance(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri, L, ux, real_time);
 
             regular_distance(mdX[tid-1], mdY[tid-1], mdZ[tid-1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri_1, L, ux, real_time);
 
-            regular_distance(mdX[m*loop-1], mdY[m*loop-1], mdZ[m*loop-1] , mdX[m*loop] , mdY[m*loop] , mdZ[m*loop] , Ri_2, L, ux, real_time);
+            regular_distance(mdX[m*loop-1], mdY[m*loop-1], mdZ[m*loop-1] , mdX[tid-1] , mdY[tid-1] , mdZ[tid-1] , Ri_2, L, ux, real_time);
 
         }
         }
         else if(ID == (m-1)){
+
+            loop= int(tid/m); //first loop is 0, m*loop is 0, m , ..
 
             regular_distance(mdX[m*loop], mdY[m*loop], mdZ[m*loop] , mdX[m*loop+1] , mdY[m*loop+1] , mdZ[m*loop+1] , Ri1, L, ux, real_time);
             
@@ -577,6 +584,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
         else if(ID == (m-2)){
 
+            loop= int(tid/m); //first loop is 0, m*loop is 0, m , ..
 
             regular_distance(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[m*loop] , mdY[m*loop] , mdZ[m*loop] , Ri1, L, ux, real_time);
             
