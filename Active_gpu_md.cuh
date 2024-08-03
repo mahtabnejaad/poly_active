@@ -581,6 +581,9 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         double Ri_1[3];
         double Ri[3];
         double Ri1[3];
+        double ri[3];
+        double r2;
+        double dot_product;
         
 
         if(ID == 0){
@@ -652,9 +655,16 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
         }
 
-        fx_bend[tid] = -K_bend*(Ri1[0]-Ri[0]);
-        fy_bend[tid] = -K_bend*(Ri1[1]-Ri[1]);
-        fz_bend[tid] = -K_bend*(Ri1[2]-Ri[2]);
+        ri[0]=mdX[tid];
+        ri[1]=mdY[tid];
+        ri[2]=mdZ[tid];
+
+        r2 = ri[0]*ri[0]+ri[1]*ri[1]+ri[2]*ri[2];
+        dot_product = (3*Ri_1[0] - 3*Ri[0] + Ri1[0] - Ri_2[0])*ri[0] + (3*Ri_1[1] - 3*Ri[1] + Ri1[1] - Ri_2[1])*ri[1] + (3*Ri_1[2] - 3*Ri[2] + Ri1[2] - Ri_2[2])*ri[2];
+
+        fx_bend[tid] = -K_bend*ri[0]*dot_product/r2;
+        fy_bend[tid] = -K_bend*ri[1]*dot_product/r2;
+        fz_bend[tid] = -K_bend*ri[2]*dot_product/r2;
 
         fx[tid] = fx[tid] + fx_bend[tid];
         fy[tid] = fy[tid] + fy_bend[tid];
