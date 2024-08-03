@@ -639,7 +639,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         }
 
 
-        }
+        
         else if(1 < ID < m-2){
 
             LeeEdwNearestImage(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[tid+2] , mdY[tid+2] , mdZ[tid+2] , Ri1, L, ux, real_time);
