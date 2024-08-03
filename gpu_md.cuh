@@ -355,7 +355,8 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
     if (tid<size){
 
-        int loop = int(tid/m);
+        int loop;
+
         int ID = tid%m;
         double Ri_2[3];
         double Ri_1[3];
@@ -367,6 +368,8 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         
 
         if(ID == 0){
+
+            loop= int(tid/m) + 1;
 
             LeeEdwNearestImage(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[tid+2] , mdY[tid+2] , mdZ[tid+2] , Ri1, L, ux, real_time);
             
@@ -381,6 +384,8 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         }
         else if (ID == 1){
 
+            loop= int(tid/m) + 1;
+
             LeeEdwNearestImage(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[tid+2] , mdY[tid+2] , mdZ[tid+2] , Ri1, L, ux, real_time);
             
             LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri, L, ux, real_time);
@@ -392,6 +397,8 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
             
         }
         else if(ID == (m-1)){
+
+            loop= int(tid/m);
 
             
             LeeEdwNearestImage(mdX[m*loop], mdY[m*loop], mdZ[m*loop] , mdX[m*loop+1] , mdY[m*loop+1] , mdZ[m*loop+1] , Ri1, L, ux, real_time);
@@ -405,7 +412,8 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
         else if(ID == (m-2)){
 
-            
+            loop= int(tid/m);
+
             LeeEdwNearestImage(mdX[tid+1], mdY[tid+1], mdZ[tid+1] , mdX[m*loop] , mdY[m*loop] , mdZ[m*loop] , Ri1, L, ux, real_time);
             
             LeeEdwNearestImage(mdX[tid], mdY[tid], mdZ[tid] , mdX[tid+1] , mdY[tid+1] , mdZ[tid+1] , Ri, L, ux, real_time);
