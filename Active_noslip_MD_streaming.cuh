@@ -627,7 +627,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
         if(tid !=0){
             fx[tid] = fx[tid] + fx_bend[tid];
-            y[tid] = fy[tid] + fy_bend[tid];
+            fy[tid] = fy[tid] + fy_bend[tid];
             fz[tid] = fz[tid] + fz_bend[tid];
         }
 
