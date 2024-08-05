@@ -625,11 +625,11 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
             fz_bend[tid] = -K_bend*ri[2]*dot_product/r2;
         }
 
-        if(tid !=0){
+        
             fx[tid] = fx[tid] + fx_bend[tid];
             fy[tid] = fy[tid] + fy_bend[tid];
             fz[tid] = fz[tid] + fz_bend[tid];
-        }
+        
 
     }
 
