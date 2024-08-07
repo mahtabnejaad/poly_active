@@ -25,10 +25,10 @@ m=40
 s=0.0
 
 #md time step:
-hmd=0.02000
+hmd=0.00400
 
 #mpcd time step:
-hmpcd=0.1
+hmpcd=0.05
 
 # output intervall (swapsize)
 Tout=1
