@@ -79,7 +79,9 @@ int main(int argc, const char* argv[])
     double *gama_T;
     gama_T = (double*) malloc(sizeof(double));
     //*gama_T = 464.49; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.01
-    *gama_T = 49.19; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.1
+    //*gama_T = 49.19; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.1
+    *gama_T = 245; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.05
+    
     double K_FENE = 30; // 2250*(10+2*Pe);(?)
     
 
