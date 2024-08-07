@@ -537,6 +537,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         double ri[3];
         double r2;
         double dot_product;
+        printf("-1%50=%f\n", (-1%50));
 
         if(ID == 0){
             
