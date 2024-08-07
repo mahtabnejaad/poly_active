@@ -537,9 +537,12 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         double ri[3];
         double r2;
         double dot_product;
-        printf("-1%50=%f\n", (-1%50));
+        printf("-1%50=%i\n", (-1%50));
+        printf("49%50=%i\n", (49%50));
+        printf("99%50=%i\n", (99%50));
+        printf("101%50=%i\n", (101%50));
 
-        if(ID == 0){
+        /*if(ID == 0){
             
             loop= int(tid/m) + 1; //first loop is 1, m*loop is m, 2m ,...
 
@@ -610,7 +613,35 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
 
 
+        }*/
+
+        int TID1;
+        int TID2;
+        int TID_1;
+        int TID_2;
+        int loop;
+        loop = int(tid/m);
+        TID1 = loop*m + (tid+1)%m;
+        TID2 = loop*m + (tid+2)%m;
+        TID_1 = loop*m + (tid-1)%m ;
+        TID_2 = loop*m + (tid-2)%m ;
+        
+        if(ID == 0){
+            TID_1 = TID_1 + m;
+            TID_2 = TID_2 + m;
         }
+        if(ID == 1) TID_2 = TID_2 + m;
+
+
+        regular_distance(mdX[TID1], mdY[TID1], mdZ[TID1] , mdX[TID2] , mdY[TID2] , mdZ[TID2] , Ri1, L, ux, real_time);
+            
+        regular_distance(mdX[tid], mdY[tid], mdZ[tid] , mdX[TID1] , mdY[TID1] , mdZ[TID1] , Ri, L, ux, real_time);
+
+        regular_distance(mdX[TID_1], mdY[TID_1], mdZ[TID_1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri_1, L, ux, real_time);
+
+        regular_distance(mdX[TID_2], mdY[TID_2], mdZ[TID_2] , mdX[TID_1] , mdY[TID_1] , mdZ[TID_1] , Ri_2, L, ux, real_time);
+
+
 
         ri[0]=mdX[tid];
         ri[1]=mdY[tid];
