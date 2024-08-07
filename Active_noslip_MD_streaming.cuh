@@ -626,11 +626,11 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         TID_1 = loop*m + (tid-1)%m ;
         TID_2 = loop*m + (tid-2)%m ;
         
-        if(ID == 0){
+        if(tid == 0){
             TID_1 = TID_1 + m;
             TID_2 = TID_2 + m;
         }
-        if(ID == 1) TID_2 = TID_2 + m;
+        if(tid == 1) TID_2 = TID_2 + m;
 
 
         regular_distance(mdX[TID1], mdY[TID1], mdZ[TID1] , mdX[TID2] , mdY[TID2] , mdZ[TID2] , Ri1, L, ux, real_time);
