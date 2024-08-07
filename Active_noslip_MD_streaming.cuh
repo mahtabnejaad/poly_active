@@ -619,7 +619,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         int TID2;
         int TID_1;
         int TID_2;
-        int loop;
+        
         loop = int(tid/m);
         TID1 = loop*m + (tid+1)%m;
         TID2 = loop*m + (tid+2)%m;
