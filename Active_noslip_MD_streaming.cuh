@@ -537,10 +537,10 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         double ri[3];
         double r2;
         double dot_product;
-        printf("-1%50=%i\n", (-1%50));
-        printf("49%50=%i\n", (49%50));
-        printf("99%50=%i\n", (99%50));
-        printf("101%50=%i\n", (101%50));
+        //printf("-1%50=%i\n", (-1%50));
+        //printf("49%50=%i\n", (49%50));
+        //printf("99%50=%i\n", (99%50));
+        //printf("101%50=%i\n", (101%50));
 
         /*if(ID == 0){
             
