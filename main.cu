@@ -79,8 +79,9 @@ int main(int argc, const char* argv[])
     double *gama_T;
     gama_T = (double*) malloc(sizeof(double));
     //*gama_T = 464.49; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.01
+    *gama_T = 232.682; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.02
     //*gama_T = 49.19; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.1
-    *gama_T = 94.227; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.05
+    //*gama_T = 94.227; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.05
     
     double K_FENE = 30; //(used this most of the time)
     //double K_FENE = 2250*(10+2*Pe); // no need for this , this is for when we have simple harmonic potential not FENE potential, so no need to adjust KFENE with Pe.
