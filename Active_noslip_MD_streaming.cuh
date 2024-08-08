@@ -516,6 +516,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 }
 
 
+
 __global__ void Active_noslip_bending_interaction( 
 double *mdX, double *mdY , double *mdZ ,
 double *fx , double *fy , double *fz, 
@@ -586,6 +587,31 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
             fz[tid] = fz[tid] + fz_bend[tid];
         //}
         
+
+    }
+
+}
+
+
+__global__ void Active_noslip_stretching_interaction( 
+double *mdX, double *mdY , double *mdZ ,
+double *fx , double *fy , double *fz, 
+double *fx_bend , double *fy_bend , double *fz_bend, 
+double *L,int size , double ux, double mass, double real_time, int m , int topology, double K_FENE, double K_l)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x ;
+    if (tid<size){
+        int loop;
+        
+      
+        int ID = tid%m;
+        double Ri_1[3];
+        double Ri[3]; 
+
+        regular_distance(mdX[tid], mdY[tid], mdZ[tid] , mdX[TID1] , mdY[TID1] , mdZ[TID1] , Ri, L, ux, real_time);
+
+        regular_distance(mdX[TID_1], mdY[TID_1], mdZ[TID_1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri_1, L, ux, real_time);
+
 
     }
 
