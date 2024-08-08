@@ -28,7 +28,7 @@ s=0.0
 hmd=0.00400
 
 #mpcd time step:
-hmpcd=0.05
+hmpcd=0.02
 
 # output intervall (swapsize)
 Tout=1
