@@ -80,7 +80,7 @@ int main(int argc, const char* argv[])
     gama_T = (double*) malloc(sizeof(double));
     //*gama_T = 464.49; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.01
     //*gama_T = 49.19; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.1
-    *gama_T = 245; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.05
+    *gama_T = 94.227; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.05
     
     double K_FENE = 30; //(used this most of the time)
     //double K_FENE = 2250*(10+2*Pe); // no need for this , this is for when we have simple harmonic potential not FENE potential, so no need to adjust KFENE with Pe.
@@ -701,7 +701,7 @@ int main(int argc, const char* argv[])
         //temperature = temp_calc(d_vx, d_vy , d_vz , d_mdVx , d_mdVy , d_mdVz , density, N , Nmd, grid_size);
         
         //gama_T= temper0 / ((2*Rh)*(2*Rh)*DR*delta_ratio) ; 
-        *gama_T = 0.8;
+        //*gama_T = 0.8;
 
       
         if (TIME ==0) Active_start_simulation(basename, simuationtime , swapsize ,d_L, d_mdX , d_mdY , d_mdZ,
@@ -799,7 +799,7 @@ int main(int argc, const char* argv[])
             logging(basename + "_log.log" , (t+1)*swapsize , d_mdVx , d_mdVy , d_mdVz , d_vx, d_vy , d_vz, N , Nmd, grid_size, temperature );
            
             //printf("T=%f\n",*temperature);
-            *gama_T= (*temperature) / ((2*Rh)*(2*Rh)*DR*delta_ratio) ; /////problem is here?
+            //*gama_T= (*temperature) / ((2*Rh)*(2*Rh)*DR*delta_ratio) ; /////problem is here?
 
             xyz_trj(basename + "_traj.xyz", d_mdX, d_mdY , d_mdZ, Nmd);
             xyz_trj(basename + "_vel.xyz", d_mdVx, d_mdVy , d_mdVz, Nmd);
@@ -894,7 +894,7 @@ int main(int argc, const char* argv[])
         //temperature = temp_calc(d_vx, d_vy , d_vz , d_mdVx , d_mdVy , d_mdVz , density, N , Nmd, grid_size);
         
         //gama_T= temper0 / ((2*Rh)*(2*Rh)*DR*delta_ratio) ; 
-        *gama_T = 0.8;
+        //*gama_T = 0.8;
 
        
         if (TIME ==0) Active_start_simulation(basename, simuationtime , swapsize ,d_L, d_mdX , d_mdY , d_mdZ,
@@ -1026,7 +1026,7 @@ int main(int argc, const char* argv[])
             logging(basename + "_log.log" , (t+1)*swapsize , d_mdVx , d_mdVy , d_mdVz , d_vx, d_vy , d_vz, N , Nmd, grid_size, temperature );
            
             //printf("T=%f\n",*temperature);
-            *gama_T= (*temperature) / ((2*Rh)*(2*Rh)*DR*delta_ratio) ; /////problem is here?
+            //*gama_T= (*temperature) / ((2*Rh)*(2*Rh)*DR*delta_ratio) ; /////problem is here?
 
             xyz_trj(basename + "_traj.xyz", d_mdX, d_mdY , d_mdZ, Nmd);
             xyz_trj(basename + "_vel.xyz", d_mdVx, d_mdVy , d_mdVz, Nmd);
