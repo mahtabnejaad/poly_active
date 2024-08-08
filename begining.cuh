@@ -185,6 +185,7 @@ double *d_mdVx , double *d_mdVy , double *d_mdVz,
 double *d_mdAx , double *d_mdAy , double *d_mdAz,
 double *d_Fx_holder , double *d_Fy_holder, double *d_Fz_holder,
 double *d_Fx_bending , double *d_Fy_bending, double *d_Fz_bending,
+double *d_Fx_stretching , double *d_Fy_stretching, double *d_Fz_stretching,
 double *d_x , double *d_y , double *d_z ,
 double *d_vx , double *d_vy , double *d_vz,
 double *d_fa_kx, double *d_fa_ky, double *d_fa_kz, 
@@ -198,7 +199,7 @@ double *h_fa_x, double *h_fa_y, double *h_fa_z,
 double *h_fb_x, double *h_fb_y, double *h_fb_z,
 double *Ax_cm, double *Ay_cm, double *Az_cm,
 double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
-curandGenerator_t gen, int grid_size, double real_time, double *gama_T, int *d_random_array, unsigned int seed, int *flag_array, double u_scale, double K_FENE, double K_bend)
+curandGenerator_t gen, int grid_size, double real_time, double *gama_T, int *d_random_array, unsigned int seed, int *flag_array, double u_scale, double K_FENE, double K_bend, double K_l)
 {
     std::string log_name = file_name + "_log.log";
     std::string trj_name = file_name + "_traj.xyz";
@@ -294,8 +295,8 @@ curandGenerator_t gen, int grid_size, double real_time, double *gama_T, int *d_r
         N, d_random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale, K_FENE, K_bend);
     }
     else if(BC==2){
-        Active_noslip_calc_acceleration(d_mdX , d_mdY, d_mdZ , d_Fx_holder , d_Fy_holder , d_Fz_holder ,  d_Fx_bending , d_Fy_bending , d_Fz_bending, d_mdAx , d_mdAy , d_mdAz ,d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_ex, d_ey, d_ez, ux, density, gama_T, d_L , Nmd , m_md ,topology , real_time, grid_size,1 ,
-        N, d_random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale, K_FENE, K_bend);
+        Active_noslip_calc_acceleration(d_mdX , d_mdY, d_mdZ , d_Fx_holder , d_Fy_holder , d_Fz_holder ,  d_Fx_bending , d_Fy_bending , d_Fz_bending, d_Fx_stretching, d_Fy_stretching, d_Fz_stretching, d_mdAx , d_mdAy , d_mdAz ,d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_ex, d_ey, d_ez, ux, density, gama_T, d_L , Nmd , m_md ,topology , real_time, grid_size,1 ,
+        N, d_random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale, K_FENE, K_bend, K_l);
     }
     
     gpuErrchk( cudaPeekAtLastError() );
@@ -329,6 +330,7 @@ double *d_mdVx , double *d_mdVy , double *d_mdVz,
 double *d_mdAx , double *d_mdAy , double *d_mdAz,
 double *d_Fx_holder , double *d_Fy_holder, double *d_Fz_holder,
 double *d_Fx_bending , double *d_Fy_bending, double *d_Fz_bending,
+double *d_Fx_stretching , double *d_Fy_stretching, double *d_Fz_stretching,
 double *d_x , double *d_y , double *d_z ,
 double *d_vx , double *d_vy , double *d_vz, 
 double *d_fa_kx, double *d_fa_ky, double *d_fa_kz, 
@@ -343,7 +345,7 @@ double *h_fb_x, double *h_fb_y, double *h_fb_z,
 double *Ax_cm, double *Ay_cm, double *Az_cm,
 double *d_block_sum_ex, double *d_block_sum_ey, double *d_block_sum_ez,
 double ux,
-int N, int Nmd, int last_step, int grid_size, double real_time, double *gama_T, int *d_random_array, unsigned int seed, int *flag_array, double u_scale, double K_FENE, double K_bend)
+int N, int Nmd, int last_step, int grid_size, double real_time, double *gama_T, int *d_random_array, unsigned int seed, int *flag_array, double u_scale, double K_FENE, double K_bend, double K_l)
 {
 
     cudaMemcpy(d_L, &L, 3*sizeof(double) , cudaMemcpyHostToDevice);
@@ -365,8 +367,8 @@ int N, int Nmd, int last_step, int grid_size, double real_time, double *gama_T, 
         N, d_random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale, K_FENE, K_bend);
     }
     else if(BC==2){
-        Active_noslip_calc_acceleration(d_mdX , d_mdY, d_mdZ , d_Fx_holder , d_Fy_holder , d_Fz_holder , d_Fx_bending , d_Fy_bending , d_Fz_bending, d_mdAx , d_mdAy , d_mdAz ,d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_ex, d_ey, d_ez, ux, density, gama_T, d_L , Nmd , m_md ,topology , real_time, grid_size,1 ,
-        N, d_random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale, K_FENE, K_bend);
+        Active_noslip_calc_acceleration(d_mdX , d_mdY, d_mdZ , d_Fx_holder , d_Fy_holder , d_Fz_holder , d_Fx_bending , d_Fy_bending , d_Fz_bending, d_Fx_stretching, d_Fy_stretching, d_Fz_stretching, d_mdAx , d_mdAy , d_mdAz ,d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_ex, d_ey, d_ez, ux, density, gama_T, d_L , Nmd , m_md ,topology , real_time, grid_size, 1,
+        N, d_random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale, K_FENE, K_bend, K_l);
     }
     
     gpuErrchk( cudaPeekAtLastError() );
