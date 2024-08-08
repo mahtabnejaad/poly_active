@@ -444,7 +444,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
                 f = 24 * (2 * sigma12* r14 - sigma6 * r8);
             }
         
-            //FENE:
+            /* //FENE:
             //This part of the code is responsible for calculating the interaction forces between particles based on the FENE (Finitely Extensible Nonlinear Elastic) potential. The FENE potential is often used to model polymer chains where bonds between particles cannot be stretched beyond a certain limit
         
             if (topology == 1)
@@ -492,7 +492,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
                 {
                     f -= K_FENE/(1 - r_sqr/2.25);
                 }
-            }
+            } */
             f/=mass; //After the interaction forces are calculated (f), they are divided by the mass of the particles to obtain the correct acceleration.
 
             fx[tid] = f * r[0] ;
@@ -596,7 +596,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 __global__ void Active_noslip_stretching_interaction( 
 double *mdX, double *mdY , double *mdZ ,
 double *fx , double *fy , double *fz, 
-double *fx_bend , double *fy_bend , double *fz_bend, 
+double *fx_stretch , double *fy_stretch , double *fz_stretch, 
 double *L,int size , double ux, double mass, double real_time, int m , int topology, double K_FENE, double K_l)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x ;
@@ -607,10 +607,37 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         int ID = tid%m;
         double Ri_1[3];
         double Ri[3]; 
+        double Ri2;
+        double Ri_12;
+        
+        
+        int TID1;
+        int TID_1;
+        
+        
+        loop = int(tid/m);
+        TID1 = loop*m + (tid+1)%m;
+        TID_1 = loop*m + (tid-1)%m ;
+
+        if(tid == 0){
+            TID_1 = TID_1 + m;
+        }
+        
 
         regular_distance(mdX[tid], mdY[tid], mdZ[tid] , mdX[TID1] , mdY[TID1] , mdZ[TID1] , Ri, L, ux, real_time);
 
         regular_distance(mdX[TID_1], mdY[TID_1], mdZ[TID_1] , mdX[tid] , mdY[tid] , mdZ[tid] , Ri_1, L, ux, real_time);
+
+        Ri2 = Ri[0] * Ri[0] + Ri[1] * Ri[1] + Ri[2] * Ri[2];
+        Ri_12 = Ri_1[0] * Ri_1[0] + Ri_1[1] * Ri_1[1] + Ri_1[2] * Ri_1[2];
+
+        fx_stretch[tid] = K_l * (Ri_1[0] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[0] * (Ri2 - sqrt(Ri2))/Ri2);
+        fy_stretch[tid] = K_l * (Ri_1[1] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[1] * (Ri2 - sqrt(Ri2))/Ri2);
+        fz_stretch[tid] = K_l * (Ri_1[2] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[2] * (Ri2 - sqrt(Ri2))/Ri2);
+
+        fx[tid] = fx[tid] + fx_stretch[tid];
+        fy[tid] = fy[tid] + fy_stretch[tid];
+        fz[tid] = fz[tid] + fz_stretch[tid];
 
 
     }
