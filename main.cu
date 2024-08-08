@@ -239,7 +239,10 @@ int main(int argc, const char* argv[])
     cudaMalloc((void**)&md_Fx_holder, sizeof(double) * Nmd *(Nmd ));    cudaMalloc((void**)&md_Fy_holder, sizeof(double) * Nmd *(Nmd ));    cudaMalloc((void**)&md_Fz_holder, sizeof(double) * Nmd *(Nmd));
     
     double *md_Fx_bending , *md_Fy_bending , *md_Fz_bending;
-    cudaMalloc((void**)&md_Fx_bending, sizeof(double) * Nmd *(Nmd ));    cudaMalloc((void**)&md_Fy_bending, sizeof(double) * Nmd *(Nmd ));    cudaMalloc((void**)&md_Fz_bending, sizeof(double) * Nmd *(Nmd));
+    cudaMalloc((void**)&md_Fx_bending, sizeof(double) * Nmd );    cudaMalloc((void**)&md_Fy_bending, sizeof(double) * Nmd );    cudaMalloc((void**)&md_Fz_bending, sizeof(double) * Nmd );
+    
+    double *md_Fx_stretching , *md_Fy_stretching , *md_Fz_stretching;
+    cudaMalloc((void**)&md_Fx_stretching, sizeof(double) * Nmd );    cudaMalloc((void**)&md_Fy_stretching, sizeof(double) * Nmd );    cudaMalloc((void**)&md_Fz_stretching, sizeof(double) * Nmd );
     
 
     //Allocate device memory for active and backward forces exerted on each MD particle:
@@ -983,7 +986,7 @@ int main(int argc, const char* argv[])
                     CMsumblock_mdx, CMsumblock_mdy, CMsumblock_mdz, CMsumblock_x, CMsumblock_y, CMsumblock_z,
                     CMsumblock_mdVx, CMsumblock_mdVy, CMsumblock_mdVz, CMsumblock_Vx, CMsumblock_Vy, CMsumblock_Vz, CMsumblock_n_outbox_md, CMsumblock_n_outbox_mpcd, d_n_outbox_md, d_n_outbox_mpcd,
                     h_Xcm, h_Ycm, h_Zcm, h_Vxcm, h_Vycm, h_Vzcm, h_Xcm_out, h_Ycm_out, h_Zcm_out, h_Vxcm_out, h_Vycm_out, h_Vzcm_out, 
-                    md_Fx_holder, md_Fy_holder, md_Fz_holder, md_Fx_bending, md_Fy_bending, md_Fz_bending, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, 
+                    md_Fx_holder, md_Fy_holder, md_Fz_holder, md_Fx_bending, md_Fy_bending, md_Fz_bending, md_Fx_stretching, md_Fy_stretching, md_Fz_stretching, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, 
                     d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, d_ex, d_ey, d_ez,
                     h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, 
                     h_md, Nmd, m_md, N, density, 1, d_L, ux, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, delta, real_time, 
