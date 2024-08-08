@@ -962,7 +962,7 @@ __host__ void xyz_veltraj_both(std::string basename, double *d_xx, double *d_yy,
     double *scale__factor;
     cudaMalloc((void**)&scale__factor, sizeof(double));
     cudaMemcpy(scale__factor, scalefactor, sizeof(double) , cudaMemcpyHostToDevice);
-    startend_points<<<grid_size, blockSize>>>(d_xx, d_yy, d_zz, d_vxx, d_vyy, d_vzz, endp_x, endp_y, endp_z, NN, scale__factor);
+    //startend_points<<<grid_size, blockSize>>>(d_xx, d_yy, d_zz, d_vxx, d_vyy, d_vzz, endp_x, endp_y, endp_z, NN, scale__factor);
     //xyz_trjvel(basename + "_startend.xyz", d_xx, d_yy , d_zz,endp_x ,endp_y , endp_z, NN);
     //xyz_trj(basename + "_start.xyz", d_xx, d_yy , d_zz, NN);
     //xyz_trj(basename + "_end.xyz", endp_x, endp_y , endp_z, NN);
