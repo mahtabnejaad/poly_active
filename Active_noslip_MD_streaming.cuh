@@ -647,10 +647,10 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 //Active_noslip_calc_acceleration
 
 __host__ void Active_noslip_calc_acceleration( double *x ,double *y , double *z , 
-double *Fx , double *Fy , double *Fz, double *Fx_bend, double *Fy_bend, double *Fz_bend, 
+double *Fx , double *Fy , double *Fz, double *Fx_bend, double *Fy_bend, double *Fz_bend, double *Fx_stretch, double *Fy_stretch, double *Fz_stretch,
 double *Ax , double *Ay , double *Az,double *fa_kx, double *fa_ky, double *fa_kz, double *fb_kx, double *fb_ky, double *fb_kz,
 double *Aa_kx, double *Aa_ky, double *Aa_kz,double *Ab_kx, double *Ab_ky, double *Ab_kz, double *ex, double *ey, double *ez, double ux, double mass, double *gama_T, 
-double *L, int size, int m, int topology, double real_time, int grid_size, double mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale, double K_FENE, double K_bend)
+double *L, int size, int m, int topology, double real_time, int grid_size, double mass_fluid, int N, int *random_array, unsigned int seed, double *Ax_tot, double *Ay_tot, double *Az_tot, double *Ax_tot_lab, double *Ay_tot_lab, double *Az_tot_lab, double *fa_x, double *fa_y, double *fa_z,double *fb_x, double *fb_y, double *fb_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *block_sum_ex, double *block_sum_ey, double *block_sum_ez, int *flag_array, double u_scale, double K_FENE, double K_bend, double K_l)
 
 {
   
@@ -662,6 +662,11 @@ double *L, int size, int m, int topology, double real_time, int grid_size, doubl
     Active_noslip_bending_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz, Fx_bend, Fy_bend, Fz_bend, L , size , ux, mass, real_time , m , topology, K_FENE, K_bend);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
+
+    Active_noslip_stretching_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz, Fx_stretch, Fy_stretch, Fz_stretch, L , size , ux, mass, real_time , m , topology, K_FENE, K_l);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
 
     
 
