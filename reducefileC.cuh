@@ -958,7 +958,7 @@ __host__ void reducevel(std::string basename, double *d_vx,double *d_vy, double 
  
 __host__ void xyz_veltraj_both(std::string basename, double *d_xx, double *d_yy, double *d_zz, double *d_vxx, double *d_vyy, double *d_vzz, int NN, double *endp_x, double *endp_y, double *endp_z, double *scalefactor, int grid_size){
 
-    xyz_trjvel(basename + "_mpcdtrajvel_both.xyz", d_xx, d_yy , d_zz,d_vxx, d_vyy, d_vzz, NN);
+    //xyz_trjvel(basename + "_mpcdtrajvel_both.xyz", d_xx, d_yy , d_zz,d_vxx, d_vyy, d_vzz, NN);
     double *scale__factor;
     cudaMalloc((void**)&scale__factor, sizeof(double));
     cudaMemcpy(scale__factor, scalefactor, sizeof(double) , cudaMemcpyHostToDevice);
