@@ -82,7 +82,8 @@ int main(int argc, const char* argv[])
     //*gama_T = 49.19; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.1
     *gama_T = 245; // 3*pi*eta*Dh where eta is viscosity and Dh is particle diameter. this is for h_mpcd=0.05
     
-    double K_FENE = 30; // 2250*(10+2*Pe);(?)
+    //double K_FENE = 30; //(used this most of the time)
+    double K_FENE = 2250*(10+2*Pe);
     
 
     double *temperature;
