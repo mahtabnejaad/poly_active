@@ -631,9 +631,9 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         Ri2 = Ri[0] * Ri[0] + Ri[1] * Ri[1] + Ri[2] * Ri[2];
         Ri_12 = Ri_1[0] * Ri_1[0] + Ri_1[1] * Ri_1[1] + Ri_1[2] * Ri_1[2];
 
-        fx_stretch[tid] = K_l * (Ri_1[0] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[0] * (Ri2 - sqrt(Ri2))/Ri2);
-        fy_stretch[tid] = K_l * (Ri_1[1] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[1] * (Ri2 - sqrt(Ri2))/Ri2);
-        fz_stretch[tid] = K_l * (Ri_1[2] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[2] * (Ri2 - sqrt(Ri2))/Ri2);
+        fx_stretch[tid] = -K_l * (Ri_1[0] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[0] * (Ri2 - sqrt(Ri2))/Ri2);
+        fy_stretch[tid] = -K_l * (Ri_1[1] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[1] * (Ri2 - sqrt(Ri2))/Ri2);
+        fz_stretch[tid] = -K_l * (Ri_1[2] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[2] * (Ri2 - sqrt(Ri2))/Ri2);
 
         fx[tid] = fx[tid] + fx_stretch[tid];
         fy[tid] = fy[tid] + fy_stretch[tid];
