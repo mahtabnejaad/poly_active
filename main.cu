@@ -906,7 +906,7 @@ int main(int argc, const char* argv[])
         d_x , d_y , d_z , d_vx , d_vy , d_vz, d_fa_kx,d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, d_ex, d_ey,d_ez, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, gen , grid_size, real_time, gama_T, d_random_array, d_seed, d_flag_array, u_scale, K_FENE, K_bend);
         else Active_restarting_simulation(basename , inputfile , simuationtime , swapsize ,d_L, d_mdX , d_mdY , d_mdZ,
         d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , md_Fx_holder, md_Fy_holder,md_Fz_holder, md_Fx_bending, md_Fy_bending, md_Fz_bending,
-        d_x , d_y , d_z , d_vx , d_vy , d_vz, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, d_ex, d_ey, d_ez, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, ux , N , Nmd , TIME , grid_size, real_time, gama_T, d_random_array, d_seed, d_flag_array, u_scale, K_FENE, K_bend);
+        d_x , d_y , d_z , d_vx , d_vy , d_vz, d_fa_kx, d_fa_ky, d_fa_kz, d_fb_kx, d_fb_ky, d_fb_kz, d_Aa_kx, d_Aa_ky, d_Aa_kz, d_Ab_kx, d_Ab_ky, d_Ab_kz, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, d_ex, d_ey, d_ez, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, ux , N , Nmd , TIME , grid_size, real_time, gama_T, d_random_array, d_seed, d_flag_array, u_scale, K_FENE, K_bend, K_l);
     
         
         //double real_time = TIME;
@@ -993,7 +993,7 @@ int main(int argc, const char* argv[])
                     gama_T, d_random_array, d_seed, topology, d_flag_array, u_scale, 
                     d_md_dt_min, d_md_dt_x, d_md_dt_y, d_md_dt_z, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdVx_o, d_mdVy_o, d_mdVz_o, 
                     d_md_dt_min_opp, d_md_dt_x_opp, d_md_dt_y_opp, d_md_dt_z_opp, d_mdX_o_opp, d_mdY_o_opp, d_mdZ_o_opp, d_mdVx_o_opp, d_mdVy_o_opp, d_mdVz_o_opp,
-                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag_md, &ErrorFlag_md_opp, n_out_flag_md, n_out_flag_md_opp, &d_zero_md, K_FENE, K_bend);
+                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag_md, &ErrorFlag_md_opp, n_out_flag_md, n_out_flag_md_opp, &d_zero_md, K_FENE, K_bend, K_l);
                 
                 if (ErrorFlag_md != 0){
                 // Handle error
