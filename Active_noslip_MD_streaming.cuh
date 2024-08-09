@@ -444,7 +444,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
                 f = 24 * (2 * sigma12* r14 - sigma6 * r8);
             }
         
-            /* //FENE:
+            //FENE:
             //This part of the code is responsible for calculating the interaction forces between particles based on the FENE (Finitely Extensible Nonlinear Elastic) potential. The FENE potential is often used to model polymer chains where bonds between particles cannot be stretched beyond a certain limit
         
             if (topology == 1)
@@ -492,7 +492,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
                 {
                     f -= K_FENE/(1 - r_sqr/2.25);
                 }
-            } */
+            } 
             f/=mass; //After the interaction forces are calculated (f), they are divided by the mass of the particles to obtain the correct acceleration.
 
             fx[tid] = f * r[0] ;
@@ -669,9 +669,9 @@ double *L, int size, int m, int topology, double real_time, int grid_size, doubl
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_noslip_stretching_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz, Fx_stretch, Fy_stretch, Fz_stretch, L , size , ux, mass, real_time , m , topology, K_FENE, K_l);
+    /*Active_noslip_stretching_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz, Fx_stretch, Fy_stretch, Fz_stretch, L , size , ux, mass, real_time , m , topology, K_FENE, K_l);
     gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
+    gpuErrchk( cudaDeviceSynchronize() );*/
 
 
     
