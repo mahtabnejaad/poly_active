@@ -609,6 +609,8 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         double Ri[3]; 
         double Ri2;
         double Ri_12;
+        double li;
+        double li_1;
         
         
         int TID1;
@@ -630,11 +632,13 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
         Ri2 = Ri[0] * Ri[0] + Ri[1] * Ri[1] + Ri[2] * Ri[2];
         Ri_12 = Ri_1[0] * Ri_1[0] + Ri_1[1] * Ri_1[1] + Ri_1[2] * Ri_1[2];
+        li = sqrt(abs(Ri2));
+        li_1 = sqrt(abs(Ri_12));
 
         if(Ri_12 != 0 && Ri2 != 0){
-            fx_stretch[tid] = -K_l * (Ri_1[0] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[0] * (Ri2 - sqrt(Ri2))/Ri2);
-            fy_stretch[tid] = -K_l * (Ri_1[1] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[1] * (Ri2 - sqrt(Ri2))/Ri2);
-            fz_stretch[tid] = -K_l * (Ri_1[2] * (Ri_12 - sqrt(Ri_12))/Ri_12 - Ri[2] * (Ri2 - sqrt(Ri2))/Ri2);
+            fx_stretch[tid] = -K_l * (Ri_1[0] * (Ri_12 - li_1)/Ri_12 - Ri[0] * (Ri2 - li)/Ri2);
+            fy_stretch[tid] = -K_l * (Ri_1[1] * (Ri_12 - li_1)/Ri_12 - Ri[1] * (Ri2 - li)/Ri2);
+            fz_stretch[tid] = -K_l * (Ri_1[2] * (Ri_12 - li_1)/Ri_12 - Ri[2] * (Ri2 - li)/Ri2);
         }
 
         fx[tid] = fx[tid] + fx_stretch[tid];
