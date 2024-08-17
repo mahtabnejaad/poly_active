@@ -52,7 +52,7 @@ random_flag=0
 BC=2
 
 # peclet number
-Pe=0.3
+Pe=5
 
 # K(FENE) adjusting with desired pL
 K_bend=10.5
