@@ -25,10 +25,10 @@ m=50
 s=0.0
 
 #md time step:
-hmd=0.00100
+hmd=0.00200
 
 #mpcd time step:
-hmpcd=0.005
+hmpcd=0.01
 
 # output intervall (swapsize)
 Tout=1
@@ -52,7 +52,7 @@ random_flag=0
 BC=2
 
 # peclet number
-Pe=300
+Pe=0.2
 
 # K(FENE) adjusting with desired pL
 K_bend=10.5
