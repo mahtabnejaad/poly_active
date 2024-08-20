@@ -573,14 +573,14 @@ __global__ void virtualMassiveParticle2(double *d_ux, double *d_uy, double *d_uz
 }
 
 //we should consider if we need mpcd virtual partilces or md virtual partilces or both.
-__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double mass , int density, double *m, int *d_n, int Nc){
+__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double mass , double density, int *d_n, int Nc){
 
         int tid = blockIdx.x * blockDim.x + threadIdx.x;
        
-       double m_tot_avg;
+       
         
         if (tid<Nc){
-            if (*N_avg-d_n[tid] > 0){
+            if ((*N_avg-d_n[tid]) > 0){
 
                 d_ux[tid] += (*N_avg-d_n[tid])*mass*a_x[tid];
                 d_uy[tid] += (*N_avg-d_n[tid])*mass*a_y[tid];
@@ -746,7 +746,7 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );*/
 
-            virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, 1, density, d_m, d_n, Nc);
+            virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, 1, density, d_n, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
