@@ -132,7 +132,7 @@ __global__ void RotationStep1(double *ux , double *uy ,double *uz,double *rot, d
 
 
 //define virtual_rotationstep1 because we want to divide dy <Mtot> or m<n_mpcd>+M<n_md> instead of m.
-__global__ void virtual_RotationStep1(double *ux , double *uy ,double *uz,double *rot, double *m, double *n_mpcd_avg, double *n_md_avg ,double *phi , double *theta, int Nc, double mass, double mass_fluid)
+__global__ void virtual_RotationStep1(double *ux , double *uy ,double *uz,double *rot, double *m,double *phi , double *theta, int Nc)
 //This kernel performs a rotation transformation on cell velocities and calculates rotation matrices for each cell.
 //ux, uy, uz: Arrays containing the cell velocities //rot: Array to store the rotation matrices for each cell.
 //m: Array containing the mass of particles in each cell. //phi, theta: Arrays containing rotation angles (phi, theta) for each cell.
@@ -149,11 +149,7 @@ __global__ void virtual_RotationStep1(double *ux , double *uy ,double *uz,double
                                        //It scales the value by 2 and subtracts 1, 
                                        //effectively mapping the value from the range [0, 1] to the range [-1, 1].
         phi[tid] = phi[tid]* M_PI*2;   // It scales the value by 2 * pi (where M_PI is the constant for pi) to map it from the range [0, 1] to the range [0, 2*pi].
-        if(m[tid] != 0.0){
-            ux[tid] = ux[tid]/(mass * *n_mpcd_avg + mass_fluid * *n_md_avg);
-            uy[tid] = uy[tid]/m[tid];
-            uz[tid] = uz[tid]/m[tid];
-        }
+        
 
         (isnan(ux[tid])|| isnan(uy[tid]) || isnan(uz[tid])) ? printf("RRux[%i]=%f, uy[%i]=%f, uz[%i]=%f \n", tid, ux[tid], tid, uy[tid], tid, uz[tid])
                                                          : printf("");
@@ -517,7 +513,7 @@ __global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_
 
 
 
-
+//we should consider if we need mpcd virtual partilces or md virtual partilces or both.
 __global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, double mass , int density, int *d_n, int *n_mpcd, int *n_md, double *n_mpcd_avg, double *n_md_avg, int Nc){
 
         int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -705,7 +701,7 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States, in
             //This launches the RotationStep1 kernel with the specified grid size and block size.
             // The kernel calculates the rotation matrices (d_rot) for each cell based on the angle values (d_phi, d_theta) and the mass (d_m) of particles in each cell.
             // The number of cells is given by Nc.
-            virtual_RotationStep1<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_rot, d_m, n_mpcd_avg, n_md_avg, d_phi, d_theta, Nc, 1, density);
+            virtual_RotationStep1<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_rot, d_m, d_phi, d_theta, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
