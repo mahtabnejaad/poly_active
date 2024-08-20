@@ -531,6 +531,20 @@ __global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz,
                 d_uy[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_y[tid] + (*n_md_avg-n_md[tid])*density*b_y[tid];
                 d_uz[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_z[tid] + (*n_md_avg-n_md[tid])*density*b_z[tid];
             }
+            else if (*n_mpcd_avg-n_mpcd[tid] > 0 && *n_md_avg-n_md[tid] <= 0){
+
+                d_ux[tid] += (*n_mpcd_avg-n_mpcd[tid])*mass*a_x[tid];
+                d_uy[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_y[tid];
+                d_uz[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_z[tid];
+
+            }
+            else if (*n_mpcd_avg-n_mpcd[tid] <= 0 && *n_md_avg-n_md[tid] > 0){
+
+                d_ux[tid] += (*n_md_avg-n_md[tid])*density*b_x[tid];
+                d_uy[tid] += (*n_md_avg-n_md[tid])*density*b_y[tid];
+                d_uz[tid] += (*n_md_avg-n_md[tid])*density*b_z[tid];
+            }
+
         }
 
 
@@ -678,7 +692,7 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States, in
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            reateNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_md_avg, density, n_md, variance, Nc, b_x, b_y, b_z, States);
+            createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_md_avg, density, n_md, variance, Nc, b_x, b_y, b_z, States);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
@@ -691,7 +705,7 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States, in
             //This launches the RotationStep1 kernel with the specified grid size and block size.
             // The kernel calculates the rotation matrices (d_rot) for each cell based on the angle values (d_phi, d_theta) and the mass (d_m) of particles in each cell.
             // The number of cells is given by Nc.
-            RotationStep1<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_rot, d_m, d_phi, d_theta, Nc);
+            virtual_RotationStep1<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_rot, d_m, n_mpcd_avg, n_md_avg, d_phi, d_theta, Nc, 1, density);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
