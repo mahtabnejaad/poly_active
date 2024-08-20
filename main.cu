@@ -548,7 +548,7 @@ int main(int argc, const char* argv[])
 
     if(Activity==0 && BC == 1){
         if (TIME ==0)start_simulation(basename, simuationtime , swapsize ,d_L, d_mdX , d_mdY , d_mdZ,
-        d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , md_Fx_holder, md_Fy_holder,md_Fz_holder, md_Fx_bending, md_Fy_bending, md_Fz_bending,
+        d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , md_Fx_holder, md_Fy_holder, md_Fz_holder, md_Fx_bending, md_Fy_bending, md_Fz_bending,
         d_x , d_y , d_z , d_vx , d_vy , d_vz, gen , grid_size, totalT, K_FENE, K_bend);
         else restarting_simulation(basename , inputfile , simuationtime , swapsize ,d_L, d_mdX , d_mdY , d_mdZ,
         d_mdVx , d_mdVy , d_mdVz , d_mdAx , d_mdAy , d_mdAz , md_Fx_holder, md_Fy_holder,md_Fz_holder, md_Fx_bending, md_Fy_bending, md_Fz_bending,
