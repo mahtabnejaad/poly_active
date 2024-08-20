@@ -583,7 +583,7 @@ double *d_e ,double *d_scalefactor, int *d_n , double *d_m,
 double *d_rot, double *d_theta, double *d_phi ,
 int N , int Nmd, int Nc,
 curandState *devStates, int grid_size, int *dn_tot, double *N_avg, int *sumblock_n, double *dm_tot, double *M_avg, double *sumblock_m,
-double *a_x, double *a_y, double *a_z, double *variance, curandState *States, int *n_mpcd, int *n_md, int *dn_mpcd_tot, double *n_mpcd_avg, int *sumblock_n_mpcd, int *dn_md_tot, int *n_md_avg, int *sumblock_n_md)
+double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, double *variance, curandState *States, int *n_mpcd, int *n_md, int *dn_mpcd_tot, double *n_mpcd_avg, int *sumblock_n_mpcd, int *dn_md_tot, int *n_md_avg, int *sumblock_n_md)
 {
 
             int shared_mem_size = 3 * blockSize * sizeof(double);

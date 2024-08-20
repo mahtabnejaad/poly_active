@@ -195,13 +195,26 @@ int main(int argc, const char* argv[])
     double *d_phi , *d_theta,*d_rot;
     cudaMalloc((void**)&d_phi, sizeof(double) * Nc);    cudaMalloc((void**)&d_theta , sizeof(double) *Nc);  cudaMalloc((void**)&d_rot, sizeof(double) * Nc *9);
 
+    
+    
+    
     int *dn_tot;
     cudaMalloc((void**)&dn_tot, sizeof(int));
+    int *n_mpcd_tot, *n_md_tot;
+    cudaMalloc((void**)&n_mpcd_tot, sizeof(int));
+    cudaMalloc((void**)&n_md_tot, sizeof(int));
     double *N_avg;
     cudaMalloc((void**)&N_avg, sizeof(double));
+    double *n_mpcd_avg, *n_md_avg;
+    cudaMalloc((void**)&n_mpcd_avg, sizeof(double));
+    cudaMalloc((void**)&n_md_avg, sizeof(double));
  
     int *sumblock_n;
     cudaMalloc((void**)&sumblock_n, sizeof(int) * grid_size);
+    int *sumblock_n_mpcd, *sumblock_n_md;
+    cudaMalloc((void**)&sumblock_n_mpcd, sizeof(int) * grid_size);
+    cudaMalloc((void**)&sumblock_n_md, sizeof(int) * grid_size);
+
 
     double *dm_tot;
     cudaMalloc((void**)&dm_tot, sizeof(double));
@@ -643,7 +656,7 @@ int main(int argc, const char* argv[])
                     d_mdVx , d_mdVy , d_mdVz , d_mdIndex,
                     d_ux , d_uy , d_uz , d_e , d_scalefactor , d_n , d_m ,
                     d_rot , d_theta , d_phi , N , Nmd ,Nc ,devStates , grid_size, dn_tot, N_avg, sumblock_n, dm_tot, M_avg, sumblock_m,
-                    a_x, a_y, a_z, d_variance, d_States);
+                    a_x, a_y, a_z, b_x, b_y, b_z, d_variance, d_States, n_mpcd, n_md, dn_mpcd_tot, n_mpcd_avg, sumblock_n_mpcd, dn_md_tot, n_md_avg, sumblock_n_md);
             
                 noslip_Sort_finish(d_x , d_y , d_z , d_vx, d_vy, d_vz, d_index , 
                     d_mdX , d_mdY, d_mdZ, d_mdVx, d_mdVy, d_mdVz, d_mdIndex, ux, 
@@ -1013,7 +1026,7 @@ int main(int argc, const char* argv[])
                     d_mdVx , d_mdVy , d_mdVz , d_mdIndex,
                     d_ux , d_uy , d_uz , d_e , d_scalefactor , d_n , d_m ,
                     d_rot , d_theta , d_phi , N , Nmd ,Nc ,devStates , grid_size, dn_tot, N_avg, sumblock_n, dm_tot, M_avg, sumblock_m,
-                    a_x, a_y, a_z, d_variance, d_States);
+                    a_x, a_y, a_z, b_x, b_y, b_z, d_variance, d_States, n_mpcd, n_md, dn_mpcd_tot, n_mpcd_avg, sumblock_n_mpcd, dn_md_tot, n_md_avg, sumblock_n_md);
             
                 /*noslip_Sort_finish(d_x , d_y , d_z , d_vx, d_vy, d_vz, d_index , 
                     d_mdX , d_mdY , d_mdZ, d_mdVx, d_mdVy, d_mdVz, d_mdIndex, ux, 
