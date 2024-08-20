@@ -130,6 +130,8 @@ __global__ void RotationStep1(double *ux , double *uy ,double *uz,double *rot, d
     }
 } //Output: The rot array will be updated with the calculated rotation matrices.
 
+
+//define virtual_rotationstep1 because we want to divide dy <Mtot> or m<n_mpcd>+M<n_md> instead of m.
 __global__ void virtual_RotationStep1(double *ux , double *uy ,double *uz,double *rot, double *m, double *n_mpcd_avg, double *n_md_avg ,double *phi , double *theta, int Nc, double mass, double mass_fluid)
 //This kernel performs a rotation transformation on cell velocities and calculates rotation matrices for each cell.
 //ux, uy, uz: Arrays containing the cell velocities //rot: Array to store the rotation matrices for each cell.
@@ -661,7 +663,7 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States, in
             gpuErrchk( cudaDeviceSynchronize() );
 
             ///////////////////////////////////virtual particle part:
-            unsigned long long seed = 1234; // Choose a seed
+            unsigned long long seed = time(0); // Choose a seed
             initializeCurandStates<<<grid_size, blockSize>>>(States, seed, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
