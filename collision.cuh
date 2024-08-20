@@ -442,7 +442,7 @@ __global__ void MeanNumCell(int *index, int *n, double *m, double mass, int N, i
         //These counters are used to keep track of the number of particles and the total mass within each cell.
         //if(index[tid]>307918)  printf(" index[%i]=%f an error\n", tid, index[tid]);
         atomicAdd(&n[idxx] , 1 );
-        atomicAdd(&n_p[idxx] , 1);
+        //atomicAdd(&n_p[idxx] , 1);
         atomicAdd(&m[idxx], mass);
     }
 }
@@ -644,57 +644,57 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );  
 
-            reduceKernel_int<<<grid_size,blockSize,shared_mem_size>>>(n_mpcd, sumblock_n_mpcd, Nc);
+            //reduceKernel_int<<<grid_size,blockSize,shared_mem_size>>>(n_mpcd, sumblock_n_mpcd, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );  
 
-            reduceKernel_int<<<grid_size,blockSize,shared_mem_size>>>(n_md, sumblock_n_md, Nc);
+            //reduceKernel_int<<<grid_size,blockSize,shared_mem_size>>>(n_md, sumblock_n_md, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );  
 
             int block_sum_dn[grid_size];
             double block_sum_dm[grid_size];  
 
-            int block_sum_n_mpcd[grid_size];
-            int block_sum_n_md[grid_size];  
+            //int block_sum_n_mpcd[grid_size];
+            //int block_sum_n_md[grid_size];  
 
             cudaMemcpy(block_sum_dn , sumblock_n, grid_size*sizeof(int), cudaMemcpyDeviceToHost);  
             cudaMemcpy(block_sum_dm , sumblock_m, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
 
-            cudaMemcpy(block_sum_n_mpcd , sumblock_n_mpcd, grid_size*sizeof(int), cudaMemcpyDeviceToHost);  
-            cudaMemcpy(block_sum_n_md , sumblock_n_md, grid_size*sizeof(int), cudaMemcpyDeviceToHost); 
+            //cudaMemcpy(block_sum_n_mpcd , sumblock_n_mpcd, grid_size*sizeof(int), cudaMemcpyDeviceToHost);  
+            //cudaMemcpy(block_sum_n_md , sumblock_n_md, grid_size*sizeof(int), cudaMemcpyDeviceToHost); 
 
             int *hn_tot = (int*)malloc(sizeof(int));
             double *hm_tot = (double*)malloc(sizeof(double));
             double *h_N_avg = (double*)malloc(sizeof(double));
             double *h_M_avg= (double*)malloc(sizeof(double));
-            int *hn_mpcd_tot = (int*)malloc(sizeof(int));
-            int *hn_md_tot = (int*)malloc(sizeof(int));
-            double *hn_mpcd_avg = (double*)malloc(sizeof(double));
-            double *hn_md_avg= (double*)malloc(sizeof(double));
+            //int *hn_mpcd_tot = (int*)malloc(sizeof(int));
+            //int *hn_md_tot = (int*)malloc(sizeof(int));
+            //double *hn_mpcd_avg = (double*)malloc(sizeof(double));
+            //double *hn_md_avg= (double*)malloc(sizeof(double));
 
             *hn_tot=0;
             *hm_tot = 0.0;
             *h_N_avg=0;
             *h_M_avg=0.0;
-            *hn_mpcd_tot = 0;
-            *hn_md_tot = 0;
-            *hn_mpcd_avg = 0.0;
-            *hn_md_avg = 0.0;
+            //*hn_mpcd_tot = 0;
+            //*hn_md_tot = 0;
+            //*hn_mpcd_avg = 0.0;
+            //*hn_md_avg = 0.0;
 
 
             for (int j = 0; j < grid_size; j++)
         {
             *hn_tot += block_sum_dn[j];
             *hm_tot += block_sum_dm[j];
-            *hn_mpcd_tot += block_sum_n_mpcd[j];
-            *hn_md_tot += block_sum_n_md[j];
+            //*hn_mpcd_tot += block_sum_n_mpcd[j];
+            //*hn_md_tot += block_sum_n_md[j];
             
         }
             *h_N_avg = *hn_tot / Nc ; //calculate the average number of particles in cells.
             *h_M_avg = *hm_tot / Nc ; //calculate the average number of particles in cells.
-            *hn_mpcd_avg = *hn_mpcd_tot / Nc;
-            *hn_md_avg = *hn_md_tot / Nc;
+            //*hn_mpcd_avg = *hn_mpcd_tot / Nc;
+            //*hn_md_avg = *hn_md_tot / Nc;
 
 
             cudaMemcpy(dn_tot , hn_tot, sizeof(int), cudaMemcpyHostToDevice);
@@ -702,10 +702,10 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             cudaMemcpy(N_avg , h_N_avg, sizeof(double), cudaMemcpyHostToDevice);
             cudaMemcpy(M_avg , h_M_avg, sizeof(double), cudaMemcpyHostToDevice);
 
-            cudaMemcpy(dn_mpcd_tot , hn_mpcd_tot, sizeof(int), cudaMemcpyHostToDevice);
-            cudaMemcpy(dn_md_tot , hn_md_tot, sizeof(int), cudaMemcpyHostToDevice);
-            cudaMemcpy(n_mpcd_avg , hn_mpcd_avg, sizeof(double), cudaMemcpyHostToDevice);
-            cudaMemcpy(n_md_avg , hn_md_avg, sizeof(double), cudaMemcpyHostToDevice);
+            //cudaMemcpy(dn_mpcd_tot , hn_mpcd_tot, sizeof(int), cudaMemcpyHostToDevice);
+            //cudaMemcpy(dn_md_tot , hn_md_tot, sizeof(int), cudaMemcpyHostToDevice);
+            //cudaMemcpy(n_mpcd_avg , hn_mpcd_avg, sizeof(double), cudaMemcpyHostToDevice);
+            //cudaMemcpy(n_md_avg , hn_md_avg, sizeof(double), cudaMemcpyHostToDevice);
 
             //This launches the MeanVelCell kernel with the specified grid size and block size.
             //The kernel adds the velocities of MPCD particles multipied by their mass within each cell based on their individual velocities (d_vx, d_vy, d_vz) to finally calculate (d_ux, d_uy, d_uz). 
@@ -728,17 +728,22 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_mpcd_avg, 1, n_mpcd, variance, Nc, a_x, a_y, a_z, States);
+            createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, N_avg, 1, d_n, variance, Nc, a_x, a_y, a_z, States);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            seed = time(0);
-
-            initializeCurandStates<<<grid_size, blockSize>>>(States, seed, Nc);
+            
+            //createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_mpcd_avg, 1, n_mpcd, variance, Nc, a_x, a_y, a_z, States);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_md_avg, density, n_md, variance, Nc, b_x, b_y, b_z, States);
+            //seed = time(0);
+
+            //initializeCurandStates<<<grid_size, blockSize>>>(States, seed, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            //createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_md_avg, density, n_md, variance, Nc, b_x, b_y, b_z, States);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
