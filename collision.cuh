@@ -529,7 +529,7 @@ __global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_
 
 
 //we should consider if we need mpcd virtual partilces or md virtual partilces or both.
-__global__ void virtualMassiveParticle2(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, double mass , int density, double *m, int *d_n, int *n_mpcd, int *n_md, double *n_mpcd_avg, double *n_md_avg, int Nc){
+__global__ void virtualMassiveParticle2(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, int mass , int density, double *m, int *d_n, int *n_mpcd, int *n_md, double *n_mpcd_avg, double *n_md_avg, int Nc){
 
         int tid = blockIdx.x * blockDim.x + threadIdx.x;
        
@@ -588,7 +588,7 @@ __global__ void virtualMassiveParticle2(double *d_ux, double *d_uy, double *d_uz
 }
 
 //we should consider if we need mpcd virtual partilces or md virtual partilces or both.
-__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double mass , double density, int *d_n, int Nc){
+__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, int mass , double density, int *d_n, int Nc){
 
         int tid = blockIdx.x * blockDim.x + threadIdx.x;
        
