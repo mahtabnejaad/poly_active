@@ -536,7 +536,8 @@ __global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz,
 
 
 
-
+//define n_mpcd and n_md to count for the number of mpcd and md particles in each cell and then calculate n_mpcd_avg and n_md_avg and then
+//involve virtual massive particle considering both md and mpcd particles and define two gaussian a and b vectors to calculate the mean velocity of each bin considering virtual particles
 __host__ void noslip_MPCD_MD_collision(double *d_vx ,double *d_vy ,double *d_vz , int *d_index,
 double *d_mdVx ,double *d_mdVy,double *d_mdVz , int *d_mdIndex,
 double  *d_ux ,double *d_uy ,double *d_uz ,
