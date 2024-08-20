@@ -432,7 +432,7 @@ __global__ void reduceKernel_double(double *input, double *output, int N) {
     }
 }
 
-__global__ void MeanNumCell(int *index, int *n, double *m, double mass, int N, int *n_p)
+__global__ void MeanNumCell(int *index, int *n, double *m, double mass, int N)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N)
@@ -619,11 +619,11 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
 
             //The particle count (d_n) and mass (d_m) arrays are updated for each cell (N is the total number of particles).
             //a kernel to calculate the mean number of mpcd particles in each cell
-            MeanNumCell<<<grid_size,blockSize>>>(d_index, d_n, d_m, 1, N, n_mpcd);
+            MeanNumCell<<<grid_size,blockSize>>>(d_index, d_n, d_m, 1, N);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            MeanNumCell<<<grid_size,blockSize>>>(d_mdIndex, d_n, d_m, density, Nmd, n_md);
+            MeanNumCell<<<grid_size,blockSize>>>(d_mdIndex, d_n, d_m, density, Nmd);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
