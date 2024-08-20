@@ -484,7 +484,7 @@ __device__ double boxMullerTransform(curandState *state) {
     return sqrt(abs(-2.0 * log(u1))) * cos(2.0 * M_PI * u2);
 }
 
-__global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_uz, double *N_avg, double mass, int *d_n, double *variance, int Nc, double *a_x, double *a_y, double *a_z, curandState *state) {
+__global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_uz, double *N_avg, int mass, int *d_n, double *variance, int Nc, double *a_x, double *a_y, double *a_z, curandState *state) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid < Nc) {
         double mean_x = d_ux[tid]; // Use the mean from d_ux[tid]
