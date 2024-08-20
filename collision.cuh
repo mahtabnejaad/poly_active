@@ -130,6 +130,55 @@ __global__ void RotationStep1(double *ux , double *uy ,double *uz,double *rot, d
     }
 } //Output: The rot array will be updated with the calculated rotation matrices.
 
+__global__ void virtual_RotationStep1(double *ux , double *uy ,double *uz,double *rot, double *m, double *n_mpcd_avg, double *n_md_avg ,double *phi , double *theta, int Nc, double mass, double mass_fluid)
+//This kernel performs a rotation transformation on cell velocities and calculates rotation matrices for each cell.
+//ux, uy, uz: Arrays containing the cell velocities //rot: Array to store the rotation matrices for each cell.
+//m: Array containing the mass of particles in each cell. //phi, theta: Arrays containing rotation angles (phi, theta) for each cell.
+//Nc: Number of cells.
+{
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    double alpha = 13.0 / 18.0 * M_PI;
+    double co = cos(alpha), si = sin(alpha);
+    if (tid<Nc)
+    {
+        //if(m[tid] == 0.0)  printf("m is zero and ux[%i]=%f, uy[%i]=%f, uz[%i]=%f\n", tid, ux[tid], tid, uy[tid], tid, uz[tid]);
+        theta[tid] = theta[tid]* 2 -1; //This line modifies the value of theta for the current particle or cell. 
+                                       //It scales the value by 2 and subtracts 1, 
+                                       //effectively mapping the value from the range [0, 1] to the range [-1, 1].
+        phi[tid] = phi[tid]* M_PI*2;   // It scales the value by 2 * pi (where M_PI is the constant for pi) to map it from the range [0, 1] to the range [0, 2*pi].
+        if(m[tid] != 0.0){
+            ux[tid] = ux[tid]/(mass * *n_mpcd_avg + mass_fluid * *n_md_avg);
+            uy[tid] = uy[tid]/m[tid];
+            uz[tid] = uz[tid]/m[tid];
+        }
+
+        (isnan(ux[tid])|| isnan(uy[tid]) || isnan(uz[tid])) ? printf("RRux[%i]=%f, uy[%i]=%f, uz[%i]=%f \n", tid, ux[tid], tid, uy[tid], tid, uz[tid])
+                                                         : printf("");
+
+        //The next three lines calculate three components (n1, n2, and n3) of a unit vector n based on theta and phi.
+        //This unit vector n will be used to construct the rotation matrix in the subsequent lines.
+        double n1 = std::sqrt(1 - theta[tid] * theta[tid]) * cos(phi[tid]);
+        double n2 = std::sqrt(1 - theta[tid] * theta[tid]) * sin(phi[tid]);
+        double n3 = theta[tid];
+        
+        //The following nine lines calculate the elements of the 3x3 rotation matrix rot for the current particle or cell using the unit vector n and the constants co and si. 
+        //The rotation matrix will be stored in the rot array at the appropriate index (tid*9 + i)
+        rot[tid*9+0] =n1 * n1 + (1 - n1 * n1) * co ;
+        rot[tid*9+1] =n1 * n2 * (1 - co) - n3 * si;
+        rot[tid*9+2] =n1 * n3 * (1 - co) + n2 * si;
+        rot[tid*9+3] =n1 * n2 * (1 - co) + n3 * si;
+        rot[tid*9+4] =n2 * n2 + (1 - n2 * n2) * co;
+        rot[tid*9+5] =n2 * n3 * (1 - co) - n1 * si;
+        rot[tid*9+6] =n1 * n3 * (1 - co) - n2 * si;
+        rot[tid*9+7] =n2 * n3 * (1 - co) + n1 * si;
+        rot[tid*9+8] =n3 * n3 + (1 - n3 * n3) * co;
+        
+    }
+} //Output: The rot array will be updated with the calculated rotation matrices.
+
+
+
 __global__ void RotationStep2(double *rvx , double *rvy, double *rvz , double *rot , int *index,int N)
 //This kernel applies the rotation matrices calculated in the previous step to the particle velocities
 //rvx, rvy, rvz: Arrays containing the relative velocities of particles (with respect to their cells).
@@ -385,7 +434,7 @@ __global__ void reduceKernel_double(double *input, double *output, int N) {
     }
 }
 
-__global__ void MeanNumCell(int *index, int *n, double *m, double mass, int N)
+__global__ void MeanNumCell(int *index, int *n, double *m, double mass, int N, int *n_p)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid<N)
@@ -395,6 +444,7 @@ __global__ void MeanNumCell(int *index, int *n, double *m, double mass, int N)
         //These counters are used to keep track of the number of particles and the total mass within each cell.
         //if(index[tid]>307918)  printf(" index[%i]=%f an error\n", tid, index[tid]);
         atomicAdd(&n[idxx] , 1 );
+        atomicAdd(&n_p[idxx] , 1);
         atomicAdd(&m[idxx], mass);
     }
 }
@@ -466,18 +516,18 @@ __global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_
 
 
 
-__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double mass , int density, int *d_n, int Nc){
+__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, double mass , int density, int *d_n, int *n_mpcd, int *n_md, double *n_mpcd_avg, double *n_md_avg, int Nc){
 
         int tid = blockIdx.x * blockDim.x + threadIdx.x;
        
        
         
         if (tid<Nc){
-            if (*N_avg-d_n[tid] > 0){
+            if (*n_mpcd_avg-n_mpcd[tid] > 0 && *n_md_avg-n_md[tid] > 0){
 
-                d_ux[tid] += (*N_avg-d_n[tid])*mass*a_x[tid];
-                d_uy[tid] += (*N_avg-d_n[tid])*mass*a_y[tid];
-                d_uz[tid] += (*N_avg-d_n[tid])*mass*a_z[tid];
+                d_ux[tid] += (*n_mpcd_avg-n_mpcd[tid])*mass*a_x[tid] + (*n_md_avg-n_md[tid])*density*b_x[tid];
+                d_uy[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_y[tid] + (*n_md_avg-n_md[tid])*density*b_y[tid];
+                d_uz[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_z[tid] + (*n_md_avg-n_md[tid])*density*b_z[tid];
             }
         }
 
@@ -494,7 +544,7 @@ double *d_e ,double *d_scalefactor, int *d_n , double *d_m,
 double *d_rot, double *d_theta, double *d_phi ,
 int N , int Nmd, int Nc,
 curandState *devStates, int grid_size, int *dn_tot, double *N_avg, int *sumblock_n, double *dm_tot, double *M_avg, double *sumblock_m,
-double *a_x, double *a_y, double *a_z, double *variance, curandState *States)
+double *a_x, double *a_y, double *a_z, double *variance, curandState *States, int *n_mpcd, int *n_md, int *dn_mpcd_tot, double *n_mpcd_avg, int *sumblock_n_mpcd, int *dn_md_tot, int *n_md_avg, int *sumblock_n_md)
 {
 
             int shared_mem_size = 3 * blockSize * sizeof(double);
@@ -506,11 +556,11 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States)
 
             //The particle count (d_n) and mass (d_m) arrays are updated for each cell (N is the total number of particles).
             //a kernel to calculate the mean number of mpcd particles in each cell
-            MeanNumCell<<<grid_size,blockSize>>>(d_index, d_n , d_m, 1 ,N);
+            MeanNumCell<<<grid_size,blockSize>>>(d_index, d_n, d_m, 1, N, n_mpcd);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            MeanNumCell<<<grid_size,blockSize>>>(d_mdIndex, d_n ,d_m , density ,Nmd);
+            MeanNumCell<<<grid_size,blockSize>>>(d_mdIndex, d_n, d_m, density, Nmd, n_md);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
@@ -531,39 +581,68 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States)
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );  
 
+            reduceKernel_int<<<grid_size,blockSize,shared_mem_size>>>(n_mpcd, sumblock_n_mpcd, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );  
+
+            reduceKernel_double<<<grid_size,blockSize,shared_mem_size>>>(n_md, sumblock_n_md, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );  
+
             double block_sum_dn[grid_size];
             double block_sum_dm[grid_size];  
 
+            double block_sum_n_mpcd[grid_size];
+            double block_sum_n_md[grid_size];  
+
             cudaMemcpy(block_sum_dn , sumblock_n, grid_size*sizeof(int), cudaMemcpyDeviceToHost);  
-            cudaMemcpy(block_sum_dm , sumblock_m, grid_size*sizeof(double), cudaMemcpyDeviceToHost); 
+            cudaMemcpy(block_sum_dm , sumblock_m, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
+
+            cudaMemcpy(block_sum_n_mpcd , sumblock_n_mpcd, grid_size*sizeof(int), cudaMemcpyDeviceToHost);  
+            cudaMemcpy(block_sum_n_md , sumblock_n_md, grid_size*sizeof(double), cudaMemcpyDeviceToHost); 
 
             int *hn_tot = (int*)malloc(sizeof(int));
             double *hm_tot = (double*)malloc(sizeof(double));
             double *h_N_avg = (double*)malloc(sizeof(double));
             double *h_M_avg= (double*)malloc(sizeof(double));
+            int *hn_mpcd_tot = (int*)malloc(sizeof(int));
+            int *hn_md_tot = (int*)malloc(sizeof(int));
+            double *hn_mpcd_avg = (double*)malloc(sizeof(double));
+            double *hn_md_avg= (double*)malloc(sizeof(double));
 
             *hn_tot=0;
             *hm_tot = 0.0;
             *h_N_avg=0;
             *h_M_avg=0.0;
-            
-
+            *hn_mpcd_tot = 0;
+            *hn_md_tot = 0;
+            *hn_mpcd_avg = 0.0;
+            *hn_md_avg = 0.0;
 
 
             for (int j = 0; j < grid_size; j++)
         {
             *hn_tot += block_sum_dn[j];
             *hm_tot += block_sum_dm[j];
+            *hn_mpcd_tot += block_sum_n_mpcd[j];
+            *hn_md_tot += block_sum_n_md[j];
             
         }
             *h_N_avg = *hn_tot / Nc ; //calculate the average number of particles in cells.
             *h_M_avg = *hm_tot / Nc ; //calculate the average number of particles in cells.
+            *hn_mpcd_avg = *n_mpcd_tot / Nc;
+            *hn_md_avg = *n_md_tot / Nc;
 
 
             cudaMemcpy(dn_tot , hn_tot, sizeof(int), cudaMemcpyHostToDevice);
             cudaMemcpy(dm_tot , hm_tot, sizeof(double), cudaMemcpyHostToDevice);
             cudaMemcpy(N_avg , h_N_avg, sizeof(double), cudaMemcpyHostToDevice);
             cudaMemcpy(M_avg , h_M_avg, sizeof(double), cudaMemcpyHostToDevice);
+
+            cudaMemcpy(dn_mpcd_tot , hn_mpcd_tot, sizeof(int), cudaMemcpyHostToDevice);
+            cudaMemcpy(dn_md_tot , hn_md_tot, sizeof(int), cudaMemcpyHostToDevice);
+            cudaMemcpy(n_mpcd_avg , hn_mpcd_avg, sizeof(double), cudaMemcpyHostToDevice);
+            cudaMemcpy(n_md_avg , hn_md_avg, sizeof(double), cudaMemcpyHostToDevice);
 
             //This launches the MeanVelCell kernel with the specified grid size and block size.
             //The kernel adds the velocities of MPCD particles multipied by their mass within each cell based on their individual velocities (d_vx, d_vy, d_vz) to finally calculate (d_ux, d_uy, d_uz). 
@@ -586,11 +665,15 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States)
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, N_avg, 1, d_n, variance, Nc, a_x, a_y, a_z, States);
+            createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_mpcd_avg, 1, n_mpcd, variance, Nc, a_x, a_y, a_z, States);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, 1, density, d_n, Nc);
+            reateNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_md_avg, density, n_md, variance, Nc, b_x, b_y, b_z, States);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, b_x, b_y, b_z, 1, density, d_n, n_mpcd, n_md, n_mpcd_avg, n_md_avg, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
