@@ -514,7 +514,7 @@ __global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_
 
 
 //we should consider if we need mpcd virtual partilces or md virtual partilces or both.
-__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, double mass , int density, double *m, int *d_n, int *n_mpcd, int *n_md, double *n_mpcd_avg, double *n_md_avg, int Nc){
+__global__ void virtualMassiveParticle2(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, double mass , int density, double *m, int *d_n, int *n_mpcd, int *n_md, double *n_mpcd_avg, double *n_md_avg, int Nc){
 
         int tid = blockIdx.x * blockDim.x + threadIdx.x;
        
@@ -566,6 +566,37 @@ __global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz,
                     d_uz[tid] = d_uz[tid]/m[tid];
 
             }
+
+        }
+
+
+}
+
+//we should consider if we need mpcd virtual partilces or md virtual partilces or both.
+__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double mass , int density, double *m, int *d_n, int Nc){
+
+        int tid = blockIdx.x * blockDim.x + threadIdx.x;
+       
+       double m_tot_avg;
+        
+        if (tid<Nc){
+            if (*N_avg-d_n[tid] > 0){
+
+                d_ux[tid] += (*N_avg-d_n[tid])*mass*a_x[tid];
+                d_uy[tid] += (*N_avg-d_n[tid])*mass*a_y[tid];
+                d_uz[tid] += (*N_avg-d_n[tid])*mass*a_z[tid];
+           
+            }
+
+            
+            if(m[tid] != 0){
+
+                d_ux[tid] = d_ux[tid]/m[tid];
+                d_uy[tid] = d_uy[tid]/m[tid];
+                d_uz[tid] = d_uz[tid]/m[tid];
+            }
+
+        
 
         }
 
@@ -628,17 +659,17 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );  
 
-            double block_sum_dn[grid_size];
+            int block_sum_dn[grid_size];
             double block_sum_dm[grid_size];  
 
-            double block_sum_n_mpcd[grid_size];
-            double block_sum_n_md[grid_size];  
+            int block_sum_n_mpcd[grid_size];
+            int block_sum_n_md[grid_size];  
 
             cudaMemcpy(block_sum_dn , sumblock_n, grid_size*sizeof(int), cudaMemcpyDeviceToHost);  
             cudaMemcpy(block_sum_dm , sumblock_m, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
 
             cudaMemcpy(block_sum_n_mpcd , sumblock_n_mpcd, grid_size*sizeof(int), cudaMemcpyDeviceToHost);  
-            cudaMemcpy(block_sum_n_md , sumblock_n_md, grid_size*sizeof(double), cudaMemcpyDeviceToHost); 
+            cudaMemcpy(block_sum_n_md , sumblock_n_md, grid_size*sizeof(int), cudaMemcpyDeviceToHost); 
 
             int *hn_tot = (int*)malloc(sizeof(int));
             double *hm_tot = (double*)malloc(sizeof(double));
@@ -718,9 +749,14 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, b_x, b_y, b_z, 1, density, d_m, d_n, n_mpcd, n_md, n_mpcd_avg, n_md_avg, Nc);
+            /*virtualMassiveParticle2<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, b_x, b_y, b_z, 1, density, d_m, d_n, n_mpcd, n_md, n_mpcd_avg, n_md_avg, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );*/
+
+            virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, 1, density, d_m, d_n, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
+
 
             //////////////////////////////////////////////////////////
 
