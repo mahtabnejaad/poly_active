@@ -132,7 +132,7 @@ __global__ void RotationStep1(double *ux , double *uy ,double *uz,double *rot, d
 
 
 //define virtual_rotationstep1 because we want to divide dy <Mtot> or m<n_mpcd>+M<n_md> instead of m.
-__global__ void virtual_RotationStep1(double *ux , double *uy ,double *uz,double *rot, double *m,double *phi , double *theta, int Nc)
+__global__ void virtual_RotationStep1(double *ux , double *uy ,double *uz,double *rot, double *m, double *phi , double *theta, int Nc)
 //This kernel performs a rotation transformation on cell velocities and calculates rotation matrices for each cell.
 //ux, uy, uz: Arrays containing the cell velocities //rot: Array to store the rotation matrices for each cell.
 //m: Array containing the mass of particles in each cell. //phi, theta: Arrays containing rotation angles (phi, theta) for each cell.
@@ -514,11 +514,11 @@ __global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_
 
 
 //we should consider if we need mpcd virtual partilces or md virtual partilces or both.
-__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, double mass , int density, int *d_n, int *n_mpcd, int *n_md, double *n_mpcd_avg, double *n_md_avg, int Nc){
+__global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz, double *M_avg, double *N_avg, double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, double mass , int density, double *m, int *d_n, int *n_mpcd, int *n_md, double *n_mpcd_avg, double *n_md_avg, int Nc){
 
         int tid = blockIdx.x * blockDim.x + threadIdx.x;
        
-       
+       double m_tot_avg;
         
         if (tid<Nc){
             if (*n_mpcd_avg-n_mpcd[tid] > 0 && *n_md_avg-n_md[tid] > 0){
@@ -526,12 +526,26 @@ __global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz,
                 d_ux[tid] += (*n_mpcd_avg-n_mpcd[tid])*mass*a_x[tid] + (*n_md_avg-n_md[tid])*density*b_x[tid];
                 d_uy[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_y[tid] + (*n_md_avg-n_md[tid])*density*b_y[tid];
                 d_uz[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_z[tid] + (*n_md_avg-n_md[tid])*density*b_z[tid];
+                m_tot_avg = mass * *n_mpcd_avg + mass_fluid * *n_md_avg;
+                if(m_tot_avg != 0){
+                    ux[tid] = ux[tid]/m_tot_avg;
+                    uy[tid] = uy[tid]/m_tot_avg;
+                    uz[tid] = uz[tid]/m_tot_avg;
+                }
             }
+
+            
             else if (*n_mpcd_avg-n_mpcd[tid] > 0 && *n_md_avg-n_md[tid] <= 0){
 
                 d_ux[tid] += (*n_mpcd_avg-n_mpcd[tid])*mass*a_x[tid];
                 d_uy[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_y[tid];
                 d_uz[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_z[tid];
+                m_tot_avg = mass * *n_mpcd_avg + mass_fluid * n_md[tid];
+                if(m_tot_avg != 0){
+                    ux[tid] = ux[tid]/m_tot_avg;
+                    uy[tid] = uy[tid]/m_tot_avg;
+                    uz[tid] = uz[tid]/m_tot_avg;
+                }
 
             }
             else if (*n_mpcd_avg-n_mpcd[tid] <= 0 && *n_md_avg-n_md[tid] > 0){
@@ -539,6 +553,18 @@ __global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz,
                 d_ux[tid] += (*n_md_avg-n_md[tid])*density*b_x[tid];
                 d_uy[tid] += (*n_md_avg-n_md[tid])*density*b_y[tid];
                 d_uz[tid] += (*n_md_avg-n_md[tid])*density*b_z[tid];
+                m_tot_avg = mass * n_mpcd[tid] + mass_fluid * *n_md_avg;
+                if(m_tot_avg != 0){
+                    ux[tid] = ux[tid]/m_tot_avg;
+                    uy[tid] = uy[tid]/m_tot_avg;
+                    uz[tid] = uz[tid]/m_tot_avg;
+                }
+            }
+            else{
+                    ux[tid] = ux[tid]/m[tid];
+                    uy[tid] = uy[tid]/m[tid];
+                    uz[tid] = uz[tid]/m[tid];
+
             }
 
         }
