@@ -1189,8 +1189,8 @@ int main(int argc, const char* argv[])
         cudaFree(dn_tot); cudaFree(N_avg); cudaFree(sumblock_n);
         cudaFree(dm_tot); cudaFree(M_avg); cudaFree(sumblock_m);
 
-        cudaFree(n_mpcd_tot); cudaFree(n_mpcd_avg); cudaFree(sumblock_n_mpcd);
-        cudaFree(n_md_tot); cudaFree(n_md_avg); cudaFree(sumblock_n_md);
+        cudaFree(dn_mpcd_tot); cudaFree(n_mpcd_avg); cudaFree(sumblock_n_mpcd);
+        cudaFree(dn_md_tot); cudaFree(n_md_avg); cudaFree(sumblock_n_md);
 
         cudaFree(a_x); cudaFree(a_y); cudaFree(a_z);
         cudaFree(b_x); cudaFree(b_y); cudaFree(b_z);
