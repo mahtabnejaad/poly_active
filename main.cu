@@ -187,10 +187,12 @@ int main(int argc, const char* argv[])
     
     // Allocate device memory for cells:
     double *d_ux , *d_uy , *d_uz;
-    int  *d_n;
+    int *d_n;
     double *d_m;
     cudaMalloc((void**)&d_ux, sizeof(double) * Nc); cudaMalloc((void**)&d_uy, sizeof(double) * Nc); cudaMalloc((void**)&d_uz, sizeof(double) * Nc);
     cudaMalloc((void**)&d_n, sizeof(int) * Nc);     cudaMalloc((void**)&d_m, sizeof(double) * Nc);
+
+    int *dn_mpcd, *dn_md;
     //Allocate device memory for rotating angles and matrix:
     double *d_phi , *d_theta,*d_rot;
     cudaMalloc((void**)&d_phi, sizeof(double) * Nc);    cudaMalloc((void**)&d_theta , sizeof(double) *Nc);  cudaMalloc((void**)&d_rot, sizeof(double) * Nc *9);
@@ -200,9 +202,9 @@ int main(int argc, const char* argv[])
     
     int *dn_tot;
     cudaMalloc((void**)&dn_tot, sizeof(int));
-    int *n_mpcd_tot, *n_md_tot;
-    cudaMalloc((void**)&n_mpcd_tot, sizeof(int));
-    cudaMalloc((void**)&n_md_tot, sizeof(int));
+    int *dn_mpcd_tot, *dn_md_tot;
+    cudaMalloc((void**)&dn_mpcd_tot, sizeof(int));
+    cudaMalloc((void**)&dn_md_tot, sizeof(int));
     double *N_avg;
     cudaMalloc((void**)&N_avg, sizeof(double));
     double *n_mpcd_avg, *n_md_avg;
