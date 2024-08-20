@@ -624,7 +624,7 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );  
 
-            reduceKernel_double<<<grid_size,blockSize,shared_mem_size>>>(n_md, sumblock_n_md, Nc);
+            reduceKernel_int<<<grid_size,blockSize,shared_mem_size>>>(n_md, sumblock_n_md, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );  
 
