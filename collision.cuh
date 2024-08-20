@@ -524,8 +524,8 @@ __global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz,
             if (*n_mpcd_avg-n_mpcd[tid] > 0 && *n_md_avg-n_md[tid] > 0){
 
                 d_ux[tid] += (*n_mpcd_avg-n_mpcd[tid])*mass*a_x[tid] + (*n_md_avg-n_md[tid])*density*b_x[tid];
-                d_uy[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_y[tid] + (*n_md_avg-n_md[tid])*density*b_y[tid];
-                d_uz[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_z[tid] + (*n_md_avg-n_md[tid])*density*b_z[tid];
+                d_uy[tid] += (*n_mpcd_avg-n_mpcd[tid])*mass*a_y[tid] + (*n_md_avg-n_md[tid])*density*b_y[tid];
+                d_uz[tid] += (*n_mpcd_avg-n_mpcd[tid])*mass*a_z[tid] + (*n_md_avg-n_md[tid])*density*b_z[tid];
                 m_tot_avg = mass * *n_mpcd_avg + mass_fluid * *n_md_avg;
                 if(m_tot_avg != 0){
                     d_ux[tid] = d_ux[tid]/m_tot_avg;
@@ -538,8 +538,8 @@ __global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz,
             else if (*n_mpcd_avg-n_mpcd[tid] > 0 && *n_md_avg-n_md[tid] <= 0){
 
                 d_ux[tid] += (*n_mpcd_avg-n_mpcd[tid])*mass*a_x[tid];
-                d_uy[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_y[tid];
-                d_uz[tid] += (*N_mpcd_avg-n_mpcd[tid])*mass*a_z[tid];
+                d_uy[tid] += (*n_mpcd_avg-n_mpcd[tid])*mass*a_y[tid];
+                d_uz[tid] += (*n_mpcd_avg-n_mpcd[tid])*mass*a_z[tid];
                 m_tot_avg = mass * *n_mpcd_avg + mass_fluid * n_md[tid];
                 if(m_tot_avg != 0){
                     d_ux[tid] = d_ux[tid]/m_tot_avg;
