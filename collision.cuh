@@ -588,13 +588,6 @@ __global__ void virtualMassiveParticle(double *d_ux, double *d_uy, double *d_uz,
            
             }
 
-            
-            if(m[tid] != 0){
-
-                d_ux[tid] = d_ux[tid]/m[tid];
-                d_uy[tid] = d_uy[tid]/m[tid];
-                d_uz[tid] = d_uz[tid]/m[tid];
-            }
 
         
 
@@ -763,7 +756,13 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             //This launches the RotationStep1 kernel with the specified grid size and block size.
             // The kernel calculates the rotation matrices (d_rot) for each cell based on the angle values (d_phi, d_theta) and the mass (d_m) of particles in each cell.
             // The number of cells is given by Nc.
-            virtual_RotationStep1<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_rot, d_m, d_phi, d_theta, Nc);
+
+            /*virtual_RotationStep1<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_rot, d_m, d_phi, d_theta, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );*/
+
+
+            RotationStep1<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_rot, d_m, d_phi, d_theta, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
