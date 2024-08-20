@@ -487,9 +487,9 @@ __device__ double boxMullerTransform(curandState *state) {
 __global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_uz, double *N_avg, double mass, int *d_n, double *variance, int Nc, double *a_x, double *a_y, double *a_z, curandState *state) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid < Nc) {
-        double mean_x = 0.0; //d_ux[tid]; // Use the mean from d_ux[tid]
-        double mean_y = 0.0; //d_uy[tid];
-        double mean_z = 0.0; //d_uz[tid];
+        double mean_x = d_ux[tid]; // Use the mean from d_ux[tid]
+        double mean_y = d_uy[tid];
+        double mean_z = d_uz[tid];
         variance[tid] = abs((*N_avg - d_n[tid])/mass);//*(kT = 1)
         double std_dev = sqrt(variance[tid]); // Calculate standard deviation from variance
         curandState localState = state[tid];
@@ -723,7 +723,7 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             gpuErrchk( cudaDeviceSynchronize() );
 
             ///////////////////////////////////virtual particle part:
-            unsigned long long seed = time(0); // Choose a seed
+            unsigned long long seed = 1234; //time(0); // Choose a seed
             initializeCurandStates<<<grid_size, blockSize>>>(States, seed, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
