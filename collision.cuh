@@ -795,7 +795,7 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 }
-
+//
 
 
 
