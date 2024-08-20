@@ -669,8 +669,8 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
         }
             *h_N_avg = *hn_tot / Nc ; //calculate the average number of particles in cells.
             *h_M_avg = *hm_tot / Nc ; //calculate the average number of particles in cells.
-            *hn_mpcd_avg = *n_mpcd_tot / Nc;
-            *hn_md_avg = *n_md_tot / Nc;
+            *hn_mpcd_avg = *dn_mpcd_tot / Nc;
+            *hn_md_avg = *dn_md_tot / Nc;
 
 
             cudaMemcpy(dn_tot , hn_tot, sizeof(int), cudaMemcpyHostToDevice);
