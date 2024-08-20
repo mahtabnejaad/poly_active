@@ -672,6 +672,12 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States, in
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
+            seed = time(0);
+
+            initializeCurandStates<<<grid_size, blockSize>>>(States, seed, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
             reateNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_md_avg, density, n_md, variance, Nc, b_x, b_y, b_z, States);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
