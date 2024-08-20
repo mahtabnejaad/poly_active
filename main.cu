@@ -232,6 +232,9 @@ int main(int argc, const char* argv[])
     //virtual particles attributes:
     double *a_x, *a_y, *a_z;
     cudaMalloc((void**)&a_x, sizeof(double) * Nc); cudaMalloc((void**)&a_y, sizeof(double) * Nc); cudaMalloc((void**)&a_z, sizeof(double) * Nc);
+    double *b_x, *b_y, *b_z;
+    cudaMalloc((void**)&b_x, sizeof(double) * Nc); cudaMalloc((void**)&b_y, sizeof(double) * Nc); cudaMalloc((void**)&b_z, sizeof(double) * Nc);
+
 
     double* d_variance;
     cudaMalloc((void**)&d_variance,  sizeof(double) * Nc);
