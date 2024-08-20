@@ -442,7 +442,22 @@ __global__ void MeanNumCell(int *index, int *n, double *m, double mass, int N)
         //These counters are used to keep track of the number of particles and the total mass within each cell.
         //if(index[tid]>307918)  printf(" index[%i]=%f an error\n", tid, index[tid]);
         atomicAdd(&n[idxx] , 1 );
-        //atomicAdd(&n_p[idxx] , 1);
+        
+        atomicAdd(&m[idxx], mass);
+    }
+}
+
+__global__ void MeanNumCell_virtual(int *index, int *n, double *m, double mass, int N, int *n_p)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid<N)
+    {
+        const unsigned int idxx = index[tid];//Retrieves the index idxx of the cell to which the particle belongs.
+        //Atomically increments the counters n[idxx] and m[idxx] by 1 and mass, respectively. 
+        //These counters are used to keep track of the number of particles and the total mass within each cell.
+        //if(index[tid]>307918)  printf(" index[%i]=%f an error\n", tid, index[tid]);
+        atomicAdd(&n[idxx] , 1 );
+        atomicAdd(&n_p[idxx] , 1);
         atomicAdd(&m[idxx], mass);
     }
 }
@@ -644,69 +659,43 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );  
 
-            //reduceKernel_int<<<grid_size,blockSize,shared_mem_size>>>(n_mpcd, sumblock_n_mpcd, Nc);
-            gpuErrchk( cudaPeekAtLastError() );
-            gpuErrchk( cudaDeviceSynchronize() );  
-
-            //reduceKernel_int<<<grid_size,blockSize,shared_mem_size>>>(n_md, sumblock_n_md, Nc);
-            gpuErrchk( cudaPeekAtLastError() );
-            gpuErrchk( cudaDeviceSynchronize() );  
+         
 
             int block_sum_dn[grid_size];
             double block_sum_dm[grid_size];  
 
-            //int block_sum_n_mpcd[grid_size];
-            //int block_sum_n_md[grid_size];  
-
+           
             cudaMemcpy(block_sum_dn , sumblock_n, grid_size*sizeof(int), cudaMemcpyDeviceToHost);  
             cudaMemcpy(block_sum_dm , sumblock_m, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
 
-            //cudaMemcpy(block_sum_n_mpcd , sumblock_n_mpcd, grid_size*sizeof(int), cudaMemcpyDeviceToHost);  
-            //cudaMemcpy(block_sum_n_md , sumblock_n_md, grid_size*sizeof(int), cudaMemcpyDeviceToHost); 
-
+           
             int *hn_tot = (int*)malloc(sizeof(int));
             double *hm_tot = (double*)malloc(sizeof(double));
             double *h_N_avg = (double*)malloc(sizeof(double));
             double *h_M_avg= (double*)malloc(sizeof(double));
-            //int *hn_mpcd_tot = (int*)malloc(sizeof(int));
-            //int *hn_md_tot = (int*)malloc(sizeof(int));
-            //double *hn_mpcd_avg = (double*)malloc(sizeof(double));
-            //double *hn_md_avg= (double*)malloc(sizeof(double));
-
+            
             *hn_tot=0;
             *hm_tot = 0.0;
             *h_N_avg=0;
             *h_M_avg=0.0;
-            //*hn_mpcd_tot = 0;
-            //*hn_md_tot = 0;
-            //*hn_mpcd_avg = 0.0;
-            //*hn_md_avg = 0.0;
-
+            
 
             for (int j = 0; j < grid_size; j++)
         {
             *hn_tot += block_sum_dn[j];
             *hm_tot += block_sum_dm[j];
-            //*hn_mpcd_tot += block_sum_n_mpcd[j];
-            //*hn_md_tot += block_sum_n_md[j];
             
         }
             *h_N_avg = *hn_tot / Nc ; //calculate the average number of particles in cells.
             *h_M_avg = *hm_tot / Nc ; //calculate the average number of particles in cells.
-            //*hn_mpcd_avg = *hn_mpcd_tot / Nc;
-            //*hn_md_avg = *hn_md_tot / Nc;
-
+           
 
             cudaMemcpy(dn_tot , hn_tot, sizeof(int), cudaMemcpyHostToDevice);
             cudaMemcpy(dm_tot , hm_tot, sizeof(double), cudaMemcpyHostToDevice);
             cudaMemcpy(N_avg , h_N_avg, sizeof(double), cudaMemcpyHostToDevice);
             cudaMemcpy(M_avg , h_M_avg, sizeof(double), cudaMemcpyHostToDevice);
 
-            //cudaMemcpy(dn_mpcd_tot , hn_mpcd_tot, sizeof(int), cudaMemcpyHostToDevice);
-            //cudaMemcpy(dn_md_tot , hn_md_tot, sizeof(int), cudaMemcpyHostToDevice);
-            //cudaMemcpy(n_mpcd_avg , hn_mpcd_avg, sizeof(double), cudaMemcpyHostToDevice);
-            //cudaMemcpy(n_md_avg , hn_md_avg, sizeof(double), cudaMemcpyHostToDevice);
-
+            
             //This launches the MeanVelCell kernel with the specified grid size and block size.
             //The kernel adds the velocities of MPCD particles multipied by their mass within each cell based on their individual velocities (d_vx, d_vy, d_vz) to finally calculate (d_ux, d_uy, d_uz). 
             //The d_index array maps each particle to its corresponding cell. 
@@ -733,24 +722,7 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             gpuErrchk( cudaDeviceSynchronize() );
 
             
-            //createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_mpcd_avg, 1, n_mpcd, variance, Nc, a_x, a_y, a_z, States);
-            gpuErrchk( cudaPeekAtLastError() );
-            gpuErrchk( cudaDeviceSynchronize() );
-
-            //seed = time(0);
-
-            //initializeCurandStates<<<grid_size, blockSize>>>(States, seed, Nc);
-            gpuErrchk( cudaPeekAtLastError() );
-            gpuErrchk( cudaDeviceSynchronize() );
-
-            //createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_md_avg, density, n_md, variance, Nc, b_x, b_y, b_z, States);
-            gpuErrchk( cudaPeekAtLastError() );
-            gpuErrchk( cudaDeviceSynchronize() );
-
-            /*virtualMassiveParticle2<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, b_x, b_y, b_z, 1, density, d_m, d_n, n_mpcd, n_md, n_mpcd_avg, n_md_avg, Nc);
-            gpuErrchk( cudaPeekAtLastError() );
-            gpuErrchk( cudaDeviceSynchronize() );*/
-
+           
             virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, 1, density, d_n, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
@@ -762,14 +734,234 @@ double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, do
             // The kernel calculates the rotation matrices (d_rot) for each cell based on the angle values (d_phi, d_theta) and the mass (d_m) of particles in each cell.
             // The number of cells is given by Nc.
 
-            /*virtual_RotationStep1<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_rot, d_m, d_phi, d_theta, Nc);
-            gpuErrchk( cudaPeekAtLastError() );
-            gpuErrchk( cudaDeviceSynchronize() );*/
-
+            
 
             RotationStep1<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_rot, d_m, d_phi, d_theta, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
+
+            // The kernel calculates the relative velocities between particles and their corresponding cell mean velocities.
+            // It uses the previously computed mean velocities (d_ux, d_uy, d_uz) and particle velocities (d_vx, d_vy, d_vz). The d_index array maps each particle to its corresponding cell. 
+            //The total number of particles is given by N.
+            relativeVelocity<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_n, d_vx, d_vy, d_vz, d_index, N);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+
+            //This launches the relativeVelocity kernel again, but this time it calculates the relative velocities between MD particles and their corresponding cell mean velocities
+            relativeVelocity<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_n, d_mdVx, d_mdVy, d_mdVz, d_mdIndex, Nmd);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            //The kernel is responsible for updating the velocities of regular particles (d_vx, d_vy, d_vz) based on the calculated rotation matrices (d_rot).
+            //The d_index array maps each particle to its corresponding cell, and the total number of particles is given by N.
+            RotationStep2<<<grid_size,blockSize>>>(d_vx, d_vy, d_vz, d_rot, d_index, N);
+            //This line checks for any errors that might have occurred during the kernel launch using the cudaPeekAtLastError() function. If there are any errors, they will be recorded, and the error status will be reset for the next kernel launch.
+            gpuErrchk( cudaPeekAtLastError() );
+            //This line synchronizes the device and the host. It ensures that all previously issued CUDA calls are completed before continuing with the program execution. This synchronization is needed because the subsequent operations may depend on the results of the previous kernel execution.
+            gpuErrchk( cudaDeviceSynchronize() );
+
+
+            //Similar to the previous line, this one launches the RotationStep2 kernel again. 
+            //However, this time it updates the velocities of MD particles (d_mdVx, d_mdVy, d_mdVz) based on the calculated rotation matrices (d_rot). The d_mdIndex array maps each MD particle to its corresponding cell, and the total number of MD particles is given by Nmd.
+            RotationStep2<<<grid_size,blockSize>>>(d_mdVx, d_mdVy, d_mdVz, d_rot, d_mdIndex, Nmd);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+
+            //The kernel is responsible for updating the cell energy (d_e) due to the velocity changes of regular particles. It uses the updated particle velocities (d_vx, d_vy, d_vz) and the d_index array that maps each particle to its corresponding cell. The total number of particles is given by N, 
+            //and the last argument 1 is likely a parameter specifying the mass of particles.
+            E_cell<<<grid_size,blockSize>>>(d_vx, d_vy, d_vz, d_e, d_index, N, 1);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+
+            // Similar to the previous line, this one launches the E_cell kernel again. However, this time it updates the cell energy (d_e) due to the velocity changes of MD particles
+            //The total number of MD particles is given by Nmd
+            E_cell<<<grid_size,blockSize>>>(d_mdVx, d_mdVy, d_mdVz, d_e, d_mdIndex, Nmd , density);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            // This kernel calculates the scalefactor fo each cell to use it in UpdateVelocity kernel.
+            MBS<<<grid_size,blockSize>>>(d_scalefactor,d_n,d_e,devStates, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            UpdateVelocity<<<grid_size,blockSize>>>(d_vx, d_vy, d_vz, d_ux, d_uy, d_uz, d_scalefactor, d_index, N);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            UpdateVelocity<<<grid_size,blockSize>>>(d_mdVx, d_mdVy, d_mdVz, d_ux, d_uy, d_uz, d_scalefactor, d_mdIndex, Nmd);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+}
+
+
+
+
+
+//define n_mpcd and n_md to count for the number of mpcd and md particles in each cell and then calculate n_mpcd_avg and n_md_avg and then
+//involve virtual massive particle considering both md and mpcd particles and define two gaussian a and b vectors to calculate the mean velocity of each bin considering virtual particles
+__host__ void noslip_MPCD_MD_collision2(double *d_vx ,double *d_vy ,double *d_vz , int *d_index,
+double *d_mdVx ,double *d_mdVy,double *d_mdVz , int *d_mdIndex,
+double  *d_ux ,double *d_uy ,double *d_uz ,
+double *d_e ,double *d_scalefactor, int *d_n , double *d_m,
+double *d_rot, double *d_theta, double *d_phi ,
+int N , int Nmd, int Nc,
+curandState *devStates, int grid_size, int *dn_tot, double *N_avg, int *sumblock_n, double *dm_tot, double *M_avg, double *sumblock_m,
+double *a_x, double *a_y, double *a_z, double *b_x, double *b_y, double *b_z, double *variance, curandState *States, int *n_mpcd, int *n_md, int *dn_mpcd_tot, double *n_mpcd_avg, int *sumblock_n_mpcd, int *dn_md_tot, double *n_md_avg, int *sumblock_n_md)
+{
+
+            int shared_mem_size = 3 * blockSize * sizeof(double);
+            //This launches the MakeCellReady kernel with the specified grid size and block size.
+            //The kernel resets cell properties such as mean velocity (d_ux, d_uy, d_uz), energy (d_e), and count (d_n, d_m) to zero for all cells (Nc).
+            MakeCellReady<<<grid_size,blockSize>>>(d_ux , d_uy, d_uz ,d_e, d_n, d_m, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() ); 
+
+            //The particle count (d_n) and mass (d_m) arrays are updated for each cell (N is the total number of particles).
+            //a kernel to calculate the mean number of mpcd particles in each cell
+            MeanNumCell_virtual<<<grid_size,blockSize>>>(d_index, d_n, d_m, 1, N, n_mpcd);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            MeanNumCell_virtual<<<grid_size,blockSize>>>(d_mdIndex, d_n, d_m, density, Nmd, n_md);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            //checkfunction1<<<grid_size,blockSize>>>(d_n, d_m , Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            //checkfunction2<<<grid_size,blockSize>>>(d_n, d_m , d_index, N);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+
+            reduceKernel_int<<<grid_size,blockSize,shared_mem_size>>>(d_n, sumblock_n, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );  
+
+            reduceKernel_double<<<grid_size,blockSize,shared_mem_size>>>(d_m, sumblock_m, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );  
+
+            reduceKernel_int<<<grid_size,blockSize,shared_mem_size>>>(n_mpcd, sumblock_n_mpcd, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );  
+
+            reduceKernel_int<<<grid_size,blockSize,shared_mem_size>>>(n_md, sumblock_n_md, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );  
+
+            int block_sum_dn[grid_size];
+            double block_sum_dm[grid_size];  
+
+            int block_sum_n_mpcd[grid_size];
+            int block_sum_n_md[grid_size];  
+
+            cudaMemcpy(block_sum_dn , sumblock_n, grid_size*sizeof(int), cudaMemcpyDeviceToHost);  
+            cudaMemcpy(block_sum_dm , sumblock_m, grid_size*sizeof(double), cudaMemcpyDeviceToHost);
+
+            cudaMemcpy(block_sum_n_mpcd , sumblock_n_mpcd, grid_size*sizeof(int), cudaMemcpyDeviceToHost);  
+            cudaMemcpy(block_sum_n_md , sumblock_n_md, grid_size*sizeof(int), cudaMemcpyDeviceToHost); 
+
+            int *hn_tot = (int*)malloc(sizeof(int));
+            double *hm_tot = (double*)malloc(sizeof(double));
+            double *h_N_avg = (double*)malloc(sizeof(double));
+            double *h_M_avg= (double*)malloc(sizeof(double));
+            int *hn_mpcd_tot = (int*)malloc(sizeof(int));
+            int *hn_md_tot = (int*)malloc(sizeof(int));
+            double *hn_mpcd_avg = (double*)malloc(sizeof(double));
+            double *hn_md_avg= (double*)malloc(sizeof(double));
+
+            *hn_tot=0;
+            *hm_tot = 0.0;
+            *h_N_avg=0;
+            *h_M_avg=0.0;
+            *hn_mpcd_tot = 0;
+            *hn_md_tot = 0;
+            *hn_mpcd_avg = 0.0;
+            *hn_md_avg = 0.0;
+
+
+            for (int j = 0; j < grid_size; j++)
+        {
+            *hn_tot += block_sum_dn[j];
+            *hm_tot += block_sum_dm[j];
+            *hn_mpcd_tot += block_sum_n_mpcd[j];
+            *hn_md_tot += block_sum_n_md[j];
+            
+        }
+            *h_N_avg = *hn_tot / Nc ; //calculate the average number of particles in cells.
+            *h_M_avg = *hm_tot / Nc ; //calculate the average number of particles in cells.
+            *hn_mpcd_avg = *hn_mpcd_tot / Nc;
+            *hn_md_avg = *hn_md_tot / Nc;
+
+
+            cudaMemcpy(dn_tot , hn_tot, sizeof(int), cudaMemcpyHostToDevice);
+            cudaMemcpy(dm_tot , hm_tot, sizeof(double), cudaMemcpyHostToDevice);
+            cudaMemcpy(N_avg , h_N_avg, sizeof(double), cudaMemcpyHostToDevice);
+            cudaMemcpy(M_avg , h_M_avg, sizeof(double), cudaMemcpyHostToDevice);
+
+            cudaMemcpy(dn_mpcd_tot , hn_mpcd_tot, sizeof(int), cudaMemcpyHostToDevice);
+            cudaMemcpy(dn_md_tot , hn_md_tot, sizeof(int), cudaMemcpyHostToDevice);
+            cudaMemcpy(n_mpcd_avg , hn_mpcd_avg, sizeof(double), cudaMemcpyHostToDevice);
+            cudaMemcpy(n_md_avg , hn_md_avg, sizeof(double), cudaMemcpyHostToDevice);
+
+            //This launches the MeanVelCell kernel with the specified grid size and block size.
+            //The kernel adds the velocities of MPCD particles multipied by their mass within each cell based on their individual velocities (d_vx, d_vy, d_vz) to finally calculate (d_ux, d_uy, d_uz). 
+            //The d_index array maps each particle to its corresponding cell. 
+            //The result is updated in the d_ux, d_uy, and d_uz arrays.
+            noslip_MeanVelCell<<<grid_size,blockSize>>>(d_ux , d_vx , d_uy, d_vy, d_uz, d_vz, d_index, 1 ,N);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            //This launches the MeanVelCell kernel again, but this time it adds the velocities of MD particles within each cell multipled by their mass to d_ux, d_uy and d_uz.
+            // The MD particle velocities are provided in the d_mdVx, d_mdVy, and d_mdVz arrays, and the d_mdIndex array maps each MD particle to its corresponding cell.
+            // The result is updated in the d_ux, d_uy, and d_uz arrays (Nmd is the total number of MD particles).
+            noslip_MeanVelCell<<<grid_size,blockSize>>>(d_ux , d_mdVx , d_uy, d_mdVy, d_uz, d_mdVz, d_mdIndex, density ,Nmd);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            ///////////////////////////////////virtual particle part:
+            unsigned long long seed = 1234; //time(0); // Choose a seed
+            initializeCurandStates<<<grid_size, blockSize>>>(States, seed, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            
+            createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_mpcd_avg, 1, n_mpcd, variance, Nc, a_x, a_y, a_z, States);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            //seed = time(0);
+
+            //initializeCurandStates<<<grid_size, blockSize>>>(States, seed, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            createNormalDistributions<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, n_md_avg, density, n_md, variance, Nc, b_x, b_y, b_z, States);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+            virtualMassiveParticle2<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, b_x, b_y, b_z, 1, density, d_m, d_n, n_mpcd, n_md, n_mpcd_avg, n_md_avg, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
+        
+
+
+            //////////////////////////////////////////////////////////
+
+            //This launches the RotationStep1 kernel with the specified grid size and block size.
+            // The kernel calculates the rotation matrices (d_rot) for each cell based on the angle values (d_phi, d_theta) and the mass (d_m) of particles in each cell.
+            // The number of cells is given by Nc.
+
+            virtual_RotationStep1<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, d_rot, d_m, d_phi, d_theta, Nc);
+            gpuErrchk( cudaPeekAtLastError() );
+            gpuErrchk( cudaDeviceSynchronize() );
+
 
             // The kernel calculates the relative velocities between particles and their corresponding cell mean velocities.
             // It uses the previously computed mean velocities (d_ux, d_uy, d_uz) and particle velocities (d_vx, d_vy, d_vz). The d_index array maps each particle to its corresponding cell. 
