@@ -441,7 +441,7 @@ __global__ void createNormalDistributions(double *d_ux, double *d_uy, double *d_
     if (tid < Nc) {
         double mean_x = 0.0; //d_ux[tid]; // Use the mean from d_ux[tid]
         double mean_y = 0.0; //d_uy[tid];
-        double mean_z = 0.0 //d_uz[tid];
+        double mean_z = 0.0; //d_uz[tid];
         variance[tid] = abs((*N_avg - d_n[tid])/mass);//*(kT = 1)
         double std_dev = sqrt(variance[tid]); // Calculate standard deviation from variance
         curandState localState = state[tid];
