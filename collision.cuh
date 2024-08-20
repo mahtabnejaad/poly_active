@@ -718,7 +718,7 @@ double *a_x, double *a_y, double *a_z, double *variance, curandState *States, in
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
-            virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, b_x, b_y, b_z, 1, density, d_n, n_mpcd, n_md, n_mpcd_avg, n_md_avg, Nc);
+            virtualMassiveParticle<<<grid_size,blockSize>>>(d_ux, d_uy, d_uz, M_avg, N_avg, a_x, a_y, a_z, b_x, b_y, b_z, 1, density, d_m, d_n, n_mpcd, n_md, n_mpcd_avg, n_md_avg, Nc);
             gpuErrchk( cudaPeekAtLastError() );
             gpuErrchk( cudaDeviceSynchronize() );
 
