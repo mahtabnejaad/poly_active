@@ -9,9 +9,9 @@ input="1"
 basename="0.1"
 
 # Dimension of the simulation
-L0=100
-L1=100
-L2=100
+L0=50
+L1=50
+L2=50
 
 # density of mpcd particles:
 d=10
@@ -34,7 +34,7 @@ hmpcd=0.005
 Tout=1
 
 # simulate time 
-Tsim=200
+Tsim=300
 
 #start time: 
 t=0
