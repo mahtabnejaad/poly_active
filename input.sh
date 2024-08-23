@@ -25,16 +25,16 @@ m=50
 s=0.0
 
 #md time step:
-hmd=0.00200
+hmd=0.00100
 
 #mpcd time step:
-hmpcd=0.01
+hmpcd=0.005
 
 # output intervall (swapsize)
 Tout=1
 
 # simulate time 
-Tsim=100
+Tsim=200
 
 #start time: 
 t=0
@@ -52,7 +52,7 @@ random_flag=0
 BC=2
 
 # peclet number
-Pe=300
+Pe=100
 
 # K(FENE) adjusting with desired pL
 K_bend=10.5
