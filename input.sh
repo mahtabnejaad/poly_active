@@ -34,7 +34,7 @@ hmpcd=0.01
 Tout=1
 
 # simulate time 
-Tsim=300
+Tsim=100
 
 #start time: 
 t=0
