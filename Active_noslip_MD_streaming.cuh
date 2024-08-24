@@ -1223,7 +1223,7 @@ __global__ void Active_CM_md_bounceback_velocityverlet1(double *mdx, double *mdy
 
             //printf("after bounceback in lab mdx[%i]=%f, mdy[%i]=%f, mdz[%i]=%f\n ", tid, (mdx[tid] + *Xcm), tid, (mdy[tid] + *Ycm), tid, (mdz[tid] + *Zcm));
 
-            //}
+        }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
         if((mdx[tid] + *Xcm )>L[0]/2 || (mdx[tid] + *Xcm)<-L[0]/2 || (mdy[tid] + *Ycm )>L[1]/2 || (mdy[tid] + *Ycm )<-L[1]/2 || (mdz[tid] + *Zcm )>L[2]/2 || (mdz[tid] + *Zcm )<-L[2]/2){
 
