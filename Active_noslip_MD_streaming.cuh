@@ -1288,6 +1288,54 @@ __global__ void Active_CM_md_opposite_bounceback_velocityverlet1(double *mdx, do
 
 }
 
+__global__ void Active_CM_md_opposite_opposite_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *Ax_cm, double *Ay_cm, double *Az_cm, double *md_dt_min, double *md_dt_min_opp, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag_opp){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (tid<Nmd){
+
+  
+
+    //if(mdx[tid]>L[0]/2 || mdx[tid]<-L[0]/2 || mdy[tid]>L[1]/2 || mdy[tid]<-L[1]/2 || mdz[tid]>L[2]/2 || mdz[tid]<-L[2]/2){
+    if((mdx[tid]+*Xcm)>L[0]/2 || (mdx[tid]+*Xcm)<-L[0]/2 || (mdy[tid]+*Ycm)>L[1]/2 || (mdy[tid]+*Ycm)<-L[1]/2 || (mdz[tid]+*Zcm)>L[2]/2 || (mdz[tid]+*Zcm)<-L[2]/2){
+        
+        if(n_out_flag_opp[tid] == 1){
+            
+            if (2*md_dt_min_opp[tid] > (md_dt - 3* md_dt_min[tid])) {
+                printf("*********************md_dt_min[%i]=%f\n", tid, md_dt_min_opp[tid]);
+                md_dt_min_opp[tid]=0.5*md_dt-1.5*md_dt_min[tid];
+                
+                *errorFlag = 1;  // Set the error flag
+                return;  // Early exit
+            }
+            //let the particle move during dt-dt1 with the reversed velocity:
+            mdx[tid] += (md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid]) * mdvx[tid] + 0.5 * ((md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid])*(md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid])) * (-*Ax_cm);// mdAx_tot[tid] in CM or in lab;
+            mdy[tid] += (md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid]) * mdvy[tid] + 0.5 * ((md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid])*(md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid])) * (-*Ay_cm);// mdAy_tot[tid] in CM or in lab;
+            mdz[tid] += (md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid]) * mdvz[tid] + 0.5 * ((md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid])*(md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid])) * (-*Az_cm);// mdAz_tot[tid] in CM or in lab;
+            mdvx[tid]= mdvx[tid] +   (md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid]) * (-*Ax_cm);// mdAx_tot[tid] in CM or in lab;// * 0.5;
+            mdvy[tid]= mdvy[tid] +   (md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid]) * (-*Ay_cm);// mdAy_tot[tid] in CM or in lab;// * 0.5;
+            mdvz[tid]= mdvz[tid] +   (md_dt - 3*(md_dt_min[tid])-2*md_dt_min_opp[tid]) * (-*Az_cm);// mdAz_tot[tid] in CM or in lab;// * 0.5;
+        
+            if((mdx_o[tid] + *Xcm )>L[0]/2 || (mdx_o[tid] + *Xcm)<-L[0]/2 || (mdy_o[tid] + *Ycm )>L[1]/2 || (mdy_o[tid] + *Ycm )<-L[1]/2 || (mdz_o[tid] + *Zcm )>L[2]/2 || (mdz_o[tid] + *Zcm )<-L[2]/2)  printf("wrong mdx_o[%i]=%f, mdy_o[%i]=%f, mdz_o[%i]=%f\n", tid, (mdx_o[tid] + *Xcm), tid, (mdy_o[tid] + *Ycm), tid, (mdz_o[tid] + *Zcm));
+
+            printf("location after the third bounceback in lab mdx[%i]=%f, mdy[%i]=%f, mdz[%i]=%f\n ", tid, (mdx[tid] + *Xcm), tid, (mdy[tid] + *Ycm), tid, (mdz[tid] + *Zcm));
+            printf("velocity after the third bounceback in lab mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n ", tid, (mdvx[tid] ), tid, (mdvy[tid] ), tid, (mdvz[tid] ));
+        }
+        //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
+        if((mdx[tid] + *Xcm )>L[0]/2 || (mdx[tid] + *Xcm)<-L[0]/2 || (mdy[tid] + *Ycm )>L[1]/2 || (mdy[tid] + *Ycm )<-L[1]/2 || (mdz[tid] + *Zcm )>L[2]/2 || (mdz[tid] + *Zcm )<-L[2]/2){
+
+            
+
+            *errorFlag = 1;  // Set the error flag
+            return;  // Early exit
+        }
+        
+    }
+
+}
+
+}
+
 
 //Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1
 __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_md_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o, double *mdy_o, double *mdz_o, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *md_dt_min, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag){
