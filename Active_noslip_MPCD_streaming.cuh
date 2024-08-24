@@ -1391,7 +1391,7 @@ double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_to
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_CM_mpcd_opp_opp_bounceback_velocityverlet1<<<grid_size,blockSize>>>(d_x , d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, fax, fay, faz, zerooooo, zerooooo, zerooooo, dt_min, dt_min_opp, h_mpcd, L, N, zerooooo, zerooooo, zerooooo, d_errorFlag_mpcd_opp, n_out_flag_opp, Nmd, mass, mass_fluid);
+    Active_CM_mpcd_opposite_opp_opp_bounceback_velocityverlet1<<<grid_size,blockSize>>>(d_x , d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, fax, fay, faz, zerooooo, zerooooo, zerooooo, dt_min, dt_min_opp, h_mpcd, L, N, zerooooo, zerooooo, zerooooo, d_errorFlag_mpcd_opp, n_out_flag_opp, Nmd, mass, mass_fluid);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
