@@ -519,7 +519,7 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
 
 __global__ void Active_noslip_bending_interaction( 
 double *mdX, double *mdY , double *mdZ ,
-double *fx , double *fy , double *fz, 
+double *Ax , double *Ay , double *Az, 
 double *fx_bend , double *fy_bend , double *fz_bend, 
 double *L,int size , double ux, double mass, double real_time, int m , int topology, double K_FENE, double K_bend)
 {
@@ -582,9 +582,9 @@ double *L,int size , double ux, double mass, double real_time, int m , int topol
         }
 
         //if(ID != 0 ){
-            fx[tid] = fx[tid] + fx_bend[tid];
-            fy[tid] = fy[tid] + fy_bend[tid];
-            fz[tid] = fz[tid] + fz_bend[tid];
+            Ax[tid] = Ax[tid] + fx_bend[tid]/mass;
+            Ay[tid] = Ay[tid] + fy_bend[tid]/mass;
+            Az[tid] = Az[tid] + fz_bend[tid]/mass;
         //}
         
 
@@ -665,7 +665,12 @@ double *L, int size, int m, int topology, double real_time, int grid_size, doubl
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_noslip_bending_interaction<<<grid_size,blockSize>>>(x , y , z, Fx , Fy , Fz, Fx_bend, Fy_bend, Fz_bend, L , size , ux, mass, real_time , m , topology, K_FENE, K_bend);
+    
+    sum_kernel<<<grid_size,blockSize>>>(Fx , Fy, Fz, Ax , Ay, Az, size);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    Active_noslip_bending_interaction<<<grid_size,blockSize>>>(x , y , z, Ax , Ay , Az, Fx_bend, Fy_bend, Fz_bend, L , size , ux, mass, real_time , m , topology, K_FENE, K_bend);
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
@@ -676,9 +681,6 @@ double *L, int size, int m, int topology, double real_time, int grid_size, doubl
 
     
 
-    sum_kernel<<<grid_size,blockSize>>>(Fx , Fy, Fz, Ax , Ay, Az, size);
-    gpuErrchk( cudaPeekAtLastError() );
-    gpuErrchk( cudaDeviceSynchronize() );
     //printf("**GAMA=%f\n",*gama_T);
     
 
@@ -2364,7 +2366,7 @@ __host__ void Active_noslip_MD_streaming(double *d_mdX, double *d_mdY, double *d
         ux, mass, gama_T, d_L, Nmd, m_md , topology, real_time,  grid_size, mass_fluid, N, random_array, seed, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, h_fa_x, h_fa_y, h_fa_z, h_fb_x, h_fb_y, h_fb_z, Ax_cm, Ay_cm, Az_cm, d_block_sum_ex, d_block_sum_ey, d_block_sum_ez, flag_array, u_scale, K_FENE, K_bend, K_l);
 
 
-        sum_kernel<<<grid_size,blockSize>>>(d_Fx ,d_Fy,d_Fz, d_mdAx ,d_mdAy, d_mdAz, Nmd);
+        //sum_kernel<<<grid_size,blockSize>>>(d_Fx ,d_Fy,d_Fz, d_mdAx ,d_mdAy, d_mdAz, Nmd);
         gpuErrchk( cudaPeekAtLastError() );
         gpuErrchk( cudaDeviceSynchronize() );
 
