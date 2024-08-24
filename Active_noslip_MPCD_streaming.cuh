@@ -586,19 +586,19 @@ __global__ void Active_CM_mpcd_opposite_bounceback_velocityverlet1(double *x, do
             vy[tid]= vy[tid] +   (dt - 2*(dt_min[tid])-dt_min_opp[tid]) * (-*Ay_cm);// Q3 * *fa_y in CM or 0 in lab;// * 0.5;
             vz[tid]= vz[tid] +   (dt - 2*(dt_min[tid])-dt_min_opp[tid]) * (-*Az_cm);// Q3 * *fa_z in CM or 0 in lab;// * 0.5;
         
-            if((x_o_opp[tid] + *Xcm )>L[0]/2 || (x_o_opp[tid] + *Xcm)<-L[0]/2 || (y_o_opp[tid] + *Ycm )>L[1]/2 || (y_o_opp[tid] + *Ycm )<-L[1]/2 || (z_o_opp[tid] + *Zcm )>L[2]/2 || (z_o_opp[tid] + *Zcm )<-L[2]/2)  printf("wrong x_o_opp[%i]=%f, y_o_opp[%i]=%f, z_o_opp[%i]=%f\n", tid, (x_o_opp[tid] + *Xcm), tid, (y_o_opp[tid] + *Ycm), tid, (z_o_opp[tid] + *Zcm));
+            //if((x_o_opp[tid] + *Xcm )>L[0]/2 || (x_o_opp[tid] + *Xcm)<-L[0]/2 || (y_o_opp[tid] + *Ycm )>L[1]/2 || (y_o_opp[tid] + *Ycm )<-L[1]/2 || (z_o_opp[tid] + *Zcm )>L[2]/2 || (z_o_opp[tid] + *Zcm )<-L[2]/2)  printf("wrong x_o_opp[%i]=%f, y_o_opp[%i]=%f, z_o_opp[%i]=%f\n", tid, (x_o_opp[tid] + *Xcm), tid, (y_o_opp[tid] + *Ycm), tid, (z_o_opp[tid] + *Zcm));
 
-            printf("location after the second bounceback in lab x[%i]=%f, y[%i]=%f, z[%i]=%f\n ", tid, (x[tid] + *Xcm), tid, (y[tid] + *Ycm), tid, (z[tid] + *Zcm));
-            printf("velocity after the second bounceback in lab vx[%i]=%f, vy[%i]=%f, vz[%i]=%f\n ", tid, (vx[tid] ), tid, (vy[tid] ), tid, (vz[tid] ));
+            //printf("location after the second bounceback in lab x[%i]=%f, y[%i]=%f, z[%i]=%f\n ", tid, (x[tid] + *Xcm), tid, (y[tid] + *Ycm), tid, (z[tid] + *Zcm));
+            //printf("velocity after the second bounceback in lab vx[%i]=%f, vy[%i]=%f, vz[%i]=%f\n ", tid, (vx[tid] ), tid, (vy[tid] ), tid, (vz[tid] ));
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
-        if((x[tid] + *Xcm )>L[0]/2 || (x[tid] + *Xcm)<-L[0]/2 || (y[tid] + *Ycm )>L[1]/2 || (y[tid] + *Ycm )<-L[1]/2 || (z[tid] + *Zcm )>L[2]/2 || (z[tid] + *Zcm )<-L[2]/2){
+        /*if((x[tid] + *Xcm )>L[0]/2 || (x[tid] + *Xcm)<-L[0]/2 || (y[tid] + *Ycm )>L[1]/2 || (y[tid] + *Ycm )<-L[1]/2 || (z[tid] + *Zcm )>L[2]/2 || (z[tid] + *Zcm )<-L[2]/2){
 
             
 
             *errorFlag = 1;  // Set the error flag
             return;  // Early exit
-        }
+        }*/
         
     }
 
