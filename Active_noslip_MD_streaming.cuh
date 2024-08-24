@@ -1338,7 +1338,7 @@ __global__ void Active_CM_md_opposite_opposite_bounceback_velocityverlet1(double
 
 
 
-__global__ void Active_CM_md_opposite__opp_opp_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o_opp, double *mdy_o_opp, double *mdz_o_opp, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o_opp, double *mdvy_o_opp, double *mdvz_o_opp, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *Ax_cm, double *Ay_cm, double *Az_cm, double *md_dt_min, double *md_dt_min_opp, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag_opp){
+__global__ void Active_CM_md_opposite_opp_opp_bounceback_velocityverlet1(double *mdx, double *mdy, double *mdz, double *mdx_o_opp, double *mdy_o_opp, double *mdz_o_opp, double *mdvx, double *mdvy, double *mdvz, double *mdvx_o_opp, double *mdvy_o_opp, double *mdvz_o_opp, double *mdAx_tot, double *mdAy_tot, double *mdAz_tot, double *Ax_cm, double *Ay_cm, double *Az_cm, double *md_dt_min, double *md_dt_min_opp, double md_dt, double *L, int Nmd, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag_opp){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     
@@ -2027,7 +2027,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );
     gpuErrchk( cudaDeviceSynchronize() );
 
-    Active_CM_md_opposite_opposite_opp_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o_opp, mdY_o_opp, mdZ_o_opp, mdvx, mdvy, mdvz, mdvx_o_opp, mdvy_o_opp, mdvz_o_opp, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, zerrr, zerrr, zerrr, md_dt_min, md_dt_min_opp, h_md, L, Nmd, zerrr, zerrr, zerrr, d_errorFlag_md_opp, n_out_flag_opp);
+    Active_CM_md_opposite_opp_opp_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o_opp, mdY_o_opp, mdZ_o_opp, mdvx, mdvy, mdvz, mdvx_o_opp, mdvy_o_opp, mdvz_o_opp, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, zerrr, zerrr, zerrr, md_dt_min, md_dt_min_opp, h_md, L, Nmd, zerrr, zerrr, zerrr, d_errorFlag_md_opp, n_out_flag_opp);
     gpuErrchk( cudaPeekAtLastError() );               
     gpuErrchk( cudaDeviceSynchronize() );
 
