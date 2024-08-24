@@ -1929,7 +1929,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
         *hostErrorFlag = -1;  // Set error flag
         return;
     }
-
+    cudaFree(zero);
 
      int *d_errorFlag_md_opp;
     *hostErrorFlag_opp = 0;
@@ -1968,7 +1968,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
         *hostErrorFlag_opp = -1;  // Set error flag
         return;
     }
-
+    cudaFree(zer);
 
      int *d_errorFlag_md_opp_opp;
     *hostErrorFlag_opp_opp = 0;
@@ -2012,6 +2012,8 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
         *hostErrorFlag_opp_opp = -1;  // Set error flag
         return;
     }
+    cudaFree(zerr);
+
 
      int *d_errorFlag_md_opp_opp_opp;
     *hostErrorFlag_opp_opp_opp = 0;
@@ -2049,11 +2051,11 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
         *hostErrorFlag_opp_opp_opp = -1;  // Set error flag
         return;
     }
-
+    cudaFree(zerrr);
 
     //cudaFree(d_errorFlag_md);
     cudaFree(Axcm); cudaFree(Aycm); cudaFree(Azcm);
-    cudaFree(zero); cudaFree(zer);
+    
 
     
    
