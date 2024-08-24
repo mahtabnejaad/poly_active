@@ -1305,7 +1305,7 @@ double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_to
 
     // Check for kernel errors and sync
     cudaDeviceSynchronize();
-    cudaError_t err23 = cudaGetLastError();
+    cudaError_t err3 = cudaGetLastError();
     if (err3 != cudaSuccess) {
         printf("CUDA Error: %s\n", cudaGetErrorString(err));
         cudaFree(d_errorFlag_mpcd_opp_opp);
