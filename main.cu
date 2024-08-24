@@ -1012,6 +1012,7 @@ int main(int argc, const char* argv[])
                 int ErrorFlag_md_opp = 0;
                 int ErrorFlag_md_opp_opp = 0;
                 int ErrorFlag_md_opp_opp_opp = 0;
+                int ErrorFlag_md_opp_opp_opp_opp = 0;
                 double d_zero_md = 0.0;
                 Active_noslip_MD_streaming2(d_mdX, d_mdY, d_mdZ, d_x , d_y , d_z, d_mdVx , d_mdVy , d_mdVz, d_vx , d_vy , d_vz,
                     d_mdAx, d_mdAy, d_mdAz, mdX_tot, mdY_tot, mdZ_tot, dX_tot, dY_tot, dZ_tot, mdVx_tot, mdVy_tot, mdVz_tot, dVx_tot, dVy_tot, dVz_tot, h_dn_md_tot, h_dn_mpcd_tot,
@@ -1025,7 +1026,7 @@ int main(int argc, const char* argv[])
                     gama_T, d_random_array, d_seed, topology, d_flag_array, u_scale, 
                     d_md_dt_min, d_md_dt_x, d_md_dt_y, d_md_dt_z, d_mdX_o, d_mdY_o, d_mdZ_o, d_mdVx_o, d_mdVy_o, d_mdVz_o, 
                     d_md_dt_min_opp, d_md_dt_x_opp, d_md_dt_y_opp, d_md_dt_z_opp, d_mdX_o_opp, d_mdY_o_opp, d_mdZ_o_opp, d_mdVx_o_opp, d_mdVy_o_opp, d_mdVz_o_opp,
-                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag_md, &ErrorFlag_md_opp, &ErrorFlag_md_opp_opp, &ErrorFlag_md_opp_opp_opp, n_out_flag_md, n_out_flag_md_opp, &d_zero_md, K_FENE, K_bend, K_l);
+                    d_mdX_wall_dist, d_mdY_wall_dist, d_mdZ_wall_dist, d_wall_sign_mdX, d_wall_sign_mdY, d_wall_sign_mdZ, &ErrorFlag_md, &ErrorFlag_md_opp, &ErrorFlag_md_opp_opp, &ErrorFlag_md_opp_opp_opp, &ErrorFlag_md_opp_opp_opp_opp, n_out_flag_md, n_out_flag_md_opp, &d_zero_md, K_FENE, K_bend, K_l);
                 
                 if (ErrorFlag_md != 0){
                 // Handle error
