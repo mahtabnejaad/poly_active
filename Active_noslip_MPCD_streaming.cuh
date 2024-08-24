@@ -606,6 +606,62 @@ __global__ void Active_CM_mpcd_opposite_bounceback_velocityverlet1(double *x, do
 
 }
 
+__global__ void Active_CM_mpcd_opposite_opposite_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *fa_x, double *fa_y, double *fa_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double *dt_min_opp, double dt, double *L, int N, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag_opp, int Nmd, double mass, double mass_fluid){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (tid<N){
+
+  
+
+    //double QQ3=-((dt - 2*(dt_min[tid])-dt_min_opp[tid])*(dt - 2*(dt_min[tid])-dt_min_opp[tid])/(2*(Nmd*mass+mass_fluid*N)));
+    //double Q3=-((dt - 2*(dt_min[tid])-dt_min_opp[tid])/(Nmd*mass+mass_fluid*N));
+
+
+    //if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
+    if((x[tid]+*Xcm)>L[0]/2 || (x[tid]+*Xcm)<-L[0]/2 || (y[tid]+*Ycm)>L[1]/2 || (y[tid]+*Ycm)<-L[1]/2 || (z[tid]+*Zcm)>L[2]/2 || (z[tid]+*Zcm)<-L[2]/2){
+        
+        if(n_out_flag_opp[tid] == 1){
+            
+            if (2*dt_min_opp[tid] > (dt - 3* dt_min[tid])) {
+                printf("*********************dt_min[%i]=%f\n", tid, dt_min_opp[tid]);
+                dt_min_opp[tid]=0.5*dt-1.5**dt_min[tid];
+                
+                *errorFlag = 1;  // Set the error flag
+                return;  // Early exit
+            }
+            //let the particle move during dt-dt1 with the reversed velocity:
+            x[tid] += (dt - 3*(dt_min[tid])-2*dt_min_opp[tid]) * vx[tid] + 0.5 * ((dt - 3*(dt_min[tid])-2*dt_min_opp[tid])*(dt - 3*(dt_min[tid])-2*dt_min_opp[tid])) * (-*Ax_cm);// QQ3 * *fa_x in CM or 0 in lab;
+            y[tid] += (dt - 3*(dt_min[tid])-2*dt_min_opp[tid]) * vy[tid] + 0.5 * ((dt - 3*(dt_min[tid])-2*dt_min_opp[tid])*(dt - 3*(dt_min[tid])-2*dt_min_opp[tid])) * (-*Ay_cm);// QQ3 * *fa_y in CM or 0 in lab;
+            z[tid] += (dt - 3*(dt_min[tid])-2*dt_min_opp[tid]) * vz[tid] + 0.5 * ((dt - 3*(dt_min[tid])-2*dt_min_opp[tid])*(dt - 3*(dt_min[tid])-2*dt_min_opp[tid])) * (-*Az_cm);// QQ3 * *fa_z in CM or 0 in lab;
+            vx[tid]= vx[tid] +   (dt - 3*(dt_min[tid])-2*dt_min_opp[tid]) * (-*Ax_cm);// Q3 * *fa_x in CM or 0 in lab;// * 0.5;
+            vy[tid]= vy[tid] +   (dt - 3*(dt_min[tid])-2*dt_min_opp[tid]) * (-*Ay_cm);// Q3 * *fa_y in CM or 0 in lab;// * 0.5;
+            vz[tid]= vz[tid] +   (dt - 3*(dt_min[tid])-2*dt_min_opp[tid]) * (-*Az_cm);// Q3 * *fa_z in CM or 0 in lab;// * 0.5;
+        
+            if((x_o[tid] + *Xcm )>L[0]/2 || (x_o[tid] + *Xcm)<-L[0]/2 || (y_o[tid] + *Ycm )>L[1]/2 || (y_o[tid] + *Ycm )<-L[1]/2 || (z_o[tid] + *Zcm )>L[2]/2 || (z_o[tid] + *Zcm )<-L[2]/2)  printf("wrong x_o[%i]=%f, y_o[%i]=%f, z_o[%i]=%f\n", tid, (x_o[tid] + *Xcm), tid, (y_o[tid] + *Ycm), tid, (z_o[tid] + *Zcm));
+
+            printf("location after the third bounceback in lab x[%i]=%f, y[%i]=%f, z[%i]=%f\n ", tid, (x[tid] + *Xcm), tid, (y[tid] + *Ycm), tid, (z[tid] + *Zcm));
+            printf("velocity after the third bounceback in lab vx[%i]=%f, vy[%i]=%f, vz[%i]=%f\n ", tid, (vx[tid] ), tid, (vy[tid] ), tid, (vz[tid] ));
+        }
+        //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
+        if((x[tid] + *Xcm )>L[0]/2 || (x[tid] + *Xcm)<-L[0]/2 || (y[tid] + *Ycm )>L[1]/2 || (y[tid] + *Ycm )<-L[1]/2 || (z[tid] + *Zcm )>L[2]/2 || (z[tid] + *Zcm )<-L[2]/2){
+
+            
+
+            *errorFlag = 1;  // Set the error flag
+            return;  // Early exit
+        }
+        
+    }
+
+}
+
+}
+
+
+
+
+
 
 
 __global__ void Active_CM_particle_on_box_and_reverse_velocity_and_mpcd_bounceback_velocityverlet(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *dt_min, double dt, double *L, int N, double *fa_x, double *fa_y, double *fa_z, double *Xcm, double *Ycm, double *Zcm, int Nmd, double mass, double mass_fluid){
