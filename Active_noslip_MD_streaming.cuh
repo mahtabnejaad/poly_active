@@ -1268,10 +1268,10 @@ __global__ void Active_CM_md_opposite_bounceback_velocityverlet1(double *mdx, do
             mdvy[tid]= mdvy[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Ay_cm);// mdAy_tot[tid] in CM or in lab;// * 0.5;
             mdvz[tid]= mdvz[tid] +   (md_dt - 2*(md_dt_min[tid])-md_dt_min_opp[tid]) * (-*Az_cm);// mdAz_tot[tid] in CM or in lab;// * 0.5;
         
-            if((mdx_o_opp[tid] + *Xcm )>L[0]/2 || (mdx_o_opp[tid] + *Xcm)<-L[0]/2 || (mdy_o_opp[tid] + *Ycm )>L[1]/2 || (mdy_o_opp[tid] + *Ycm )<-L[1]/2 || (mdz_o_opp[tid] + *Zcm )>L[2]/2 || (mdz_o_opp[tid] + *Zcm )<-L[2]/2)  printf("wrong mdx_o_opp[%i]=%f, mdy_o_opp[%i]=%f, mdz_o_opp[%i]=%f\n", tid, (mdx_o_opp[tid] + *Xcm), tid, (mdy_o_opp[tid] + *Ycm), tid, (mdz_o_opp[tid] + *Zcm));
+            //if((mdx_o_opp[tid] + *Xcm )>L[0]/2 || (mdx_o_opp[tid] + *Xcm)<-L[0]/2 || (mdy_o_opp[tid] + *Ycm )>L[1]/2 || (mdy_o_opp[tid] + *Ycm )<-L[1]/2 || (mdz_o_opp[tid] + *Zcm )>L[2]/2 || (mdz_o_opp[tid] + *Zcm )<-L[2]/2)  printf("wrong mdx_o_opp[%i]=%f, mdy_o_opp[%i]=%f, mdz_o_opp[%i]=%f\n", tid, (mdx_o_opp[tid] + *Xcm), tid, (mdy_o_opp[tid] + *Ycm), tid, (mdz_o_opp[tid] + *Zcm));
 
-            printf("location after the second bounceback in lab mdx[%i]=%f, mdy[%i]=%f, mdz[%i]=%f\n ", tid, (mdx[tid] + *Xcm), tid, (mdy[tid] + *Ycm), tid, (mdz[tid] + *Zcm));
-            printf("velocity after the second bounceback in lab mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n ", tid, (mdvx[tid] ), tid, (mdvy[tid] ), tid, (mdvz[tid] ));
+            //printf("location after the second bounceback in lab mdx[%i]=%f, mdy[%i]=%f, mdz[%i]=%f\n ", tid, (mdx[tid] + *Xcm), tid, (mdy[tid] + *Ycm), tid, (mdz[tid] + *Zcm));
+            //printf("velocity after the second bounceback in lab mdvx[%i]=%f, mdvy[%i]=%f, mdvz[%i]=%f\n ", tid, (mdvx[tid] ), tid, (mdvy[tid] ), tid, (mdvz[tid] ));
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
         if((mdx[tid] + *Xcm )>L[0]/2 || (mdx[tid] + *Xcm)<-L[0]/2 || (mdy[tid] + *Ycm )>L[1]/2 || (mdy[tid] + *Ycm )<-L[1]/2 || (mdz[tid] + *Zcm )>L[2]/2 || (mdz[tid] + *Zcm )<-L[2]/2){
