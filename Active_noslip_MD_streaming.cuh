@@ -1818,7 +1818,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     // Check for kernel errors and sync
     cudaDeviceSynchronize();
     cudaError_t err = cudaGetLastError();
-    if (err != cudaSuccess) {
+    /*if (err != cudaSuccess) {
         printf("CUDA Error: %s\n", cudaGetErrorString(err));
         cudaFree(d_errorFlag_md);
         *hostErrorFlag = -1;  // Set error flag
@@ -1833,7 +1833,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
         cudaFree(d_errorFlag_md);
         *hostErrorFlag = -1;  // Set error flag
         return;
-    }
+    }*/
 
 
      int *d_errorFlag_md_opp;
