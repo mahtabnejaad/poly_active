@@ -1927,7 +1927,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     double *zerr;
     cudaMalloc(&zerr, sizeof(double));
     *d_zero = 0.0;
-    cudaMemcpy(zerr, d_zerro, sizeof(double), cudaMemcpyHostToDevice); 
+    cudaMemcpy(zerr, d_zero, sizeof(double), cudaMemcpyHostToDevice); 
 
 
 
