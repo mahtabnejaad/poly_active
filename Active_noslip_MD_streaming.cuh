@@ -1754,7 +1754,7 @@ double *CMsumblock_mdx, double *CMsumblock_mdy, double *CMsumblock_mdz, double *
 double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm, double *Xcm_out, double *Ycm_out, double *Zcm_out, double *Vxcm_out, double *Vycm_out, double *Vzcm_out,
 double h_md, int Nmd, int N, int *n_outbox_md, int *n_outbox_mpcd, double mass, double mass_fluid, double *L, int grid_size, int shared_mem_size, int shared_mem_size_, int blockSize_, int grid_size_, double *md_dt_x, double *md_dt_y, double *md_dt_z, double *md_dt_min, double *md_dt_x_opp, double *md_dt_y_opp, double *md_dt_z_opp, double *md_dt_min_opp,
 double *mdX_o, double *mdY_o, double *mdZ_o, double *mdvx_o, double *mdvy_o, double *mdvz_o, double *mdX_o_opp, double *mdY_o_opp, double *mdZ_o_opp, double *mdvx_o_opp, double *mdvy_o_opp, double *mdvz_o_opp, double *d_Ax_tot, double *d_Ay_tot, double *d_Az_tot, double *d_Ax_tot_lab, double *d_Ay_tot_lab, double *d_Az_tot_lab, 
-double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, int *hostErrorFlag, int *hostErrorFlag_opp, int *n_out_flag, int *n_out_flag_opp, double *d_zero){
+double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wall_sign_mdX, double *wall_sign_mdY, double *wall_sign_mdZ, int *hostErrorFlag, int *hostErrorFlag_opp, int *hostErrorFlag_opp_opp, int *n_out_flag, int *n_out_flag_opp, double *d_zero){
 
     //CM_system : calculate CM of the whole system.
     //CM_system(mdX, mdY, mdZ, x, y, z, mdvx, mdvy, mdvz, vx, vy, vz, Nmd, N, mdX_tot, mdY_tot, mdZ_tot, X_tot, Y_tot, Z_tot, mdVx_tot, mdVy_tot, mdVz_tot, Vx_tot, Vy_tot, Vz_tot, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, mass, mass_fluid,
@@ -1926,7 +1926,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
 
     double *zerr;
     cudaMalloc(&zerr, sizeof(double));
-    *d_zerro = 0.0;
+    *d_zero = 0.0;
     cudaMemcpy(zerr, d_zerro, sizeof(double), cudaMemcpyHostToDevice); 
 
 
