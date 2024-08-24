@@ -1388,7 +1388,7 @@ double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_to
         return;
     }
 
-    /*int *d_errorFlag_mpcd_opp_opp;
+    int *d_errorFlag_mpcd_opp_opp;
     *hostErrorFlag_opp_opp = 0;
     cudaMalloc(&d_errorFlag_mpcd_opp_opp, sizeof(int));
     cudaMemcpy(d_errorFlag_mpcd_opp_opp, hostErrorFlag_opp_opp, sizeof(int), cudaMemcpyHostToDevice);
@@ -1491,7 +1491,7 @@ double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_to
 
     //cudaFree(d_errorFlag_mpcd);
     cudaFree(Axcm); cudaFree(Aycm); cudaFree(Azcm);
-    cudaFree(zeroo);
+    /*cudaFree(zeroo);
     cudaFree(zerooo);
     cudaFree(zeroooo);
     cudaFree(zeroooo);
