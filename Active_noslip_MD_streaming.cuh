@@ -2428,7 +2428,7 @@ __host__ void Active_noslip_MD_streaming2(double *d_mdX, double *d_mdY, double *
         Xcm, Ycm, Zcm, Vxcm, Vycm, Vzcm, Xcm_out, Ycm_out, Zcm_out, Vxcm_out, Vycm_out, Vzcm_out,
         h_md, Nmd, N, n_outbox_md, n_outbox_mpcd, mass, mass_fluid, d_L, grid_size, shared_mem_size, shared_mem_size_, blockSize_, grid_size_, md_dt_x, md_dt_y, md_dt_z, md_dt_min, md_dt_x_opp, md_dt_y_opp, md_dt_z_opp, md_dt_min_opp,
         mdX_o, mdY_o, mdZ_o, mdvx_o, mdvy_o, mdvz_o, mdX_o_opp, mdY_o_opp, mdZ_o_opp, mdvx_o_opp, mdvy_o_opp, mdvz_o_opp, d_Ax_tot, d_Ay_tot, d_Az_tot, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab,
-        mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ, hostErrorFlag, hostErrorFlag_opp, hostErrorFlag_opp_opp, hostErrorFlag_opp_opp_opp, n_out_flag, n_out_flag_opp, d_zero);
+        mdX_wall_dist, mdY_wall_dist, mdZ_wall_dist, wall_sign_mdX, wall_sign_mdY, wall_sign_mdZ, hostErrorFlag, hostErrorFlag_opp, hostErrorFlag_opp_opp, hostErrorFlag_opp_opp_opp, hostErrorFlag_opp_opp_opp_opp, n_out_flag, n_out_flag_opp, d_zero);
         
         
         //The function calc_accelaration is called to compute the new accelerations for each particle based on their positions and interactions.
