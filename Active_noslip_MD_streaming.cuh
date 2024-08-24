@@ -1862,7 +1862,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     // Check for kernel errors and sync
     cudaDeviceSynchronize();
     cudaError_t err = cudaGetLastError();
-    /*if (err != cudaSuccess) {
+    if (err != cudaSuccess) {
         printf("CUDA Error: %s\n", cudaGetErrorString(err));
         cudaFree(d_errorFlag_md);
         *hostErrorFlag = -1;  // Set error flag
@@ -1877,7 +1877,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
         cudaFree(d_errorFlag_md);
         *hostErrorFlag = -1;  // Set error flag
         return;
-    }*/
+    }
 
 
      int *d_errorFlag_md_opp;
@@ -1898,7 +1898,7 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     gpuErrchk( cudaPeekAtLastError() );               
     gpuErrchk( cudaDeviceSynchronize() );
 
-    // Check for kernel errors and sync
+   // Check for kernel errors and sync
     cudaDeviceSynchronize();
     cudaError_t err2 = cudaGetLastError();
     if (err2 != cudaSuccess) {
@@ -1919,8 +1919,49 @@ double *mdX_wall_dist, double *mdY_wall_dist, double *mdZ_wall_dist, double *wal
     }
 
 
+     int *d_errorFlag_md_opp_opp;
+    *hostErrorFlag_opp_opp = 0;
+    cudaMalloc(&d_errorFlag_md_opp_opp, sizeof(int));
+    cudaMemcpy(d_errorFlag_md_opp_opp, hostErrorFlag_opp_opp, sizeof(int), cudaMemcpyHostToDevice);
+
+    double *zerr;
+    cudaMalloc(&zerr, sizeof(double));
+    *d_zerro = 0.0;
+    cudaMemcpy(zerr, d_zerro, sizeof(double), cudaMemcpyHostToDevice); 
+
+
+
+     //we put the particles that had gone outside the box, on the box's boundaries and set its velocity equal to the negative of the crossing velocity in Lab system.
+    md_particles_on_crossing_points<<<grid_size,blockSize>>>(mdX, mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, md_dt_min, h_md, L, Nmd, n_out_flag);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    Active_CM_md_opposite_opposite_bounceback_velocityverlet1<<<grid_size,blockSize>>>(mdX , mdY, mdZ, mdX_o, mdY_o, mdZ_o, mdvx, mdvy, mdvz, mdvx_o, mdvy_o, mdvz_o, d_Ax_tot_lab, d_Ay_tot_lab, d_Az_tot_lab, zerr, zerr, zerr, md_dt_min, md_dt_min_opp, h_md, L, Nmd, zerr, zerr, zerr, d_errorFlag_md, n_out_flag);
+    gpuErrchk( cudaPeekAtLastError() );               
+    gpuErrchk( cudaDeviceSynchronize() );
+
     
-    
+
+    // Check for kernel errors and sync
+    cudaDeviceSynchronize();
+    cudaError_t err3 = cudaGetLastError();
+    if (err3 != cudaSuccess) {
+        printf("CUDA Error: %s\n", cudaGetErrorString(err));
+        cudaFree(d_errorFlag_md_opp_opp);
+        *hostErrorFlag_opp_opp = -1;  // Set error flag
+        return;
+    }
+
+    // Check the error flag
+    cudaMemcpy(hostErrorFlag_opp_opp, d_errorFlag_md_opp_opp, sizeof(int), cudaMemcpyDeviceToHost);
+    if (*hostErrorFlag_opp) {
+        printf("Error condition met in kernel (third bounceback MD). Exiting.\n");
+        // Clean up and exit
+        cudaFree(d_errorFlag_md_opp_opp);
+        *hostErrorFlag_opp_opp = -1;  // Set error flag
+        return;
+    }
+
 
     //cudaFree(d_errorFlag_md);
     cudaFree(Axcm); cudaFree(Aycm); cudaFree(Azcm);
