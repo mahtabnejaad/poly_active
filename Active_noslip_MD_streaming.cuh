@@ -1088,6 +1088,12 @@ double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm,
     {
         // Particle velocities are updated by half a time step, and particle positions are updated based on the new velocities.
 
+        if((mdX[particleID] + *Xcm )>L[0]/2 || (mdX[particleID] + *Xcm)<-L[0]/2 || (mdY[particleID] + *Ycm )>L[1]/2 || (mdY[particleID] + *Ycm )<-L[1]/2 || (mdZ[particleID] + *Zcm )>L[2]/2 || (mdZ[particleID] + *Zcm )<-L[2]/2){
+            
+            printf("the %i th particle went out mdX[%i]=%f, mdY[%i]=%f, mdZ[%i]=%f]\n ", particleID, particleID, mdX[particleID] + *Xcm, particleID, mdY[particleID] + *Ycm, particleID, mdZ[particleID] + *Zcm );
+            printf("the %i th particle went out mdVx[%i]=%f, mdVy[%i]=%f, mdVz[%i]=%f\n ", particleID, particleID, mdVx[particleID] + *Vxcm, particleID, mdVy[particleID] + *Vycm, particleID, mdVz[particleID] + *Vzcm );
+        }
+
         
         mdX[particleID] = mdX[particleID] + h * mdVx[particleID] + 0.5 * h * h * mdAx_tot[particleID];
         mdY[particleID] = mdY[particleID] + h * mdVy[particleID] + 0.5 * h * h * mdAy_tot[particleID];
