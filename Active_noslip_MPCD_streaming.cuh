@@ -606,7 +606,7 @@ __global__ void Active_CM_mpcd_opposite_bounceback_velocityverlet1(double *x, do
 
 }
 
-__global__ void Active_CM_mpcd_opposite_opposite_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *fa_x, double *fa_y, double *fa_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double *dt_min_opp, double dt, double *L, int N, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag_opp, int Nmd, double mass, double mass_fluid){
+__global__ void Active_CM_mpcd_opposite_opposite_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o, double *y_o, double *z_o, double *vx, double *vy, double *vz, double *vx_o, double *vy_o, double *vz_o, double *fa_x, double *fa_y, double *fa_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double *dt_min_opp, double dt, double *L, int N, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag, int Nmd, double mass, double mass_fluid){
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     
@@ -621,7 +621,7 @@ __global__ void Active_CM_mpcd_opposite_opposite_bounceback_velocityverlet1(doub
     //if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
     if((x[tid]+*Xcm)>L[0]/2 || (x[tid]+*Xcm)<-L[0]/2 || (y[tid]+*Ycm)>L[1]/2 || (y[tid]+*Ycm)<-L[1]/2 || (z[tid]+*Zcm)>L[2]/2 || (z[tid]+*Zcm)<-L[2]/2){
         
-        if(n_out_flag_opp[tid] == 1){
+        if(n_out_flag[tid] == 1){
             
             if (2*dt_min_opp[tid] > (dt - 3* dt_min[tid])) {
                 printf("*********************dt_min[%i]=%f\n", tid, dt_min_opp[tid]);
@@ -638,12 +638,64 @@ __global__ void Active_CM_mpcd_opposite_opposite_bounceback_velocityverlet1(doub
             vy[tid]= vy[tid] +   (dt - 3*(dt_min[tid])-2*dt_min_opp[tid]) * (-*Ay_cm);// Q3 * *fa_y in CM or 0 in lab;// * 0.5;
             vz[tid]= vz[tid] +   (dt - 3*(dt_min[tid])-2*dt_min_opp[tid]) * (-*Az_cm);// Q3 * *fa_z in CM or 0 in lab;// * 0.5;
         
-            if((x_o[tid] + *Xcm )>L[0]/2 || (x_o[tid] + *Xcm)<-L[0]/2 || (y_o[tid] + *Ycm )>L[1]/2 || (y_o[tid] + *Ycm )<-L[1]/2 || (z_o[tid] + *Zcm )>L[2]/2 || (z_o[tid] + *Zcm )<-L[2]/2)  printf("wrong x_o[%i]=%f, y_o[%i]=%f, z_o[%i]=%f\n", tid, (x_o[tid] + *Xcm), tid, (y_o[tid] + *Ycm), tid, (z_o[tid] + *Zcm));
+            //if((x_o[tid] + *Xcm )>L[0]/2 || (x_o[tid] + *Xcm)<-L[0]/2 || (y_o[tid] + *Ycm )>L[1]/2 || (y_o[tid] + *Ycm )<-L[1]/2 || (z_o[tid] + *Zcm )>L[2]/2 || (z_o[tid] + *Zcm )<-L[2]/2)  printf("wrong x_o[%i]=%f, y_o[%i]=%f, z_o[%i]=%f\n", tid, (x_o[tid] + *Xcm), tid, (y_o[tid] + *Ycm), tid, (z_o[tid] + *Zcm));
 
-            printf("location after the third bounceback in lab x[%i]=%f, y[%i]=%f, z[%i]=%f\n ", tid, (x[tid] + *Xcm), tid, (y[tid] + *Ycm), tid, (z[tid] + *Zcm));
-            printf("velocity after the third bounceback in lab vx[%i]=%f, vy[%i]=%f, vz[%i]=%f\n ", tid, (vx[tid] ), tid, (vy[tid] ), tid, (vz[tid] ));
+            //printf("location after the third bounceback in lab x[%i]=%f, y[%i]=%f, z[%i]=%f\n ", tid, (x[tid] + *Xcm), tid, (y[tid] + *Ycm), tid, (z[tid] + *Zcm));
+            //printf("velocity after the third bounceback in lab vx[%i]=%f, vy[%i]=%f, vz[%i]=%f\n ", tid, (vx[tid] ), tid, (vy[tid] ), tid, (vz[tid] ));
         }
         //printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
+        /*if((x[tid] + *Xcm )>L[0]/2 || (x[tid] + *Xcm)<-L[0]/2 || (y[tid] + *Ycm )>L[1]/2 || (y[tid] + *Ycm )<-L[1]/2 || (z[tid] + *Zcm )>L[2]/2 || (z[tid] + *Zcm )<-L[2]/2){
+
+            
+
+            *errorFlag = 1;  // Set the error flag
+            return;  // Early exit
+        }*/
+        
+    }
+
+}
+
+}
+
+__global__ void Active_CM_mpcd_opposite_opp_opp_bounceback_velocityverlet1(double *x, double *y, double *z, double *x_o_opp, double *y_o_opp, double *z_o_opp, double *vx, double *vy, double *vz, double *vx_o_opp, double *vy_o_opp, double *vz_o_opp, double *fa_x, double *fa_y, double *fa_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *dt_min, double *dt_min_opp, double dt, double *L, int N, double *Xcm, double *Ycm, double *Zcm, int *errorFlag, int *n_out_flag_opp, int Nmd, double mass, double mass_fluid){
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (tid<N){
+
+  
+
+    //double QQ3=-((dt - 2*(dt_min[tid])-dt_min_opp[tid])*(dt - 2*(dt_min[tid])-dt_min_opp[tid])/(2*(Nmd*mass+mass_fluid*N)));
+    //double Q3=-((dt - 2*(dt_min[tid])-dt_min_opp[tid])/(Nmd*mass+mass_fluid*N));
+
+
+    //if(x[tid]>L[0]/2 || x[tid]<-L[0]/2 || y[tid]>L[1]/2 || y[tid]<-L[1]/2 || z[tid]>L[2]/2 || z[tid]<-L[2]/2){
+    if((x[tid]+*Xcm)>L[0]/2 || (x[tid]+*Xcm)<-L[0]/2 || (y[tid]+*Ycm)>L[1]/2 || (y[tid]+*Ycm)<-L[1]/2 || (z[tid]+*Zcm)>L[2]/2 || (z[tid]+*Zcm)<-L[2]/2){
+        
+        if(n_out_flag_opp[tid] == 1){
+            
+            if (3*dt_min_opp[tid] > (dt - 4* dt_min[tid])) {
+                printf("*********************dt_min[%i]=%f\n", tid, dt_min_opp[tid]);
+                dt_min_opp[tid]=dt/3-4*dt_min[tid]/3;
+                
+                *errorFlag = 1;  // Set the error flag
+                return;  // Early exit
+            }
+            //let the particle move during dt-dt1 with the reversed velocity:
+            x[tid] += (dt - 4*(dt_min[tid])-3*dt_min_opp[tid]) * vx[tid] + 0.5 * ((dt - 4*(dt_min[tid])-3*dt_min_opp[tid])*(dt - 4*(dt_min[tid])-3*dt_min_opp[tid])) * (-*Ax_cm);// QQ3 * *fa_x in CM or 0 in lab;
+            y[tid] += (dt - 4*(dt_min[tid])-3*dt_min_opp[tid]) * vy[tid] + 0.5 * ((dt - 4*(dt_min[tid])-3*dt_min_opp[tid])*(dt - 4*(dt_min[tid])-3*dt_min_opp[tid])) * (-*Ay_cm);// QQ3 * *fa_y in CM or 0 in lab;
+            z[tid] += (dt - 4*(dt_min[tid])-3*dt_min_opp[tid]) * vz[tid] + 0.5 * ((dt - 4*(dt_min[tid])-3*dt_min_opp[tid])*(dt - 4*(dt_min[tid])-3*dt_min_opp[tid])) * (-*Az_cm);// QQ3 * *fa_z in CM or 0 in lab;
+            vx[tid]= vx[tid] +   (dt - 4*(dt_min[tid])-3*dt_min_opp[tid]) * (-*Ax_cm);// Q3 * *fa_x in CM or 0 in lab;// * 0.5;
+            vy[tid]= vy[tid] +   (dt - 4*(dt_min[tid])-3*dt_min_opp[tid]) * (-*Ay_cm);// Q3 * *fa_y in CM or 0 in lab;// * 0.5;
+            vz[tid]= vz[tid] +   (dt - 4*(dt_min[tid])-3*dt_min_opp[tid]) * (-*Az_cm);// Q3 * *fa_z in CM or 0 in lab;// * 0.5;
+        
+            if((x_o_opp[tid] + *Xcm )>L[0]/2 || (x_o_opp[tid] + *Xcm)<-L[0]/2 || (y_o_opp[tid] + *Ycm )>L[1]/2 || (y_o_opp[tid] + *Ycm )<-L[1]/2 || (z_o_opp[tid] + *Zcm )>L[2]/2 || (z_o_opp[tid] + *Zcm )<-L[2]/2)  printf("wrong x_o[%i]=%f, y_o[%i]=%f, z_o[%i]=%f\n", tid, (x_o_opp[tid] + *Xcm), tid, (y_o_opp[tid] + *Ycm), tid, (z_o_opp[tid] + *Zcm));
+
+            printf("location after the fourth bounceback in lab x[%i]=%f, y[%i]=%f, z[%i]=%f\n ", tid, (x[tid] + *Xcm), tid, (y[tid] + *Ycm), tid, (z[tid] + *Zcm));
+            printf("velocity after the fourth bounceback in lab vx[%i]=%f, vy[%i]=%f, vz[%i]=%f\n ", tid, (vx[tid] ), tid, (vy[tid] ), tid, (vz[tid] ));
+        }
+        printf("** dt_min[%i]=%f, x[%i]=%f, y[%i]=%f, z[%i]=%f \n", tid, dt_min[tid], tid, x[tid], tid, y[tid], tid, z[tid]);//checking
         if((x[tid] + *Xcm )>L[0]/2 || (x[tid] + *Xcm)<-L[0]/2 || (y[tid] + *Ycm )>L[1]/2 || (y[tid] + *Ycm )<-L[1]/2 || (z[tid] + *Zcm )>L[2]/2 || (z[tid] + *Zcm )<-L[2]/2){
 
             
@@ -657,6 +709,8 @@ __global__ void Active_CM_mpcd_opposite_opposite_bounceback_velocityverlet1(doub
 }
 
 }
+
+
 
 
 
@@ -1119,7 +1173,7 @@ double *Xcm, double *Ycm, double *Zcm, double *Vxcm, double *Vycm, double *Vzcm,
 double *fa_x, double *fa_y, double *fa_z, double *fb_x, double *fb_y, double *fb_z, double *Ax_cm, double *Ay_cm, double *Az_cm, double *ex, double *ey, double *ez,double *block_sum_ex, double *block_sum_ey, double *block_sum_ez,
 double *L, int Nmd , double ux, double mass, double mass_fluid, double real_time, int m, int topology, double *dt_x, double *dt_y, double *dt_z, double *dt_min, double *dt_x_opp, double *dt_y_opp, double *dt_z_opp, double *dt_min_opp,
 double *x_o, double *y_o ,double *z_o, double *vx_o, double *vy_o, double *vz_o, double *x_o_opp, double *y_o_opp, double *z_o_opp, double *vx_o_opp, double *vy_o_opp, double *vz_o_opp, double *x_wall_dist, double *y_wall_dist, double *z_wall_dist, double *wall_sign_x, double *wall_sign_y, double *wall_sign_z,
-double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_tot, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md, int *hostErrorFlag, int *hostErrorFlag_opp, int *hostErrorFlag_opp_opp, int *n_out_flag, int *n_out_flag_opp, double *d_zero)
+double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_tot, int *CMsumblock_n_outbox_mpcd, int *CMsumblock_n_outbox_md, int *hostErrorFlag, int *hostErrorFlag_opp, int *hostErrorFlag_opp_opp, int *hostErrorFlag_opp_opp_opp, int *n_out_flag, int *n_out_flag_opp, double *d_zero)
 
 {
 
@@ -1316,13 +1370,53 @@ double *T, int *n_outbox_mpcd, int *n_outbox_md, int *dn_mpcd_tot, int *dn_md_to
     // Check the error flag
     cudaMemcpy(hostErrorFlag_opp_opp, d_errorFlag_mpcd_opp_opp, sizeof(int), cudaMemcpyDeviceToHost);
     if (*hostErrorFlag_opp_opp) {
-        printf("Error condition met in kernel (second bounceback). Exiting.\n");
+        printf("Error condition met in kernel (third bounceback). Exiting.\n");
         // Clean up and exit
         cudaFree(d_errorFlag_mpcd_opp_opp);
         *hostErrorFlag_opp_opp = -1;  // Set error flag
         return;
     }
     
+    int *d_errorFlag_mpcd_opp_opp_opp;
+    *hostErrorFlag_opp_opp_opp = 0;
+    cudaMalloc(&d_errorFlag_mpcd_opp_opp_opp, sizeof(int));
+    cudaMemcpy(d_errorFlag_mpcd_opp_opp_opp, hostErrorFlag_opp_opp_opp, sizeof(int), cudaMemcpyHostToDevice);
+
+    double *zerooooo;
+    cudaMalloc(&zerooooo, sizeof(double));
+    *d_zero = 0.0;
+    cudaMemcpy(zerooooo, d_zero, sizeof(double), cudaMemcpyHostToDevice);
+
+    mpcd_particles_on_opposite_crossing_points<<<grid_size,blockSize>>>(d_x, d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, dt_min, dt_min_opp, h_mpcd, L, N, n_out_flag_opp);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+    Active_CM_mpcd_opp_opp_bounceback_velocityverlet1<<<grid_size,blockSize>>>(d_x , d_y, d_z, x_o_opp, y_o_opp, z_o_opp, d_vx, d_vy, d_vz, vx_o_opp, vy_o_opp, vz_o_opp, fax, fay, faz, zerooooo, zerooooo, zerooooo, dt_min, dt_min_opp, h_mpcd, L, N, zerooooo, zerooooo, zerooooo, d_errorFlag_mpcd_opp, n_out_flag_opp, Nmd, mass, mass_fluid);
+    gpuErrchk( cudaPeekAtLastError() );
+    gpuErrchk( cudaDeviceSynchronize() );
+
+
+    // Check for kernel errors and sync
+    cudaDeviceSynchronize();
+    cudaError_t err4 = cudaGetLastError();
+    if (err4 != cudaSuccess) {
+        printf("CUDA Error: %s\n", cudaGetErrorString(err));
+        cudaFree(d_errorFlag_mpcd_opp_opp_opp);
+        *hostErrorFlag_opp_opp_opp = -1;  // Set error flag
+        return;
+    }
+
+    // Check the error flag
+    cudaMemcpy(hostErrorFlag_opp_opp_opp, d_errorFlag_mpcd_opp_opp_opp, sizeof(int), cudaMemcpyDeviceToHost);
+    if (*hostErrorFlag_opp_opp_opp) {
+        printf("Error condition met in kernel (fourth bounceback). Exiting.\n");
+        // Clean up and exit
+        cudaFree(d_errorFlag_mpcd_opp_opp_opp);
+        *hostErrorFlag_opp_opp_opp = -1;  // Set error flag
+        return;
+    }
+
+
 
     //cudaFree(d_errorFlag_mpcd);
     cudaFree(Axcm); cudaFree(Aycm); cudaFree(Azcm);
