@@ -625,7 +625,7 @@ __global__ void Active_CM_mpcd_opposite_opposite_bounceback_velocityverlet1(doub
             
             if (2*dt_min_opp[tid] > (dt - 3* dt_min[tid])) {
                 printf("*********************dt_min[%i]=%f\n", tid, dt_min_opp[tid]);
-                dt_min_opp[tid]=0.5*dt-1.5**dt_min[tid];
+                dt_min_opp[tid]=0.5*dt-1.5*dt_min[tid];
                 
                 *errorFlag = 1;  // Set the error flag
                 return;  // Early exit
