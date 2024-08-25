@@ -11,7 +11,8 @@ double *L, int size, double ux, double mass, double real_time, int m, int topolo
     if (tid<size)
     {
       
-        
+        int loop;
+        int TID1;
         //if (tid == m-1)   printf("loop%i",loop);
         int ID = tid % (m);
         //printf("*%i",ID);
