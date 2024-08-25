@@ -11,27 +11,19 @@ double *L, int size, double ux, double mass, double real_time, int m, int topolo
     if (tid<size)
     {
       
-        int loop = int(tid/m);
+        
         //if (tid == m-1)   printf("loop%i",loop);
         int ID = tid % (m);
         //printf("*%i",ID);
         //printf("tid%i",tid);
+        loop = int(tid/m);
+        TID1 = loop*m + (tid+1)%m;
         double a[3];
-        if (ID == (m-1))
-        {
+       
            
-            regular_distance(mdX[tid], mdY[tid], mdZ[tid], mdX[m*loop], mdY[m*loop], mdZ[m*loop], a, L, ux, real_time);
-            
-        }
-        else if (ID < (m-1))
-        {
-           
-            regular_distance(mdX[tid], mdY[tid], mdZ[tid], mdX[tid+1], mdY[tid+1], mdZ[tid+1], a, L, ux, real_time);
-        }
-        else 
-        {
-            //printf("errrooooor");
-        }
+        regular_distance(mdX[tid], mdY[tid], mdZ[tid], mdX[TID1], mdY[TID1], mdZ[TID1], a, L, ux, real_time);
+        
+      
         double a_sqr=a[0]*a[0]+a[1]*a[1]+a[2]*a[2];
         double a_root=sqrt(a_sqr);//length of the vector between two adjacent monomers. 
 
