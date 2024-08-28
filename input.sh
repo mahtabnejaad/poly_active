@@ -34,7 +34,7 @@ hmpcd=0.005
 Tout=1
 
 # simulate time 
-Tsim=200
+Tsim=600
 
 #start time: 
 t=0
@@ -52,7 +52,7 @@ random_flag=0
 BC=2
 
 # peclet number
-Pe=10
+Pe=0.1
 
 # K(FENE) adjusting with desired pL
 K_bend=10.5
