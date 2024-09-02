@@ -55,7 +55,7 @@ BC=2
 Pe=0.1
 
 # K(FENE) adjusting with desired pL
-K_bend=10.5
+K_bend=100.5
 
 ./main.run  $input $basename $L0 $L1 $L2 $d $n $m $s $hmd $hmpcd $Tout $Tsim $t $topology $Activity $random_flag $BC $Pe $K_bend
 
